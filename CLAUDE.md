@@ -24,6 +24,19 @@ Never assume code changes succeeded without checking this log.
 
 **You do NOT need to manually run:** `templ generate`, `sqlc generate`, `go build`, or `air`
 
+## Quick Start (Development)
+
+```bash
+# Start PostgreSQL
+docker compose up -d
+
+# Load environment (already configured for docker-compose defaults)
+direnv allow
+
+# Start the server with hot reload
+make dev
+```
+
 ## Environment
 
 All config via `.envrc` with direnv:
@@ -37,10 +50,14 @@ SITE_NAME       # Used in templates and meta tags
 SITE_URL        # Base URL for canonical links
 ```
 
+Default `.envrc` is pre-configured for `docker compose up -d`.
+
 ## Key Commands
 
 | Command | What it does |
 |---------|--------------|
+| `docker compose up -d` | Start PostgreSQL for development |
+| `docker compose down` | Stop PostgreSQL |
 | `make dev` | Start with hot reload (main workflow) |
 | `make build` | Build production binary |
 | `make test` | Run tests with race detection |

@@ -2,8 +2,9 @@
 # Then run: direnv allow
 
 # Database (PostgreSQL)
-# Format: postgres://user:pass@localhost:5432/dbname?sslmode=disable
-export DATABASE_URL="YOUR_DATABASE_URL_HERE"
+# For docker-compose development (docker compose up -d):
+export DATABASE_URL="postgres://docko:docko@localhost:5432/docko?sslmode=disable"
+# For custom setup, use format: postgres://user:pass@localhost:5432/dbname?sslmode=disable
 
 # Server
 export PORT="3000"
