@@ -11,8 +11,11 @@ import (
 	"docko/internal/auth"
 	"docko/internal/config"
 	"docko/internal/database"
+	"docko/internal/document"
 	"docko/internal/handler"
 	"docko/internal/middleware"
+	"docko/internal/queue"
+	"docko/internal/storage"
 
 	"github.com/labstack/echo/v4"
 )
@@ -34,6 +37,21 @@ func main() {
 		slog.Error("failed to sync admin user", "error", err)
 		os.Exit(1)
 	}
+
+	// Initialize storage
+	store, err := storage.New(cfg.Storage.Path)
+	if err != nil {
+		slog.Error("failed to initialize storage", "error", err)
+		os.Exit(1)
+	}
+	slog.Info("storage initialized", "path", cfg.Storage.Path)
+
+	// Initialize queue
+	q := queue.New(db, queue.DefaultConfig())
+
+	// Initialize document service
+	docService := document.New(db, store, q)
+	_ = docService // Will be used by handlers in future phases
 
 	// Start background cleanup of expired sessions
 	go func() {
@@ -73,6 +91,9 @@ func main() {
 	if err := e.Shutdown(ctx); err != nil {
 		slog.Error("server shutdown error", "error", err)
 	}
+
+	// Stop queue workers
+	q.Stop()
 
 	slog.Info("server stopped")
 }
