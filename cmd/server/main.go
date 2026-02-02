@@ -51,7 +51,6 @@ func main() {
 
 	// Initialize document service
 	docService := document.New(db, store, q)
-	_ = docService // Will be used by handlers in future phases
 
 	// Start background cleanup of expired sessions
 	go func() {
@@ -70,7 +69,7 @@ func main() {
 
 	middleware.Setup(e, cfg)
 
-	h := handler.New(cfg, db, authService)
+	h := handler.New(cfg, db, authService, docService)
 	h.RegisterRoutes(e)
 
 	go func() {
