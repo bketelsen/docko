@@ -50,11 +50,14 @@ Plans:
   3. System automatically detects and imports PDFs from local inbox directory
   4. Duplicate documents are detected by content hash before storage
   5. User can configure duplicate handling (delete, rename, skip) per source
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Upload handler with PDF validation and dependencies
+- [ ] 02-02-PLAN.md — Upload UI with drag-drop, progress, and toasts
+- [ ] 02-03-PLAN.md — Inbox database schema and configuration
+- [ ] 02-04-PLAN.md — Inbox watcher service with fsnotify
+- [ ] 02-05-PLAN.md — Wire everything and inbox management UI
 
 ### Phase 3: Processing
 **Goal**: Uploaded documents are processed for text content and thumbnails
@@ -157,7 +160,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-02-02 |
-| 2. Ingestion | 0/2 | Not started | - |
+| 2. Ingestion | 0/5 | Not started | - |
 | 3. Processing | 0/2 | Not started | - |
 | 4. Viewing | 0/1 | Not started | - |
 | 5. Organization | 0/2 | Not started | - |
