@@ -5,24 +5,27 @@ import (
 	"docko/internal/config"
 	"docko/internal/database"
 	"docko/internal/document"
+	"docko/internal/inbox"
 	"docko/internal/middleware"
 
 	"github.com/labstack/echo/v4"
 )
 
 type Handler struct {
-	cfg    *config.Config
-	db     *database.DB
-	auth   *auth.Service
-	docSvc *document.Service
+	cfg      *config.Config
+	db       *database.DB
+	auth     *auth.Service
+	docSvc   *document.Service
+	inboxSvc *inbox.Service
 }
 
-func New(cfg *config.Config, db *database.DB, authService *auth.Service, docSvc *document.Service) *Handler {
+func New(cfg *config.Config, db *database.DB, authService *auth.Service, docSvc *document.Service, inboxSvc *inbox.Service) *Handler {
 	return &Handler{
-		cfg:    cfg,
-		db:     db,
-		auth:   authService,
-		docSvc: docSvc,
+		cfg:      cfg,
+		db:       db,
+		auth:     authService,
+		docSvc:   docSvc,
+		inboxSvc: inboxSvc,
 	}
 }
 
@@ -46,4 +49,12 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.GET("/upload", h.UploadPage, middleware.RequireAuth(h.auth))
 	e.POST("/upload", h.UploadMultiple, middleware.RequireAuth(h.auth))
 	e.POST("/api/upload", h.UploadSingle, middleware.RequireAuth(h.auth))
+
+	// Inbox management routes (protected)
+	e.GET("/inboxes", h.InboxesPage, middleware.RequireAuth(h.auth))
+	e.POST("/inboxes", h.CreateInbox, middleware.RequireAuth(h.auth))
+	e.PUT("/inboxes/:id", h.UpdateInbox, middleware.RequireAuth(h.auth))
+	e.DELETE("/inboxes/:id", h.DeleteInbox, middleware.RequireAuth(h.auth))
+	e.POST("/inboxes/:id/toggle", h.ToggleInbox, middleware.RequireAuth(h.auth))
+	e.GET("/inboxes/:id/events", h.InboxEvents, middleware.RequireAuth(h.auth))
 }
