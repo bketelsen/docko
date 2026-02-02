@@ -1,0 +1,71 @@
+package admin
+
+import (
+	"docko/components/button"
+	"docko/components/card"
+	"docko/components/input"
+	"docko/components/label"
+	"docko/internal/meta"
+	"docko/templates/layouts"
+)
+
+templ Login(errorMsg string) {
+	@layouts.Login(meta.New("Login", "Admin login")) {
+		<div class="min-h-screen flex items-center justify-center p-4">
+			<div class="w-full max-w-sm">
+				@card.Card() {
+					@card.Header() {
+						@card.Title() {
+							Admin Login
+						}
+						@card.Description() {
+							Enter your credentials to access the dashboard.
+						}
+					}
+					@card.Content() {
+						if errorMsg != "" {
+							<div class="mb-4 p-3 rounded-md bg-destructive/15 text-destructive text-sm">
+								{ errorMsg }
+							</div>
+						}
+						<form method="POST" action="/login" class="space-y-4">
+							<div class="space-y-2">
+								@label.Label(label.Props{For: "username"}) {
+									Username
+								}
+								@input.Input(input.Props{
+									ID:          "username",
+									Type:        input.TypeText,
+									Name:        "username",
+									Placeholder: "admin",
+									Attributes:  templ.Attributes{"required": "true", "autofocus": "true"},
+								})
+							</div>
+							<div class="space-y-2">
+								@label.Label(label.Props{For: "password"}) {
+									Password
+								}
+								@input.Input(input.Props{
+									ID:          "password",
+									Type:        input.TypePassword,
+									Name:        "password",
+									Placeholder: "Enter your password",
+									Attributes:  templ.Attributes{"required": "true"},
+								})
+							</div>
+							<div class="pt-2">
+								@button.Button(button.Props{
+									Type:      button.TypeSubmit,
+									FullWidth: true,
+								}) {
+									Sign In
+								}
+							</div>
+						</form>
+					}
+				}
+				@input.Script()
+			</div>
+		</div>
+	}
+}

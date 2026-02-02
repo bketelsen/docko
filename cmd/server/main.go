@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"docko/internal/auth"
 	"docko/internal/config"
 	"docko/internal/database"
 	"docko/internal/handler"
@@ -27,13 +28,31 @@ func main() {
 	}
 	defer db.Close()
 
+	// Initialize auth service and sync admin user
+	authService := auth.NewService(db, cfg)
+	if err := authService.SyncAdminUser(ctx); err != nil {
+		slog.Error("failed to sync admin user", "error", err)
+		os.Exit(1)
+	}
+
+	// Start background cleanup of expired sessions
+	go func() {
+		ticker := time.NewTicker(1 * time.Hour)
+		defer ticker.Stop()
+		for range ticker.C {
+			if err := authService.CleanupExpiredSessions(context.Background()); err != nil {
+				slog.Warn("failed to cleanup expired sessions", "error", err)
+			}
+		}
+	}()
+
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
 
 	middleware.Setup(e, cfg)
 
-	h := handler.New(cfg, db)
+	h := handler.New(cfg, db, authService)
 	h.RegisterRoutes(e)
 
 	go func() {

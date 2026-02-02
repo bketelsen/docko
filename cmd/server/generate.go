@@ -6,6 +6,7 @@ package main
 
 //go:generate echo "Generating templ files..."
 //go:generate templ generate -path ../../templates
+//go:generate templ generate -path ../../components
 //go:generate echo "templ files generated"
 
 //go:generate echo "Generating Tailwind CSS..."
