@@ -12,7 +12,7 @@ Docko delivers a PDF document management system in 8 phases, progressing from fo
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Document store structure and queue infrastructure
+- [x] **Phase 1: Foundation** - Document store structure and queue infrastructure
 - [ ] **Phase 2: Ingestion** - Web upload and local inbox watching
 - [ ] **Phase 3: Processing** - Text extraction and thumbnail generation
 - [ ] **Phase 4: Viewing** - PDF preview and download
@@ -36,9 +36,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Database schema and storage service
-- [ ] 01-02-PLAN.md — Job queue implementation
-- [ ] 01-03-PLAN.md — Document service and integration
+- [x] 01-01-PLAN.md — Database schema and storage service
+- [x] 01-02-PLAN.md — Job queue implementation
+- [x] 01-03-PLAN.md — Document service and integration
 
 ### Phase 2: Ingestion
 **Goal**: Users can add documents via web UI and automated local inbox
@@ -156,7 +156,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Planned | - |
+| 1. Foundation | 3/3 | Complete | 2026-02-02 |
 | 2. Ingestion | 0/2 | Not started | - |
 | 3. Processing | 0/2 | Not started | - |
 | 4. Viewing | 0/1 | Not started | - |

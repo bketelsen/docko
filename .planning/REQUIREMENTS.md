@@ -127,9 +127,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INGEST-05 | Phase 7 | Pending |
 | INGEST-06 | Phase 2 | Pending |
 | INGEST-07 | Phase 2 | Pending |
-| STORE-01 | Phase 1 | Pending |
-| STORE-02 | Phase 1 | Pending |
-| STORE-03 | Phase 1 | Pending |
+| STORE-01 | Phase 1 | Complete |
+| STORE-02 | Phase 1 | Complete |
+| STORE-03 | Phase 1 | Complete |
 | TAG-01 | Phase 5 | Pending |
 | TAG-02 | Phase 5 | Pending |
 | TAG-03 | Phase 5 | Pending |
@@ -143,10 +143,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIEW-01 | Phase 4 | Pending |
 | VIEW-02 | Phase 4 | Pending |
 | VIEW-03 | Phase 3 | Pending |
-| QUEUE-01 | Phase 1 | Pending |
+| QUEUE-01 | Phase 1 | Complete |
 | QUEUE-02 | Phase 3 | Pending |
 | QUEUE-03 | Phase 8 | Pending |
-| QUEUE-04 | Phase 1 | Pending |
+| QUEUE-04 | Phase 1 | Complete |
 | QUEUE-05 | Phase 8 | Pending |
 | AI-01 | Phase 8 | Pending |
 | AI-02 | Phase 8 | Pending |
@@ -163,4 +163,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after roadmap creation*
+*Last updated: 2026-02-02 after Phase 1 complete*
