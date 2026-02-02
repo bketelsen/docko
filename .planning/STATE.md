@@ -5,32 +5,33 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 2 - Upload (ready to start)
+**Current focus:** Phase 2 - Ingestion (in progress)
 
 ## Current Position
 
-Phase: 1 of 8 (Foundation)
-Plan: 3 of 3 in current phase
-Status: Phase complete, verified ✓
-Last activity: 2026-02-02 — Phase 1 verified (5/5 must-haves)
+Phase: 2 of 8 (Ingestion)
+Plan: 3 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-02 — Completed 02-03-PLAN.md
 
-Progress: [###-------] 30%
+Progress: [####------] 40%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 3.3 min
-- Total execution time: 0.17 hours
+- Total plans completed: 6
+- Average duration: 2.8 min
+- Total execution time: 0.28 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 3 | 10 min | 3.3 min |
+| 02-ingestion | 3 | 7 min | 2.3 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (3 min), 01-02 (3 min), 01-03 (4 min)
+- Last 5 plans: 01-02 (3 min), 01-03 (4 min), 02-01 (2 min), 02-02 (3 min), 02-03 (2 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -50,6 +51,9 @@ Recent decisions affecting current work:
 - Default 4 workers per queue with 1-second poll interval
 - Copy file first, then check for duplicate (avoids holding file in memory)
 - Queue workers not started yet (no handlers registered)
+- Multiple inboxes in database (not config file) for UI management
+- duplicate_action enum per inbox (delete/rename/skip)
+- INBOX_PATH env var optional for default inbox
 
 ### Pending Todos
 
@@ -61,9 +65,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-02T15:35:00Z
-Stopped at: Completed 01-03-PLAN.md (Phase 1 complete)
+Last session: 2026-02-02T21:23:44Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
 
 ---
-*Next action: /gsd:discuss-phase 2 or /gsd:plan-phase 2*
+*Next action: Continue with 02-04-PLAN.md or 02-05-PLAN.md*
