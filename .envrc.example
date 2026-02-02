@@ -1,0 +1,16 @@
+# Copy this file to .envrc and edit with your values
+# Then run: direnv allow
+
+# Database (PostgreSQL)
+# Format: postgres://user:pass@localhost:5432/dbname?sslmode=disable
+export DATABASE_URL="YOUR_DATABASE_URL_HERE"
+
+# Server
+export PORT="3000"
+export ENV="development"
+export LOG_LEVEL="DEBUG"
+
+# Site / SEO (used for meta tags, OG, etc.)
+export SITE_NAME="docko"
+export SITE_URL="http://localhost:3000"
+export DEFAULT_OG_IMAGE="/static/images/og-default.png"

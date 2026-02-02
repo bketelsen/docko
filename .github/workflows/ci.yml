@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.62
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Go tools
+        run: |
+          go install github.com/a-h/templ/cmd/templ@latest
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Generate code
+        run: go generate ./...
+      - name: Run tests
+        run: go test -v -race ./...
+
+  build:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Go tools
+        run: |
+          go install github.com/a-h/templ/cmd/templ@latest
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+      - name: Install npm dependencies
+        run: npm ci
+      - name: Generate code
+        run: go generate ./...
+      - name: Build
+        run: go build -o bin/docko ./cmd/server
+
+  sqlc-vet:
+    name: SQLC Query Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 3
+          --health-start-period 5s
+        ports:
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.23'
+      - name: Install tools
+        run: |
+          go install github.com/pressly/goose/v3/cmd/goose@latest
+          go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+      - name: Run migrations
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/testdb?sslmode=disable"
+        run: |
+          goose -dir internal/database/migrations postgres "$DATABASE_URL" up
+      - name: Validate SQL queries
+        env:
+          DATABASE_URL: "postgresql://test:test@localhost:5432/testdb?sslmode=disable"
+        run: |
+          sqlc vet -f sqlc/sqlc.yaml
