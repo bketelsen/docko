@@ -20,12 +20,17 @@ type AuthConfig struct {
 	SessionMaxAge int // hours
 }
 
+type StorageConfig struct {
+	Path string // Root path for document storage
+}
+
 type Config struct {
 	DatabaseURL string
 	Port        string
 	Env         string
 	Site        SiteConfig
 	Auth        AuthConfig
+	Storage     StorageConfig
 }
 
 func Load() *Config {
@@ -43,6 +48,9 @@ func Load() *Config {
 			SessionSecret: getEnvOrDefault("SESSION_SECRET", generateDefaultSecret()),
 			SessionMaxAge: getEnvIntOrDefault("SESSION_MAX_AGE", 24),
 		},
+		Storage: StorageConfig{
+			Path: getEnvOrDefault("STORAGE_PATH", "./storage"),
+		},
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -52,6 +60,10 @@ func Load() *Config {
 
 	if cfg.Auth.AdminPassword == "" {
 		slog.Warn("ADMIN_PASSWORD not set - admin login will be disabled")
+	}
+
+	if cfg.Storage.Path == "./storage" {
+		slog.Warn("STORAGE_PATH not set, using ./storage")
 	}
 
 	return cfg
