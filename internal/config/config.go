@@ -24,6 +24,13 @@ type StorageConfig struct {
 	Path string // Root path for document storage
 }
 
+type InboxConfig struct {
+	DefaultPath    string // Default inbox path from env
+	ErrorSubdir    string // Subdirectory for error files (default: "errors")
+	MaxFileSizeMB  int    // Maximum file size in MB (default: 100)
+	ScanIntervalMs int    // Interval between directory scans in ms (default: 1000)
+}
+
 type Config struct {
 	DatabaseURL string
 	Port        string
@@ -31,6 +38,7 @@ type Config struct {
 	Site        SiteConfig
 	Auth        AuthConfig
 	Storage     StorageConfig
+	Inbox       InboxConfig
 }
 
 func Load() *Config {
@@ -51,6 +59,12 @@ func Load() *Config {
 		Storage: StorageConfig{
 			Path: getEnvOrDefault("STORAGE_PATH", "./storage"),
 		},
+		Inbox: InboxConfig{
+			DefaultPath:    os.Getenv("INBOX_PATH"), // Empty string if not set
+			ErrorSubdir:    getEnvOrDefault("INBOX_ERROR_SUBDIR", "errors"),
+			MaxFileSizeMB:  getEnvIntOrDefault("INBOX_MAX_FILE_SIZE_MB", 100),
+			ScanIntervalMs: getEnvIntOrDefault("INBOX_SCAN_INTERVAL_MS", 1000),
+		},
 	}
 
 	if cfg.DatabaseURL == "" {
@@ -64,6 +78,10 @@ func Load() *Config {
 
 	if cfg.Storage.Path == "./storage" {
 		slog.Warn("STORAGE_PATH not set, using ./storage")
+	}
+
+	if cfg.Inbox.DefaultPath != "" {
+		slog.Info("default inbox path configured", "path", cfg.Inbox.DefaultPath)
 	}
 
 	return cfg
