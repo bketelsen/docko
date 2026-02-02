@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 2 of 8 (Ingestion)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-02 — Completed 02-03-PLAN.md
+Last activity: 2026-02-02 - Completed 02-04-PLAN.md
 
-Progress: [####------] 40%
+Progress: [#####-----] 50%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 2.8 min
-- Total execution time: 0.28 hours
+- Total plans completed: 7
+- Average duration: 2.9 min
+- Total execution time: 0.33 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 3 | 10 min | 3.3 min |
-| 02-ingestion | 3 | 7 min | 2.3 min |
+| 02-ingestion | 4 | 10 min | 2.5 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-02 (3 min), 01-03 (4 min), 02-01 (2 min), 02-02 (3 min), 02-03 (2 min)
+- Last 5 plans: 01-03 (4 min), 02-01 (2 min), 02-02 (3 min), 02-03 (2 min), 02-04 (3 min)
 - Trend: stable
 
 *Updated after each plan completion*
@@ -54,6 +54,9 @@ Recent decisions affecting current work:
 - Multiple inboxes in database (not config file) for UI management
 - duplicate_action enum per inbox (delete/rename/skip)
 - INBOX_PATH env var optional for default inbox
+- 500ms debounce delay for file watcher events
+- 4 concurrent inbox workers via semaphore
+- PDF validation via magic bytes before ingestion
 
 ### Pending Todos
 
@@ -65,9 +68,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-02T21:23:44Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-02-02T21:28:54Z
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None
 
 ---
-*Next action: Continue with 02-04-PLAN.md or 02-05-PLAN.md*
+*Next action: Continue with 02-05-PLAN.md*
