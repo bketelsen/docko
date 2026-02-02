@@ -13,6 +13,7 @@ import (
 	"docko/internal/database"
 	"docko/internal/document"
 	"docko/internal/handler"
+	"docko/internal/inbox"
 	"docko/internal/middleware"
 	"docko/internal/queue"
 	"docko/internal/storage"
@@ -52,6 +53,9 @@ func main() {
 	// Initialize document service
 	docService := document.New(db, store, q)
 
+	// Initialize inbox service
+	inboxSvc := inbox.New(db, docService, cfg)
+
 	// Start background cleanup of expired sessions
 	go func() {
 		ticker := time.NewTicker(1 * time.Hour)
@@ -69,8 +73,16 @@ func main() {
 
 	middleware.Setup(e, cfg)
 
-	h := handler.New(cfg, db, authService, docService)
+	h := handler.New(cfg, db, authService, docService, inboxSvc)
 	h.RegisterRoutes(e)
+
+	// Start inbox watcher in background
+	inboxCtx, inboxCancel := context.WithCancel(context.Background())
+	go func() {
+		if err := inboxSvc.Start(inboxCtx); err != nil && err != context.Canceled {
+			slog.Error("inbox service error", "error", err)
+		}
+	}()
 
 	go func() {
 		addr := ":" + cfg.Port
@@ -89,6 +101,13 @@ func main() {
 
 	if err := e.Shutdown(ctx); err != nil {
 		slog.Error("server shutdown error", "error", err)
+	}
+
+	// Stop inbox watcher
+	slog.Info("stopping inbox watcher...")
+	inboxCancel()
+	if err := inboxSvc.Stop(); err != nil {
+		slog.Error("failed to stop inbox watcher", "error", err)
 	}
 
 	// Stop queue workers
