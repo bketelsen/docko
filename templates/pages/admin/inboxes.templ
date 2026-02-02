@@ -1,0 +1,323 @@
+package admin
+
+import (
+	"fmt"
+	"time"
+
+	"docko/internal/database/sqlc"
+	"docko/internal/meta"
+	"docko/templates/layouts"
+)
+
+templ Inboxes(inboxes []sqlc.Inbox) {
+	@layouts.Admin(meta.New("Inbox Management", "Configure inbox directories for automatic document import")) {
+		<div class="mb-8">
+			<h1 class="text-2xl font-bold">Inbox Management</h1>
+			<p class="text-muted-foreground">Configure directories to automatically import PDF documents.</p>
+		</div>
+
+		<!-- Add Inbox Form -->
+		<div class="border border-border rounded-lg p-6 mb-6">
+			<h2 class="text-lg font-semibold mb-4">Add New Inbox</h2>
+			<form
+				hx-post="/inboxes"
+				hx-target="#inbox-list"
+				hx-swap="beforeend"
+				hx-on::after-request="if(event.detail.successful) this.reset()"
+				class="grid gap-4 md:grid-cols-2"
+			>
+				<div>
+					<label for="name" class="block text-sm font-medium mb-1">Name</label>
+					<input
+						type="text"
+						id="name"
+						name="name"
+						required
+						placeholder="My Documents"
+						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+					/>
+				</div>
+				<div>
+					<label for="path" class="block text-sm font-medium mb-1">Directory Path</label>
+					<input
+						type="text"
+						id="path"
+						name="path"
+						required
+						placeholder="/path/to/inbox"
+						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+					/>
+				</div>
+				<div>
+					<label for="error_path" class="block text-sm font-medium mb-1">Error Path (optional)</label>
+					<input
+						type="text"
+						id="error_path"
+						name="error_path"
+						placeholder="Defaults to {path}/errors"
+						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+					/>
+				</div>
+				<div>
+					<label for="duplicate_action" class="block text-sm font-medium mb-1">Duplicate Handling</label>
+					<select
+						id="duplicate_action"
+						name="duplicate_action"
+						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+					>
+						<option value="delete">Delete duplicate files</option>
+						<option value="rename">Rename with timestamp</option>
+						<option value="skip">Skip (leave in place)</option>
+					</select>
+				</div>
+				<div class="md:col-span-2">
+					<button
+						type="submit"
+						class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+					>
+						Add Inbox
+					</button>
+				</div>
+			</form>
+		</div>
+
+		<!-- Inbox List -->
+		<div id="inbox-list" class="space-y-4">
+			if len(inboxes) == 0 {
+				<div class="text-center py-12 text-muted-foreground">
+					<svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+					</svg>
+					<p>No inboxes configured yet.</p>
+					<p class="text-sm">Add an inbox above to start automatically importing documents.</p>
+				</div>
+			} else {
+				for _, inbox := range inboxes {
+					@InboxCard(inbox)
+				}
+			}
+		</div>
+	}
+}
+
+templ InboxCard(inbox sqlc.Inbox) {
+	<div class="inbox-card border border-border rounded-lg p-6" id={ fmt.Sprintf("inbox-%s", inbox.ID.String()) }>
+		<div class="flex items-start justify-between mb-4">
+			<div class="flex items-center gap-3">
+				<!-- Status indicator -->
+				if inbox.Enabled && inbox.LastError == nil {
+					<div class="w-3 h-3 rounded-full bg-green-500" title="Healthy"></div>
+				} else if inbox.LastError != nil {
+					<div class="w-3 h-3 rounded-full bg-red-500" title="Error"></div>
+				} else {
+					<div class="w-3 h-3 rounded-full bg-gray-400" title="Disabled"></div>
+				}
+				<div>
+					<h3 class="font-semibold">{ inbox.Name }</h3>
+					<p class="text-sm text-muted-foreground font-mono">{ inbox.Path }</p>
+				</div>
+			</div>
+			<div class="flex items-center gap-2">
+				<!-- Toggle switch -->
+				<button
+					hx-post={ fmt.Sprintf("/inboxes/%s/toggle", inbox.ID.String()) }
+					hx-target={ fmt.Sprintf("#inbox-%s", inbox.ID.String()) }
+					hx-swap="outerHTML"
+					class={ "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
+						templ.KV("bg-primary", inbox.Enabled),
+						templ.KV("bg-gray-300 dark:bg-gray-600", !inbox.Enabled) }
+					title={ toggleTitle(inbox.Enabled) }
+				>
+					<span
+						class={ "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+							templ.KV("translate-x-6", inbox.Enabled),
+							templ.KV("translate-x-1", !inbox.Enabled) }
+					></span>
+				</button>
+				<!-- Delete button -->
+				<button
+					hx-delete={ fmt.Sprintf("/inboxes/%s", inbox.ID.String()) }
+					hx-target={ fmt.Sprintf("#inbox-%s", inbox.ID.String()) }
+					hx-swap="outerHTML"
+					hx-confirm="Delete this inbox? The directory and its files will not be affected."
+					class="p-2 text-muted-foreground hover:text-destructive transition-colors"
+					title="Delete inbox"
+				>
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+					</svg>
+				</button>
+			</div>
+		</div>
+
+		<!-- Info row -->
+		<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+			<div>
+				<span class="text-muted-foreground">Status:</span>
+				<span class={ templ.KV("text-green-600 dark:text-green-400", inbox.Enabled), templ.KV("text-gray-500", !inbox.Enabled) }>
+					if inbox.Enabled {
+						Active
+					} else {
+						Disabled
+					}
+				</span>
+			</div>
+			<div>
+				<span class="text-muted-foreground">Duplicates:</span>
+				<span>{ duplicateActionLabel(inbox.DuplicateAction) }</span>
+			</div>
+			<div>
+				<span class="text-muted-foreground">Last scan:</span>
+				<span>
+					if inbox.LastScanAt.Valid {
+						{ relativeTime(inbox.LastScanAt.Time) }
+					} else {
+						Never
+					}
+				</span>
+			</div>
+			<div>
+				<span class="text-muted-foreground">Error path:</span>
+				<span class="font-mono text-xs">
+					if inbox.ErrorPath != nil && *inbox.ErrorPath != "" {
+						{ *inbox.ErrorPath }
+					} else {
+						{ inbox.Path }/errors
+					}
+				</span>
+			</div>
+		</div>
+
+		<!-- Error message if present -->
+		if inbox.LastError != nil {
+			<div class="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md text-sm text-red-700 dark:text-red-300 mb-4">
+				<strong>Last error:</strong> { *inbox.LastError }
+			</div>
+		}
+
+		<!-- Recent events section (expandable) -->
+		<details class="group">
+			<summary class="cursor-pointer text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+				<svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+				</svg>
+				Recent events
+			</summary>
+			<div
+				class="mt-3 pt-3 border-t border-border"
+				hx-get={ fmt.Sprintf("/inboxes/%s/events", inbox.ID.String()) }
+				hx-trigger="toggle from:closest details"
+				hx-swap="innerHTML"
+			>
+				<div class="text-sm text-muted-foreground">Loading events...</div>
+			</div>
+		</details>
+	</div>
+}
+
+templ InboxEventsList(events []sqlc.InboxEvent) {
+	if len(events) == 0 {
+		<div class="text-sm text-muted-foreground">No events recorded yet.</div>
+	} else {
+		<div class="space-y-2">
+			for _, event := range events {
+				<div class="flex items-center justify-between text-sm py-1">
+					<div class="flex items-center gap-2">
+						@eventIcon(event.Action)
+						<span class="font-mono text-xs truncate max-w-xs">{ event.Filename }</span>
+					</div>
+					<div class="flex items-center gap-2 text-muted-foreground">
+						<span>{ eventActionLabel(event.Action) }</span>
+						<span>{ relativeTime(event.CreatedAt) }</span>
+					</div>
+				</div>
+			}
+		</div>
+	}
+}
+
+templ eventIcon(action string) {
+	switch action {
+		case "imported":
+			<svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+			</svg>
+		case "duplicate":
+			<svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+			</svg>
+		case "error":
+			<svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+			</svg>
+		default:
+			<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+			</svg>
+	}
+}
+
+func toggleTitle(enabled bool) string {
+	if enabled {
+		return "Click to disable"
+	}
+	return "Click to enable"
+}
+
+func duplicateActionLabel(action sqlc.DuplicateAction) string {
+	switch action {
+	case sqlc.DuplicateActionDelete:
+		return "Delete"
+	case sqlc.DuplicateActionRename:
+		return "Rename"
+	case sqlc.DuplicateActionSkip:
+		return "Skip"
+	default:
+		return "Unknown"
+	}
+}
+
+func eventActionLabel(action string) string {
+	switch action {
+	case "imported":
+		return "Imported"
+	case "duplicate":
+		return "Duplicate"
+	case "error":
+		return "Error"
+	case "invalid":
+		return "Invalid"
+	default:
+		return action
+	}
+}
+
+func relativeTime(t time.Time) string {
+	now := time.Now()
+	diff := now.Sub(t)
+
+	switch {
+	case diff < time.Minute:
+		return "just now"
+	case diff < time.Hour:
+		mins := int(diff.Minutes())
+		if mins == 1 {
+			return "1 minute ago"
+		}
+		return fmt.Sprintf("%d minutes ago", mins)
+	case diff < 24*time.Hour:
+		hours := int(diff.Hours())
+		if hours == 1 {
+			return "1 hour ago"
+		}
+		return fmt.Sprintf("%d hours ago", hours)
+	case diff < 7*24*time.Hour:
+		days := int(diff.Hours() / 24)
+		if days == 1 {
+			return "1 day ago"
+		}
+		return fmt.Sprintf("%d days ago", days)
+	default:
+		return t.Format("Jan 2, 2006")
+	}
+}
