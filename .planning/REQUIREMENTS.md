@@ -34,10 +34,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Search & Retrieval
 
-- [ ] **SEARCH-01**: User can search documents by content (full-text search)
-- [ ] **SEARCH-02**: User can filter search results by tags
-- [ ] **SEARCH-03**: User can filter search results by correspondent
-- [ ] **SEARCH-04**: User can filter search results by date range
+- [x] **SEARCH-01**: User can search documents by content (full-text search)
+- [x] **SEARCH-02**: User can filter search results by tags
+- [x] **SEARCH-03**: User can filter search results by correspondent
+- [x] **SEARCH-04**: User can filter search results by date range
 
 ### Document Viewing
 
