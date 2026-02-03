@@ -1,0 +1,267 @@
+package partials
+
+import (
+	"docko/internal/database/sqlc"
+	"fmt"
+	"github.com/google/uuid"
+	"net/url"
+	"strings"
+	"time"
+)
+
+// SearchResult wraps a search row with convenient accessors
+type SearchResult struct {
+	sqlc.SearchDocumentsRow
+}
+
+// SearchParams holds parsed search parameters for template rendering
+type SearchParams struct {
+	Query           string
+	CorrespondentID string
+	TagIDs          []string
+	DateRange       string
+	Page            int
+	PerPage         int
+}
+
+// ActiveFilter represents a filter chip to display
+type ActiveFilter struct {
+	Type      string // "Search", "Correspondent", "Tag", "Date"
+	Label     string
+	Value     string
+	RemoveURL string
+}
+
+// DocumentTagsMap maps document ID to tags (type alias for use in partials)
+type DocumentTagsMap map[uuid.UUID][]sqlc.Tag
+
+// DocumentCorrespondentMap maps document ID to correspondent name
+type DocumentCorrespondentMap map[uuid.UUID]string
+
+// SearchResults renders the search results partial for HTMX swapping
+templ SearchResults(results []SearchResult, docTags DocumentTagsMap, docCorrespondents DocumentCorrespondentMap, params SearchParams, totalCount int, activeFilters []ActiveFilter) {
+	// Active filter chips
+	if len(activeFilters) > 0 {
+		<div id="active-filters" class="flex flex-wrap gap-2 mb-4">
+			for _, filter := range activeFilters {
+				<span class="inline-flex items-center gap-1 px-3 py-1 bg-muted rounded-full text-sm">
+					<span class="text-muted-foreground">{ filter.Type }:</span>
+					<span>{ filter.Label }</span>
+					<button
+						hx-get={ filter.RemoveURL }
+						hx-target="#document-results"
+						hx-push-url="true"
+						class="ml-1 text-muted-foreground hover:text-foreground"
+					>
+						<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+						</svg>
+					</button>
+				</span>
+			}
+			if len(activeFilters) > 1 {
+				<button
+					hx-get="/documents"
+					hx-target="#document-results"
+					hx-push-url="true"
+					class="text-sm text-muted-foreground hover:text-foreground underline"
+				>
+					Clear all
+				</button>
+			}
+		</div>
+	}
+
+	// Results count
+	<div class="text-sm text-muted-foreground mb-4">
+		if totalCount == 0 {
+			No documents found
+		} else if totalCount == 1 {
+			1 document
+		} else {
+			{ fmt.Sprintf("%d documents", totalCount) }
+		}
+		if params.Query != "" {
+			{ fmt.Sprintf(" matching \"%s\"", params.Query) }
+		}
+	</div>
+
+	if len(results) == 0 {
+		@emptySearchResults(params, activeFilters)
+	} else {
+		<div class="border border-border rounded-lg overflow-hidden">
+			<table class="w-full">
+				<thead class="bg-muted/50">
+					<tr>
+						<th class="px-4 py-3 text-left text-sm font-medium">Document</th>
+						<th class="px-4 py-3 text-left text-sm font-medium">Tags</th>
+						<th class="px-4 py-3 text-left text-sm font-medium">Correspondent</th>
+						<th class="px-4 py-3 text-left text-sm font-medium">Date</th>
+						<th class="px-4 py-3 text-left text-sm font-medium">Status</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-border">
+					for _, result := range results {
+						<tr class="hover:bg-muted/30">
+							<td class="px-4 py-3">
+								<div class="flex items-start gap-3">
+									<svg class="w-8 h-8 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
+										<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
+										<path fill="white" d="M14 2v6h6"></path>
+										<text x="7" y="17" fill="white" font-size="6" font-weight="bold">PDF</text>
+									</svg>
+									<div class="min-w-0">
+										<a href={ templ.SafeURL("/documents/" + result.ID.String()) }
+										   class="block truncate hover:text-primary hover:underline font-medium"
+										   title={ result.OriginalFilename }>
+											{ result.OriginalFilename }
+										</a>
+										if result.Headline != "" {
+											<p class="text-sm text-muted-foreground mt-1 line-clamp-2">
+												@templ.Raw(result.Headline)
+											</p>
+										}
+										if params.Query != "" && result.Headline != "" {
+											<span class="text-xs text-muted-foreground">Matched: content</span>
+										}
+									</div>
+								</div>
+							</td>
+							<td class="px-4 py-3">
+								@InlineTagPicker(result.ID.String(), getResultTags(docTags, result.ID))
+							</td>
+							<td class="px-4 py-3">
+								@InlineCorrespondentDisplay(result.CorrespondentName)
+							</td>
+							<td class="px-4 py-3 text-sm text-muted-foreground">
+								{ formatDocDate(result.DocumentDate) }
+							</td>
+							<td class="px-4 py-3">
+								@DocumentStatus(result.ID.String(), string(result.ProcessingStatus), derefStrPtr(result.ProcessingError))
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+
+		// Pagination
+		if totalCount > params.PerPage {
+			@searchPagination(params, totalCount)
+		}
+	}
+}
+
+templ emptySearchResults(params SearchParams, activeFilters []ActiveFilter) {
+	<div class="border border-border rounded-lg p-8 text-center">
+		<svg class="w-12 h-12 mx-auto text-muted-foreground mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+		</svg>
+		if len(activeFilters) > 0 {
+			<p class="text-lg font-medium mb-2">No documents match your filters</p>
+			<p class="text-muted-foreground mb-4">
+				Try removing some filters or adjusting your search.
+			</p>
+			<button
+				hx-get="/documents"
+				hx-target="#document-results"
+				hx-push-url="true"
+				class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+			>
+				Clear all filters
+			</button>
+		} else {
+			<p class="text-lg font-medium mb-2">No documents yet</p>
+			<p class="text-muted-foreground mb-4">Upload your first document to get started.</p>
+			<a href="/upload" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+				Upload Document
+			</a>
+		}
+	</div>
+}
+
+templ searchPagination(params SearchParams, totalCount int) {
+	{{
+		totalPages := (totalCount + params.PerPage - 1) / params.PerPage
+		currentPage := params.Page
+		if currentPage < 1 {
+			currentPage = 1
+		}
+		start := (currentPage - 1) * params.PerPage + 1
+		end := currentPage * params.PerPage
+		if end > totalCount {
+			end = totalCount
+		}
+	}}
+	<div class="flex items-center justify-between mt-4 px-2">
+		<div class="text-sm text-muted-foreground">
+			Showing { fmt.Sprintf("%d-%d", start, end) } of { fmt.Sprintf("%d", totalCount) }
+		</div>
+		<div class="flex gap-1">
+			if currentPage > 1 {
+				<button
+					hx-get={ buildPaginationURL(params, currentPage-1) }
+					hx-target="#document-results"
+					hx-push-url="true"
+					class="px-3 py-1 text-sm border border-border rounded hover:bg-muted"
+				>
+					Previous
+				</button>
+			}
+			if currentPage < totalPages {
+				<button
+					hx-get={ buildPaginationURL(params, currentPage+1) }
+					hx-target="#document-results"
+					hx-push-url="true"
+					class="px-3 py-1 text-sm border border-border rounded hover:bg-muted"
+				>
+					Next
+				</button>
+			}
+		</div>
+	</div>
+}
+
+// Helper functions
+
+func getResultTags(docTags DocumentTagsMap, docID uuid.UUID) []sqlc.Tag {
+	if docTags == nil {
+		return []sqlc.Tag{}
+	}
+	tags, ok := docTags[docID]
+	if !ok {
+		return []sqlc.Tag{}
+	}
+	return tags
+}
+
+func formatDocDate(t time.Time) string {
+	if t.IsZero() {
+		return "-"
+	}
+	return t.Format("Jan 2, 2006")
+}
+
+func derefStrPtr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
+
+func buildPaginationURL(params SearchParams, page int) string {
+	parts := []string{fmt.Sprintf("page=%d", page)}
+	if params.Query != "" {
+		parts = append(parts, "q="+url.QueryEscape(params.Query))
+	}
+	if params.CorrespondentID != "" {
+		parts = append(parts, "correspondent="+params.CorrespondentID)
+	}
+	if params.DateRange != "" {
+		parts = append(parts, "date="+params.DateRange)
+	}
+	for _, tagID := range params.TagIDs {
+		parts = append(parts, "tag="+tagID)
+	}
+	return "/documents?" + strings.Join(parts, "&")
+}
