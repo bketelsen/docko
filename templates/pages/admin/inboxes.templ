@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"docko/components/alert"
 	"docko/components/button"
 	"docko/components/input"
 	"docko/components/label"
@@ -20,8 +21,8 @@ templ Inboxes(inboxes []sqlc.Inbox) {
 		</div>
 
 		<!-- Add Inbox Form -->
-		<div class="border border-border rounded-lg p-6 mb-6">
-			<h2 class="text-lg font-semibold mb-4">Add New Inbox</h2>
+		<div class="border border-border rounded-lg p-6 mb-6 bg-card">
+			<h2 class="text-lg font-semibold mb-4 text-card-foreground">Add New Inbox</h2>
 			<form
 				hx-post="/inboxes"
 				hx-target="#inbox-list"
@@ -116,9 +117,9 @@ templ InboxCard(inbox sqlc.Inbox) {
 				if inbox.Enabled && inbox.LastError == nil {
 					<div class="w-3 h-3 rounded-full bg-green-500" title="Healthy"></div>
 				} else if inbox.LastError != nil {
-					<div class="w-3 h-3 rounded-full bg-red-500" title="Error"></div>
+					<div class="w-3 h-3 rounded-full bg-destructive" title="Error"></div>
 				} else {
-					<div class="w-3 h-3 rounded-full bg-gray-400" title="Disabled"></div>
+					<div class="w-3 h-3 rounded-full bg-muted-foreground/50" title="Disabled"></div>
 				}
 				<div>
 					<h3 class="font-semibold">{ inbox.Name }</h3>
@@ -131,30 +132,35 @@ templ InboxCard(inbox sqlc.Inbox) {
 					hx-post={ fmt.Sprintf("/inboxes/%s/toggle", inbox.ID.String()) }
 					hx-target={ fmt.Sprintf("#inbox-%s", inbox.ID.String()) }
 					hx-swap="outerHTML"
-					class={ "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
+					class={ "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
 						templ.KV("bg-primary", inbox.Enabled),
-						templ.KV("bg-gray-300 dark:bg-gray-600", !inbox.Enabled) }
+						templ.KV("bg-input", !inbox.Enabled) }
 					title={ toggleTitle(inbox.Enabled) }
+					role="switch"
+					aria-checked={ fmt.Sprintf("%t", inbox.Enabled) }
 				>
 					<span
-						class={ "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
+						class={ "inline-block h-4 w-4 transform rounded-full bg-background shadow-sm transition-transform",
 							templ.KV("translate-x-6", inbox.Enabled),
 							templ.KV("translate-x-1", !inbox.Enabled) }
 					></span>
 				</button>
 				<!-- Delete button -->
-				<button
-					hx-delete={ fmt.Sprintf("/inboxes/%s", inbox.ID.String()) }
-					hx-target={ fmt.Sprintf("#inbox-%s", inbox.ID.String()) }
-					hx-swap="outerHTML"
-					hx-confirm="Delete this inbox? The directory and its files will not be affected."
-					class="p-2 text-muted-foreground hover:text-destructive transition-colors"
-					title="Delete inbox"
-				>
+				@button.Button(button.Props{
+					Variant: button.VariantGhost,
+					Size:    button.SizeIcon,
+					Attributes: templ.Attributes{
+						"hx-delete":  fmt.Sprintf("/inboxes/%s", inbox.ID.String()),
+						"hx-target":  fmt.Sprintf("#inbox-%s", inbox.ID.String()),
+						"hx-swap":    "outerHTML",
+						"hx-confirm": "Delete this inbox? The directory and its files will not be affected.",
+						"title":      "Delete inbox",
+					},
+				}) {
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
 					</svg>
-				</button>
+				}
 			</div>
 		</div>
 
@@ -162,7 +168,7 @@ templ InboxCard(inbox sqlc.Inbox) {
 		<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
 			<div>
 				<span class="text-muted-foreground">Status:</span>
-				<span class={ templ.KV("text-green-600 dark:text-green-400", inbox.Enabled), templ.KV("text-gray-500", !inbox.Enabled) }>
+				<span class={ templ.KV("text-green-600 dark:text-green-400", inbox.Enabled), templ.KV("text-muted-foreground", !inbox.Enabled) }>
 					if inbox.Enabled {
 						Active
 					} else {
@@ -198,9 +204,14 @@ templ InboxCard(inbox sqlc.Inbox) {
 
 		<!-- Error message if present -->
 		if inbox.LastError != nil {
-			<div class="p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md text-sm text-red-700 dark:text-red-300 mb-4">
-				<strong>Last error:</strong> { *inbox.LastError }
-			</div>
+			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "mb-4"}) {
+				@alert.Title() {
+					Last error
+				}
+				@alert.Description() {
+					{ *inbox.LastError }
+				}
+			}
 		}
 
 		<!-- Recent events section (expandable) -->
