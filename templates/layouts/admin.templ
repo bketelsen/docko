@@ -12,6 +12,9 @@ templ Admin(m meta.PageMeta) {
 			<link rel="stylesheet" href="/static/css/output.css"/>
 			<script src="https://unpkg.com/htmx.org@2.0.4"></script>
 			<script src="https://unpkg.com/htmx-ext-sse@2.2.2/sse.js"></script>
+			// PDF.js for document viewing
+			<script src="https://unpkg.com/pdfjs-dist@4.10.38/build/pdf.min.mjs" type="module"></script>
+			<script src="/static/js/pdf-viewer.js" defer></script>
 			// Prevent FOUC for dark mode
 			<script>
 				if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
