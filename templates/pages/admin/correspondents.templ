@@ -3,6 +3,10 @@ package admin
 import (
 	"fmt"
 
+	"docko/components/button"
+	"docko/components/dialog"
+	"docko/components/input"
+	"docko/components/label"
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
@@ -18,22 +22,25 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 
 			<!-- Action Buttons -->
 			<div class="mb-6 flex items-center gap-3">
-				<button
-					type="button"
-					onclick="openCorrespondentModal()"
-					class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-				>
-					Add Correspondent
-				</button>
+				@dialog.Trigger(dialog.TriggerProps{For: "correspondent-modal"}) {
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{
+							"onclick": "setupCreateMode()",
+						},
+					}) {
+						Add Correspondent
+					}
+				}
 				if len(correspondents) >= 2 {
-					<button
-						type="button"
-						id="merge-mode-btn"
-						onclick="toggleMergeMode()"
-						class="px-4 py-2 border border-input rounded-md hover:bg-accent transition-colors"
-					>
+					@button.Button(button.Props{
+						ID:      "merge-mode-btn",
+						Variant: button.VariantOutline,
+						Attributes: templ.Attributes{
+							"onclick": "toggleMergeMode()",
+						},
+					}) {
 						Merge Mode
-					</button>
+					}
 				}
 			</div>
 
@@ -44,10 +51,12 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 						<span id="merge-count">0</span> selected
 					</span>
 					<div class="flex items-center gap-2">
-						<label for="merge-target" class="text-sm font-medium">Merge into:</label>
+						@label.Label(label.Props{For: "merge-target", Class: "text-sm"}) {
+							Merge into:
+						}
 						<select
 							id="merge-target"
-							class="px-3 py-1.5 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+							class="flex h-9 min-w-[180px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 							onchange="updateMergeButton()"
 						>
 							<option value="">Select target...</option>
@@ -56,22 +65,23 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 							}
 						</select>
 					</div>
-					<button
-						type="button"
-						id="merge-btn"
-						onclick="executeMerge()"
-						disabled
-						class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-					>
+					@button.Button(button.Props{
+						ID:       "merge-btn",
+						Disabled: true,
+						Attributes: templ.Attributes{
+							"onclick": "executeMerge()",
+						},
+					}) {
 						Merge Selected
-					</button>
-					<button
-						type="button"
-						onclick="exitMergeMode()"
-						class="px-4 py-2 border border-input rounded-md hover:bg-accent transition-colors"
-					>
+					}
+					@button.Button(button.Props{
+						Variant: button.VariantOutline,
+						Attributes: templ.Attributes{
+							"onclick": "exitMergeMode()",
+						},
+					}) {
 						Cancel
-					</button>
+					}
 				</div>
 			</div>
 
@@ -103,65 +113,63 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 				}
 			</div>
 
-			<!-- Modal Dialog -->
-			<div id="correspondent-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" onclick="closeCorrespondentModalOnBackdrop(event)">
-				<div class="bg-background border border-border rounded-lg shadow-lg w-full max-w-md mx-4 p-6" onclick="event.stopPropagation()">
-					<div class="flex items-center justify-between mb-4">
-						<h2 id="modal-title" class="text-lg font-semibold">Add Correspondent</h2>
-						<button type="button" onclick="closeCorrespondentModal()" class="p-1 hover:bg-accent rounded">
-							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-							</svg>
-						</button>
-					</div>
+			<!-- templUI Dialog -->
+			@dialog.Dialog(dialog.Props{ID: "correspondent-modal"}) {
+				@dialog.Content(dialog.ContentProps{HideCloseButton: true}) {
+					@dialog.Header() {
+						@dialog.Title(dialog.TitleProps{ID: "modal-title"}) {
+							Add Correspondent
+						}
+						@dialog.Description() {
+							Create a new person or organization for document organization.
+						}
+					}
 					<form id="correspondent-form" class="space-y-4">
 						<input type="hidden" id="correspondent-id" name="id" value=""/>
-						<div>
-							<label for="correspondent-name" class="block text-sm font-medium mb-1">Name</label>
-							<input
-								type="text"
-								id="correspondent-name"
-								name="name"
-								required
-								placeholder="Person or organization name"
-								class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-							/>
+						<div class="space-y-2">
+							@label.Label(label.Props{For: "correspondent-name"}) {
+								Name
+							}
+							@input.Input(input.Props{
+								ID:          "correspondent-name",
+								Name:        "name",
+								Placeholder: "Person or organization name",
+								Attributes:  templ.Attributes{"required": "true"},
+							})
 						</div>
-						<div>
-							<label for="correspondent-notes" class="block text-sm font-medium mb-1">Notes (optional)</label>
+						<div class="space-y-2">
+							@label.Label(label.Props{For: "correspondent-notes"}) {
+								Notes (optional)
+							}
 							<textarea
 								id="correspondent-notes"
 								name="notes"
 								rows="3"
 								placeholder="Additional information about this correspondent"
-								class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+								class="flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
 							></textarea>
 						</div>
-						<div class="flex justify-end gap-3 pt-2">
-							<button
-								type="button"
-								onclick="closeCorrespondentModal()"
-								class="px-4 py-2 border border-input rounded-md hover:bg-accent transition-colors"
-							>
-								Cancel
-							</button>
-							<button
-								type="submit"
-								id="modal-submit-btn"
-								class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-							>
+						@dialog.Footer() {
+							@dialog.Close() {
+								@button.Button(button.Props{Variant: button.VariantOutline, Type: button.TypeButton}) {
+									Cancel
+								}
+							}
+							@button.Button(button.Props{Type: button.TypeSubmit, ID: "modal-submit-btn"}) {
 								Create
-							</button>
-						</div>
+							}
+						}
 					</form>
-				</div>
-			</div>
+				}
+			}
+
+			@dialog.Script()
+			@input.Script()
 
 			<!-- Scripts -->
 			<script>
-				// Modal functions
-				function openCorrespondentModal(id, name, notes) {
-					const modal = document.getElementById('correspondent-modal');
+				// Setup create mode when opening dialog
+				function setupCreateMode() {
 					const form = document.getElementById('correspondent-form');
 					const title = document.getElementById('modal-title');
 					const submitBtn = document.getElementById('modal-submit-btn');
@@ -169,52 +177,69 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 					const nameInput = document.getElementById('correspondent-name');
 					const notesInput = document.getElementById('correspondent-notes');
 
-					if (id) {
-						// Edit mode
-						title.textContent = 'Edit Correspondent';
-						submitBtn.textContent = 'Save';
-						idInput.value = id;
-						nameInput.value = name || '';
-						notesInput.value = notes || '';
-						form.setAttribute('hx-post', '/correspondents/' + id);
-						form.setAttribute('hx-target', '#correspondent-' + id);
-						form.setAttribute('hx-swap', 'outerHTML');
-					} else {
-						// Create mode
-						title.textContent = 'Add Correspondent';
-						submitBtn.textContent = 'Create';
-						idInput.value = '';
-						nameInput.value = '';
-						notesInput.value = '';
-						form.setAttribute('hx-post', '/correspondents');
-						form.setAttribute('hx-target', '#correspondent-list');
-						form.setAttribute('hx-swap', 'beforeend');
-					}
+					title.textContent = 'Add Correspondent';
+					submitBtn.textContent = 'Create';
+					idInput.value = '';
+					nameInput.value = '';
+					notesInput.value = '';
+					form.setAttribute('hx-post', '/correspondents');
+					form.setAttribute('hx-target', '#correspondent-list');
+					form.setAttribute('hx-swap', 'beforeend');
+
+					// Re-process HTMX attributes
+					htmx.process(form);
+				}
+
+				// Setup edit mode when opening dialog for existing correspondent
+				function openEditMode(id, name, notes) {
+					const form = document.getElementById('correspondent-form');
+					const title = document.getElementById('modal-title');
+					const submitBtn = document.getElementById('modal-submit-btn');
+					const idInput = document.getElementById('correspondent-id');
+					const nameInput = document.getElementById('correspondent-name');
+					const notesInput = document.getElementById('correspondent-notes');
+
+					title.textContent = 'Edit Correspondent';
+					submitBtn.textContent = 'Save';
+					idInput.value = id;
+					nameInput.value = name || '';
+					notesInput.value = notes || '';
+					form.setAttribute('hx-post', '/correspondents/' + id);
+					form.setAttribute('hx-target', '#correspondent-' + id);
+					form.setAttribute('hx-swap', 'outerHTML');
 
 					// Re-process HTMX attributes
 					htmx.process(form);
 
-					modal.classList.remove('hidden');
-					modal.classList.add('flex');
+					// Open the dialog
+					const backdrop = document.querySelector('[data-tui-dialog-backdrop][data-dialog-instance="correspondent-modal"]');
+					const content = document.querySelector('[data-tui-dialog-content][data-dialog-instance="correspondent-modal"]');
+					if (backdrop) {
+						backdrop.removeAttribute('data-tui-dialog-hidden');
+						backdrop.setAttribute('data-tui-dialog-open', 'true');
+					}
+					if (content) {
+						content.removeAttribute('data-tui-dialog-hidden');
+						content.setAttribute('data-tui-dialog-open', 'true');
+					}
+
 					nameInput.focus();
 				}
 
-				function closeCorrespondentModal() {
-					const modal = document.getElementById('correspondent-modal');
-					modal.classList.add('hidden');
-					modal.classList.remove('flex');
-				}
-
-				function closeCorrespondentModalOnBackdrop(event) {
-					if (event.target.id === 'correspondent-modal') {
-						closeCorrespondentModal();
-					}
-				}
-
-				// Close modal on successful form submission
+				// Close dialog on successful form submission
 				document.body.addEventListener('htmx:afterRequest', function(event) {
 					if (event.detail.elt.id === 'correspondent-form' && event.detail.successful) {
-						closeCorrespondentModal();
+						// Close the dialog
+						const backdrop = document.querySelector('[data-tui-dialog-backdrop][data-dialog-instance="correspondent-modal"]');
+						const content = document.querySelector('[data-tui-dialog-content][data-dialog-instance="correspondent-modal"]');
+						if (backdrop) {
+							backdrop.setAttribute('data-tui-dialog-open', 'false');
+							setTimeout(() => backdrop.setAttribute('data-tui-dialog-hidden', 'true'), 200);
+						}
+						if (content) {
+							content.setAttribute('data-tui-dialog-open', 'false');
+							setTimeout(() => content.setAttribute('data-tui-dialog-hidden', 'true'), 200);
+						}
 						// Reset form
 						event.detail.elt.reset();
 					}
@@ -227,7 +252,6 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 				// Close modal on Escape key
 				document.addEventListener('keydown', function(event) {
 					if (event.key === 'Escape') {
-						closeCorrespondentModal();
 						if (document.getElementById('correspondents-container').classList.contains('merge-mode')) {
 							exitMergeMode();
 						}
@@ -254,7 +278,6 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 					container.classList.add('merge-mode');
 					mergeBar.classList.remove('hidden');
 					mergeBtn.textContent = 'Exit Merge Mode';
-					mergeBtn.classList.add('bg-muted');
 
 					// Show all checkboxes
 					document.querySelectorAll('.merge-checkbox').forEach(cb => {
@@ -275,7 +298,6 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 					mergeBar.classList.add('hidden');
 					if (mergeBtn) {
 						mergeBtn.textContent = 'Merge Mode';
-						mergeBtn.classList.remove('bg-muted');
 					}
 
 					// Hide all checkboxes and uncheck them
@@ -437,38 +459,44 @@ templ CorrespondentCard(correspondent sqlc.ListCorrespondentsWithCountsRow) {
 					}
 				</div>
 			</div>
-			<div class="flex items-center gap-2 ml-4 flex-shrink-0">
+			<div class="flex items-center gap-1 ml-4 flex-shrink-0">
 				<!-- Edit button -->
-				<button
-					type="button"
-					onclick={ editCorrespondentOnClick(correspondent) }
-					class="p-2 text-muted-foreground hover:text-foreground transition-colors"
-					title="Edit correspondent"
-				>
+				@button.Button(button.Props{
+					Variant: button.VariantGhost,
+					Size:    button.SizeIcon,
+					Attributes: templ.Attributes{
+						"onclick": editCorrespondentOnClick(correspondent),
+						"title":   "Edit correspondent",
+					},
+				}) {
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
 					</svg>
-				</button>
+				}
 				<!-- Delete button -->
-				<button
-					hx-delete={ fmt.Sprintf("/correspondents/%s", correspondent.ID.String()) }
-					hx-target={ fmt.Sprintf("#correspondent-%s", correspondent.ID.String()) }
-					hx-swap="outerHTML"
-					hx-confirm={ deleteConfirmMessage(correspondent) }
-					class="p-2 text-muted-foreground hover:text-destructive transition-colors"
-					title="Delete correspondent"
-				>
+				@button.Button(button.Props{
+					Variant: button.VariantGhost,
+					Size:    button.SizeIcon,
+					Attributes: templ.Attributes{
+						"hx-delete":  fmt.Sprintf("/correspondents/%s", correspondent.ID.String()),
+						"hx-target":  fmt.Sprintf("#correspondent-%s", correspondent.ID.String()),
+						"hx-swap":    "outerHTML",
+						"hx-confirm": deleteConfirmMessage(correspondent),
+						"title":      "Delete correspondent",
+					},
+					Class: "hover:text-destructive",
+				}) {
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
 					</svg>
-				</button>
+				}
 			</div>
 		</div>
 	</div>
 }
 
 script editCorrespondentOnClick(correspondent sqlc.ListCorrespondentsWithCountsRow) {
-	openCorrespondentModal(correspondent.ID, correspondent.Name, correspondent.Notes || '');
+	openEditMode(correspondent.ID, correspondent.Name, correspondent.Notes || '');
 }
 
 func deleteConfirmMessage(correspondent sqlc.ListCorrespondentsWithCountsRow) string {
