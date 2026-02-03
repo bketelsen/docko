@@ -216,6 +216,11 @@ func (s *Service) TextPath(doc *sqlc.Document) string {
 	return s.storage.PathForUUID(storage.CategoryText, doc.ID, ".txt")
 }
 
+// FileExists checks if a file exists at the given path
+func (s *Service) FileExists(path string) bool {
+	return s.storage.FileExists(path)
+}
+
 func intPtr(i int32) *int32 {
 	return &i
 }
