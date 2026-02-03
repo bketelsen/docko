@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 
 	"docko/internal/database/sqlc"
@@ -10,6 +11,7 @@ import (
 	"docko/templates/partials"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -27,6 +29,27 @@ func (h *Handler) DocumentsPage(c echo.Context) error {
 	}
 
 	return admin.Documents(docs).Render(ctx, c.Response().Writer)
+}
+
+// DocumentDetail renders the document detail page
+// GET /documents/:id
+func (h *Handler) DocumentDetail(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid document ID")
+	}
+
+	doc, err := h.db.Queries.GetDocument(ctx, docID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusNotFound, "document not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to fetch document")
+	}
+
+	return admin.DocumentDetail(doc).Render(ctx, c.Response().Writer)
 }
 
 // ViewPDF serves a PDF file inline for browser viewing

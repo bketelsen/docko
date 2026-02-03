@@ -66,6 +66,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	// Document routes (protected)
 	e.GET("/documents", h.DocumentsPage, middleware.RequireAuth(h.auth))
+	e.GET("/documents/:id", h.DocumentDetail, middleware.RequireAuth(h.auth))
 	e.GET("/documents/:id/view", h.ViewPDF, middleware.RequireAuth(h.auth))
 	e.GET("/documents/:id/download", h.DownloadPDF, middleware.RequireAuth(h.auth))
 	e.GET("/documents/:id/thumbnail", h.ServeThumbnail, middleware.RequireAuth(h.auth))
