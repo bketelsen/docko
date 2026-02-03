@@ -1,6 +1,6 @@
 -- name: CreateDocument :one
-INSERT INTO documents (original_filename, content_hash, file_size, page_count, pdf_title, pdf_author, pdf_created_at, document_date)
-VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8, NOW()))
+INSERT INTO documents (id, original_filename, content_hash, file_size, page_count, pdf_title, pdf_author, pdf_created_at, document_date)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, COALESCE($9, NOW()))
 RETURNING *;
 
 -- name: GetDocument :one

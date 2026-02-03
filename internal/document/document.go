@@ -106,6 +106,7 @@ func (s *Service) Ingest(ctx context.Context, sourcePath, originalFilename strin
 
 	// Create document record
 	doc, err := qtx.CreateDocument(ctx, sqlc.CreateDocumentParams{
+		ID:               docID,
 		OriginalFilename: originalFilename,
 		ContentHash:      contentHash,
 		FileSize:         fileSize,
