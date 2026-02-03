@@ -1,0 +1,228 @@
+package admin
+
+import (
+	"fmt"
+	"strconv"
+
+	"github.com/jackc/pgx/v5/pgtype"
+
+	"docko/internal/ai"
+	"docko/internal/database/sqlc"
+	"docko/internal/meta"
+	"docko/templates/layouts"
+)
+
+templ AISettings(settings sqlc.AiSetting, providers []string, stats *ai.UsageStats, pendingCount int64) {
+	@layouts.Admin(meta.New("AI Settings", "Configure AI integration")) {
+		<div class="space-y-6">
+			<div class="flex justify-between items-center">
+				<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Settings</h1>
+				if pendingCount > 0 {
+					<a href="/ai/review" class="inline-flex items-center px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors">
+						<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+						</svg>
+						Review Suggestions ({ strconv.FormatInt(pendingCount, 10) })
+					</a>
+				}
+			</div>
+			<!-- Provider Status -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+				<h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Provider Status</h2>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+					@providerCard("OpenAI", "openai", providers)
+					@providerCard("Anthropic", "anthropic", providers)
+					@providerCard("Ollama", "ollama", providers)
+				</div>
+				<p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+					Configure providers via environment variables: OPENAI_API_KEY, ANTHROPIC_API_KEY, OLLAMA_HOST
+				</p>
+			</div>
+			<!-- Settings Form -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+				<h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Configuration</h2>
+				<form hx-post="/ai" hx-swap="none" class="space-y-6">
+					<!-- Preferred Provider -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Preferred Provider
+						</label>
+						<select name="preferred_provider" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
+							<option value="auto" selected?={ settings.PreferredProvider == nil }>Auto (use first available)</option>
+							for _, p := range providers {
+								<option value={ p } selected?={ settings.PreferredProvider != nil && *settings.PreferredProvider == p }>
+									{ providerDisplayName(p) }
+								</option>
+							}
+						</select>
+						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+							Select which provider to use first. Falls back to others if unavailable.
+						</p>
+					</div>
+					<!-- Max Pages -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Max Pages to Analyze
+						</label>
+						<input
+							type="number"
+							name="max_pages"
+							min="1"
+							max="50"
+							value={ strconv.Itoa(int(settings.MaxPages)) }
+							class="w-32 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+						/>
+						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+							Only analyze the first N pages of each document. Lower values reduce costs.
+						</p>
+					</div>
+					<!-- Auto-Apply Threshold -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Auto-Apply Threshold
+						</label>
+						<input
+							type="number"
+							name="auto_apply_threshold"
+							min="0"
+							max="1"
+							step="0.05"
+							value={ formatThreshold(settings.AutoApplyThreshold) }
+							class="w-32 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+						/>
+						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+							Suggestions with confidence at or above this threshold are applied automatically.
+						</p>
+					</div>
+					<!-- Review Threshold -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Review Threshold
+						</label>
+						<input
+							type="number"
+							name="review_threshold"
+							min="0"
+							max="1"
+							step="0.05"
+							value={ formatThreshold(settings.ReviewThreshold) }
+							class="w-32 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+						/>
+						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+							Suggestions below this threshold are discarded. Between this and auto-apply go to review queue.
+						</p>
+					</div>
+					<!-- Auto Process Toggle -->
+					<div class="flex items-center">
+						<input
+							type="checkbox"
+							name="auto_process"
+							id="auto_process"
+							checked?={ settings.AutoProcess }
+							class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+						/>
+						<label for="auto_process" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+							Auto-process new documents
+						</label>
+					</div>
+					<p class="text-sm text-gray-500 dark:text-gray-400 -mt-4 ml-6">
+						When enabled, documents are automatically analyzed after text extraction.
+					</p>
+					<div class="pt-4">
+						<button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+							Save Settings
+						</button>
+					</div>
+				</form>
+			</div>
+			<!-- Usage Stats -->
+			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+				<h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Usage Statistics</h2>
+				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<div>
+						<p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+							{ strconv.FormatInt(stats.DocumentsProcessed, 10) }
+						</p>
+						<p class="text-sm text-gray-500 dark:text-gray-400">Documents Processed</p>
+					</div>
+					<div>
+						<p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+							{ formatTokens(stats.TotalInputTokens) }
+						</p>
+						<p class="text-sm text-gray-500 dark:text-gray-400">Input Tokens</p>
+					</div>
+					<div>
+						<p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+							{ formatTokens(stats.TotalOutputTokens) }
+						</p>
+						<p class="text-sm text-gray-500 dark:text-gray-400">Output Tokens</p>
+					</div>
+				</div>
+				<p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+					Estimated cost depends on provider pricing. Check provider dashboard for accurate billing.
+				</p>
+			</div>
+		</div>
+	}
+}
+
+templ providerCard(name, id string, available []string) {
+	<div class={ "p-4 rounded-lg border", providerCardClass(id, available) }>
+		<div class="flex items-center justify-between">
+			<span class="font-medium text-gray-900 dark:text-gray-100">{ name }</span>
+			if isProviderAvailable(id, available) {
+				<span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+					Available
+				</span>
+			} else {
+				<span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400">
+					Not Configured
+				</span>
+			}
+		</div>
+	</div>
+}
+
+func isProviderAvailable(id string, available []string) bool {
+	for _, p := range available {
+		if p == id {
+			return true
+		}
+	}
+	return false
+}
+
+func providerCardClass(id string, available []string) string {
+	if isProviderAvailable(id, available) {
+		return "border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20"
+	}
+	return "border-gray-200 dark:border-gray-700"
+}
+
+func providerDisplayName(id string) string {
+	switch id {
+	case "openai":
+		return "OpenAI"
+	case "anthropic":
+		return "Anthropic"
+	case "ollama":
+		return "Ollama"
+	default:
+		return id
+	}
+}
+
+func formatThreshold(n pgtype.Numeric) string {
+	f, _ := n.Float64Value()
+	return fmt.Sprintf("%.2f", f.Float64)
+}
+
+func formatTokens(n int64) string {
+	if n >= 1000000 {
+		return fmt.Sprintf("%.1fM", float64(n)/1000000)
+	}
+	if n >= 1000 {
+		return fmt.Sprintf("%.1fK", float64(n)/1000)
+	}
+	return strconv.FormatInt(n, 10)
+}
