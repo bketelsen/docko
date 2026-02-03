@@ -101,11 +101,14 @@ Plans:
   3. User can create, edit, and delete correspondents
   4. User can assign correspondent to documents
   5. User can merge duplicate correspondents into one
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md — Tag CRUD with management UI
+- [ ] 05-02-PLAN.md — Correspondent CRUD with management UI
+- [ ] 05-03-PLAN.md — Correspondent merge functionality
+- [ ] 05-04-PLAN.md — Tag assignment to documents
+- [ ] 05-05-PLAN.md — Correspondent assignment to documents
 
 ### Phase 6: Search
 **Goal**: Users can find any document by content, tags, or correspondent
@@ -168,7 +171,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 2. Ingestion | 5/5 | Complete | 2026-02-02 |
 | 3. Processing | 5/5 | Complete | 2026-02-03 |
 | 4. Viewing | 3/3 | Complete | 2026-02-03 |
-| 5. Organization | 0/2 | Not started | - |
+| 5. Organization | 0/5 | Not started | - |
 | 6. Search | 0/2 | Not started | - |
 | 7. Network Sources | 0/2 | Not started | - |
 | 8. AI Integration | 0/3 | Not started | - |
