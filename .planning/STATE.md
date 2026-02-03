@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 5 - Organization (Complete)
+**Current focus:** Phase 6 - Search (In Progress)
 
 ## Current Position
 
-Phase: 5 of 8 (Organization)
-Plan: 5 of 5 in current phase
-Status: Phase complete
-Last activity: 2026-02-03 - Completed 05-05-PLAN.md
+Phase: 6 of 8 (Search)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-03 - Completed 06-01-PLAN.md
 
-Progress: [#######################] 100%
+Progress: [########################] 22/24 plans (92%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 21
-- Average duration: 5.4 min
-- Total execution time: 1.9 hours
+- Total plans completed: 22
+- Average duration: 5.3 min
+- Total execution time: 1.95 hours
 
 **By Phase:**
 
@@ -32,11 +32,12 @@ Progress: [#######################] 100%
 | 03-processing | 5 | 28 min | 5.6 min |
 | 04-viewing | 3 | 10 min | 3.3 min |
 | 05-organization | 5 | 29 min | 5.8 min |
+| 06-search | 1 | 3 min | 3.0 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 05-01 (4 min), 05-02 (8 min), 05-03 (5 min), 05-04 (8 min), 05-05 (4 min)
-- Trend: Consistent pace through Phase 5
+- Last 5 plans: 05-02 (8 min), 05-03 (5 min), 05-04 (8 min), 05-05 (4 min), 06-01 (3 min)
+- Trend: Continuing efficient execution into Phase 6
 
 *Updated after each plan completion*
 
@@ -95,6 +96,10 @@ Recent decisions affecting current work:
 - JavaScript onclick toggle for inline dropdown (simpler than Alpine.js)
 - Same picker pattern for correspondents as tags (consistency)
 - ListDocumentsWithCorrespondent uses LEFT JOIN for efficient list query
+- Generated STORED tsvector column for auto-updating search vector
+- websearch_to_tsquery for safe user input handling (no syntax errors)
+- Boolean flag pattern for optional sqlc filters (has_X + X_value)
+- Tag filter uses AND logic (must have ALL selected tags)
 
 ### Pending Todos
 
@@ -106,9 +111,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T15:23:00Z
-Stopped at: Completed 05-05-PLAN.md (Phase 5 complete)
+Last session: 2026-02-03T16:38:00Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
 
 ---
-*Next action: Continue with Phase 06 - Search*
+*Next action: Continue with 06-02-PLAN.md (Search UI)*
