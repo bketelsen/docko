@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 5 of 8 (Organization)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 05-02-PLAN.md
+Last activity: 2026-02-03 - Completed 05-03-PLAN.md
 
-Progress: [##################--] 90%
+Progress: [###################-] 95%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18
+- Total plans completed: 19
 - Average duration: 5.4 min
-- Total execution time: 1.6 hours
+- Total execution time: 1.7 hours
 
 **By Phase:**
 
@@ -31,11 +31,11 @@ Progress: [##################--] 90%
 | 02-ingestion | 5 | 39 min | 7.8 min |
 | 03-processing | 5 | 28 min | 5.6 min |
 | 04-viewing | 3 | 10 min | 3.3 min |
-| 05-organization | 2 | 12 min | 6.0 min |
+| 05-organization | 3 | 17 min | 5.7 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 04-02 (5 min), 04-03 (3 min), 05-01 (4 min), 05-02 (8 min)
+- Last 5 plans: 04-03 (3 min), 05-01 (4 min), 05-02 (8 min), 05-03 (5 min)
 - Trend: Steady pace in Phase 5
 
 *Updated after each plan completion*
@@ -86,6 +86,10 @@ Recent decisions affecting current work:
 - Notes column nullable TEXT for optional correspondent info
 - Modal dialog pattern with JavaScript open/close and HTMX form submission
 - Document count badge shows association impact before delete
+- Merge uses database transaction for atomicity
+- Notes from merged correspondents prefixed with source name
+- Merge mode shows only when 2+ correspondents exist
+- Target selection prevents merging target into itself
 
 ### Pending Todos
 
@@ -97,9 +101,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T10:08:00Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-02-03T15:13:00Z
+Stopped at: Completed 05-03-PLAN.md
 Resume file: None
 
 ---
-*Next action: Continue with Phase 05 Plan 03 - Tag/Correspondent merge*
+*Next action: Continue with Phase 05 Plan 04 - Document tagging UI*
