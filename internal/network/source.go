@@ -2,8 +2,11 @@ package network
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"time"
+
+	"docko/internal/database/sqlc"
 )
 
 // RemoteFile represents a file found on a network source.
@@ -36,4 +39,34 @@ type NetworkSource interface {
 
 	// Close releases any resources (connections, etc).
 	Close() error
+}
+
+// NewSourceFromConfig creates a NetworkSource from database configuration.
+// The crypto parameter is used to decrypt passwords for SMB sources.
+func NewSourceFromConfig(cfg *sqlc.NetworkSource, crypto *CredentialCrypto) (NetworkSource, error) {
+	switch cfg.Protocol {
+	case sqlc.NetworkProtocolSmb:
+		// Decrypt password if present
+		password := ""
+		if cfg.PasswordEncrypted != nil && *cfg.PasswordEncrypted != "" {
+			var err error
+			password, err = crypto.Decrypt(*cfg.PasswordEncrypted)
+			if err != nil {
+				return nil, fmt.Errorf("decrypt password: %w", err)
+			}
+		}
+
+		username := ""
+		if cfg.Username != nil {
+			username = *cfg.Username
+		}
+
+		return NewSMBSource(cfg.Host, cfg.SharePath, username, password), nil
+
+	case sqlc.NetworkProtocolNfs:
+		return NewNFSSource(cfg.Host, cfg.SharePath), nil
+
+	default:
+		return nil, fmt.Errorf("unsupported protocol: %s", cfg.Protocol)
+	}
 }
