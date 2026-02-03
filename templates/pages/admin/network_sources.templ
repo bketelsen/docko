@@ -21,6 +21,7 @@ templ NetworkSources(sources []sqlc.NetworkSource) {
 					<button
 						hx-post="/network-sources/sync-all"
 						hx-swap="none"
+						hx-on::after-request="showToast(event.detail.xhr.responseText, !event.detail.successful)"
 						class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
 					>
 						Sync All
@@ -179,11 +180,32 @@ templ NetworkSources(sources []sqlc.NetworkSource) {
 			}
 		</div>
 
+		<!-- Toast container -->
+		<div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
+
 		<script>
 		function toggleCredentials(select) {
 			const isSmb = select.value === 'smb';
 			document.getElementById('smb-credentials').style.display = isSmb ? 'block' : 'none';
 			document.getElementById('smb-password').style.display = isSmb ? 'block' : 'none';
+		}
+
+		function showToast(message, isError) {
+			const container = document.getElementById('toast-container');
+			const toast = document.createElement('div');
+			toast.className = `px-4 py-3 rounded-lg shadow-lg text-sm font-medium transition-all duration-300 ${
+				isError
+					? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
+					: 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800'
+			}`;
+			toast.textContent = message;
+			container.appendChild(toast);
+
+			// Auto-remove after 5 seconds
+			setTimeout(() => {
+				toast.style.opacity = '0';
+				setTimeout(() => toast.remove(), 300);
+			}, 5000);
 		}
 		</script>
 	}
@@ -216,14 +238,11 @@ templ NetworkSourceCard(source sqlc.NetworkSource) {
 				<button
 					hx-post={ fmt.Sprintf("/network-sources/%s/test", source.ID.String()) }
 					hx-swap="none"
-					hx-indicator={ fmt.Sprintf("#test-spinner-%s", source.ID.String()) }
+					hx-on::after-request="showToast(event.detail.xhr.responseText, !event.detail.successful)"
 					class="p-2 text-muted-foreground hover:text-foreground transition-colors"
 					title="Test connection"
 				>
-					<svg id={ fmt.Sprintf("test-spinner-%s", source.ID.String()) } class="w-4 h-4 htmx-indicator animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-					</svg>
-					<svg class="w-4 h-4 htmx-indicator-hide" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 					</svg>
 				</button>
@@ -231,6 +250,7 @@ templ NetworkSourceCard(source sqlc.NetworkSource) {
 				<button
 					hx-post={ fmt.Sprintf("/network-sources/%s/sync", source.ID.String()) }
 					hx-swap="none"
+					hx-on::after-request="showToast(event.detail.xhr.responseText, !event.detail.successful)"
 					class="p-2 text-muted-foreground hover:text-foreground transition-colors"
 					title="Sync now"
 				>
