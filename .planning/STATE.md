@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 7 - Network Sources (COMPLETE)
+**Current focus:** Phase 8 - AI Integration (IN PROGRESS)
 
 ## Current Position
 
-Phase: 7 of 8 (Network Sources) - COMPLETE
-Plan: 6 of 6 in current phase
-Status: Phase complete
-Last activity: 2026-02-03 - Completed 07-06-PLAN.md
+Phase: 8 of 8 (AI Integration)
+Plan: 1 of ? in current phase
+Status: In progress
+Last activity: 2026-02-03 - Completed 08-01-PLAN.md
 
-Progress: [##########################] 30/30 plans (100%)
+Progress: [###########################] 31/? plans
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 30
-- Average duration: 4.5 min
-- Total execution time: 2.3 hours
+- Total plans completed: 31
+- Average duration: 4.4 min
+- Total execution time: 2.4 hours
 
 **By Phase:**
 
@@ -34,11 +34,12 @@ Progress: [##########################] 30/30 plans (100%)
 | 05-organization | 5 | 29 min | 5.8 min |
 | 06-search | 3 | 11 min | 3.7 min |
 | 07-network-sources | 6 | 19 min | 3.2 min |
+| 08-ai-integration | 1 | 4 min | 4.0 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 07-02 (1 min), 07-03 (2 min), 07-04 (1 min), 07-05 (5 min), 07-06 (8 min)
-- Trend: Phase 7 complete with all network source functionality
+- Last 5 plans: 07-04 (1 min), 07-05 (5 min), 07-06 (8 min), 08-01 (4 min)
+- Trend: Started Phase 8 AI Integration
 
 *Updated after each plan completion*
 
@@ -123,6 +124,10 @@ Recent decisions affecting current work:
 - Sync now button only shown for enabled sources
 - Network service lifecycle mirrors inbox service pattern
 - HTMX toast feedback for async network operations
+- Singleton pattern with CHECK(id=1) for ai_settings table
+- DECIMAL(3,2) for AI confidence scores (0.00-1.00 range)
+- Separate suggestion_type enum (tag/correspondent)
+- Partial index on status='pending' for efficient pending suggestion queries
 
 ### Pending Todos
 
@@ -134,9 +139,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T19:00:00Z
-Stopped at: Completed 07-06-PLAN.md (Phase 7 complete)
+Last session: 2026-02-03T19:41:53Z
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None
 
 ---
-*Next action: Begin Phase 8 (Refinement and Polish) if planned*
+*Next action: Continue with 08-02 (AI Service Implementation)*
