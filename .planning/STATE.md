@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 3 of 8 (Processing)
-Plan: 1 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 03-01-PLAN.md
+Last activity: 2026-02-03 - Completed 03-03-PLAN.md
 
-Progress: [#######---] 69%
+Progress: [########--] 77%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 9
-- Average duration: 6.0 min
-- Total execution time: 0.90 hours
+- Total plans completed: 11
+- Average duration: 5.5 min
+- Total execution time: 1.00 hours
 
 **By Phase:**
 
@@ -29,11 +29,11 @@ Progress: [#######---] 69%
 |-------|-------|-------|----------|
 | 01-foundation | 3 | 10 min | 3.3 min |
 | 02-ingestion | 5 | 39 min | 7.8 min |
-| 03-processing | 1 | 5 min | 5.0 min |
+| 03-processing | 3 | 11 min | 3.7 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-02 (3 min), 02-03 (2 min), 02-04 (3 min), 02-05 (30 min), 03-01 (5 min)
-- Trend: 03-01 back to normal speed (no checkpoint)
+- Last 5 plans: 02-04 (3 min), 02-05 (30 min), 03-01 (5 min), 03-02 (4 min), 03-03 (2 min)
+- Trend: Fast execution for processing plans
 
 *Updated after each plan completion*
 
@@ -63,6 +63,9 @@ Recent decisions affecting current work:
 - OCRmyPDF runs as persistent Docker service (like postgres) with inotify watcher
 - App communicates with OCR via shared volumes (ocr-input, ocr-output)
 - Thumbnails generated in app container, OCR in separate service
+- ThumbnailPath returns .webp extension to match generated thumbnails
+- 2-minute timeout prevents hanging on corrupt PDFs
+- Placeholder fallback for unrenderable PDFs instead of error
 
 ### Pending Todos
 
@@ -74,9 +77,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T01:51:47Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-02-03T01:56:57Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None
 
 ---
-*Next action: Continue Phase 03 - Execute 03-02-PLAN.md (text extraction implementation)*
+*Next action: Continue Phase 03 - Execute 03-04-PLAN.md (processing job handler)*
