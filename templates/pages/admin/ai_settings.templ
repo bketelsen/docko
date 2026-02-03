@@ -6,6 +6,9 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
+	"docko/components/button"
+	"docko/components/input"
+	"docko/components/label"
 	"docko/internal/ai"
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
@@ -16,38 +19,45 @@ templ AISettings(settings sqlc.AiSetting, providers []string, stats *ai.UsageSta
 	@layouts.Admin(meta.New("AI Settings", "Configure AI integration")) {
 		<div class="space-y-6">
 			<div class="flex justify-between items-center">
-				<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">AI Settings</h1>
+				<h1 class="text-2xl font-bold text-foreground">AI Settings</h1>
 				if pendingCount > 0 {
-					<a href="/ai/review" class="inline-flex items-center px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg transition-colors">
+					@button.Button(button.Props{
+						Href:  "/ai/review",
+						Class: "bg-yellow-500 hover:bg-yellow-600",
+					}) {
 						<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
 						</svg>
 						Review Suggestions ({ strconv.FormatInt(pendingCount, 10) })
-					</a>
+					}
 				}
 			</div>
 			<!-- Provider Status -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-				<h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Provider Status</h2>
+			<div class="bg-card rounded-lg shadow p-6">
+				<h2 class="text-lg font-semibold mb-4 text-foreground">Provider Status</h2>
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 					@providerCard("OpenAI", "openai", providers)
 					@providerCard("Anthropic", "anthropic", providers)
 					@providerCard("Ollama", "ollama", providers)
 				</div>
-				<p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+				<p class="mt-4 text-sm text-muted-foreground">
 					Configure providers via environment variables: OPENAI_API_KEY, ANTHROPIC_API_KEY, OLLAMA_HOST
 				</p>
 			</div>
 			<!-- Settings Form -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-				<h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Configuration</h2>
+			<div class="bg-card rounded-lg shadow p-6">
+				<h2 class="text-lg font-semibold mb-4 text-foreground">Configuration</h2>
 				<form hx-post="/ai" hx-swap="none" class="space-y-6">
 					<!-- Preferred Provider -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					<div class="space-y-2">
+						@label.Label(label.Props{For: "preferred_provider"}) {
 							Preferred Provider
-						</label>
-						<select name="preferred_provider" class="w-full rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100">
+						}
+						<select
+							id="preferred_provider"
+							name="preferred_provider"
+							class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+						>
 							<option value="auto" selected?={ settings.PreferredProvider == nil }>Auto (use first available)</option>
 							for _, p := range providers {
 								<option value={ p } selected?={ settings.PreferredProvider != nil && *settings.PreferredProvider == p }>
@@ -55,127 +65,142 @@ templ AISettings(settings sqlc.AiSetting, providers []string, stats *ai.UsageSta
 								</option>
 							}
 						</select>
-						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+						<p class="text-sm text-muted-foreground">
 							Select which provider to use first. Falls back to others if unavailable.
 						</p>
 					</div>
 					<!-- Max Pages -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					<div class="space-y-2">
+						@label.Label(label.Props{For: "max_pages"}) {
 							Max Pages to Analyze
-						</label>
-						<input
-							type="number"
-							name="max_pages"
-							min="1"
-							max="50"
-							value={ strconv.Itoa(int(settings.MaxPages)) }
-							class="w-32 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-						/>
-						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+						}
+						@input.Input(input.Props{
+							ID:    "max_pages",
+							Type:  input.TypeNumber,
+							Name:  "max_pages",
+							Value: strconv.Itoa(int(settings.MaxPages)),
+							Class: "w-32",
+							Attributes: templ.Attributes{
+								"min": "1",
+								"max": "50",
+							},
+						})
+						<p class="text-sm text-muted-foreground">
 							Only analyze the first N pages of each document. Lower values reduce costs.
 						</p>
 					</div>
 					<!-- Auto-Apply Threshold -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					<div class="space-y-2">
+						@label.Label(label.Props{For: "auto_apply_threshold"}) {
 							Auto-Apply Threshold
-						</label>
-						<input
-							type="number"
-							name="auto_apply_threshold"
-							min="0"
-							max="1"
-							step="0.05"
-							value={ formatThreshold(settings.AutoApplyThreshold) }
-							class="w-32 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-						/>
-						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+						}
+						@input.Input(input.Props{
+							ID:    "auto_apply_threshold",
+							Type:  input.TypeNumber,
+							Name:  "auto_apply_threshold",
+							Value: formatThreshold(settings.AutoApplyThreshold),
+							Class: "w-32",
+							Attributes: templ.Attributes{
+								"min":  "0",
+								"max":  "1",
+								"step": "0.05",
+							},
+						})
+						<p class="text-sm text-muted-foreground">
 							Suggestions with confidence at or above this threshold are applied automatically.
 						</p>
 					</div>
 					<!-- Review Threshold -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					<div class="space-y-2">
+						@label.Label(label.Props{For: "review_threshold"}) {
 							Review Threshold
-						</label>
-						<input
-							type="number"
-							name="review_threshold"
-							min="0"
-							max="1"
-							step="0.05"
-							value={ formatThreshold(settings.ReviewThreshold) }
-							class="w-32 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-						/>
-						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+						}
+						@input.Input(input.Props{
+							ID:    "review_threshold",
+							Type:  input.TypeNumber,
+							Name:  "review_threshold",
+							Value: formatThreshold(settings.ReviewThreshold),
+							Class: "w-32",
+							Attributes: templ.Attributes{
+								"min":  "0",
+								"max":  "1",
+								"step": "0.05",
+							},
+						})
+						<p class="text-sm text-muted-foreground">
 							Suggestions below this threshold are discarded. Between this and auto-apply go to review queue.
 						</p>
 					</div>
 					<!-- Auto Process Toggle -->
-					<div class="flex items-center">
+					<div class="flex items-center space-x-2">
 						<input
 							type="checkbox"
 							name="auto_process"
 							id="auto_process"
 							checked?={ settings.AutoProcess }
-							class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+							class="h-4 w-4 rounded border-input text-primary focus:ring-primary"
 						/>
-						<label for="auto_process" class="ml-2 text-sm text-gray-700 dark:text-gray-300">
+						@label.Label(label.Props{For: "auto_process"}) {
 							Auto-process new documents
-						</label>
+						}
 					</div>
-					<p class="text-sm text-gray-500 dark:text-gray-400 -mt-4 ml-6">
+					<p class="text-sm text-muted-foreground -mt-4 ml-6">
 						When enabled, documents are automatically analyzed after text extraction.
 					</p>
 					<!-- Minimum Word Count -->
-					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+					<div class="space-y-2">
+						@label.Label(label.Props{For: "min_word_count"}) {
 							Minimum Word Count
-						</label>
-						<input
-							type="number"
-							name="min_word_count"
-							min="0"
-							max="10000"
-							value={ strconv.Itoa(int(settings.MinWordCount)) }
-							class="w-32 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
-						/>
-						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+						}
+						@input.Input(input.Props{
+							ID:    "min_word_count",
+							Type:  input.TypeNumber,
+							Name:  "min_word_count",
+							Value: strconv.Itoa(int(settings.MinWordCount)),
+							Class: "w-32",
+							Attributes: templ.Attributes{
+								"min": "0",
+								"max": "10000",
+							},
+						})
+						<p class="text-sm text-muted-foreground">
 							Documents with fewer words are rejected during processing. Set to 0 to disable.
 						</p>
 					</div>
 					<div class="pt-4">
-						<button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+						@button.Button(button.Props{
+							Type: button.TypeSubmit,
+						}) {
 							Save Settings
-						</button>
+						}
 					</div>
 				</form>
+				@input.Script()
 			</div>
 			<!-- Usage Stats -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-				<h2 class="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Usage Statistics</h2>
+			<div class="bg-card rounded-lg shadow p-6">
+				<h2 class="text-lg font-semibold mb-4 text-foreground">Usage Statistics</h2>
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 					<div>
-						<p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+						<p class="text-2xl font-bold text-foreground">
 							{ strconv.FormatInt(stats.DocumentsProcessed, 10) }
 						</p>
-						<p class="text-sm text-gray-500 dark:text-gray-400">Documents Processed</p>
+						<p class="text-sm text-muted-foreground">Documents Processed</p>
 					</div>
 					<div>
-						<p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+						<p class="text-2xl font-bold text-foreground">
 							{ formatTokens(stats.TotalInputTokens) }
 						</p>
-						<p class="text-sm text-gray-500 dark:text-gray-400">Input Tokens</p>
+						<p class="text-sm text-muted-foreground">Input Tokens</p>
 					</div>
 					<div>
-						<p class="text-2xl font-bold text-gray-900 dark:text-gray-100">
+						<p class="text-2xl font-bold text-foreground">
 							{ formatTokens(stats.TotalOutputTokens) }
 						</p>
-						<p class="text-sm text-gray-500 dark:text-gray-400">Output Tokens</p>
+						<p class="text-sm text-muted-foreground">Output Tokens</p>
 					</div>
 				</div>
-				<p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+				<p class="mt-4 text-sm text-muted-foreground">
 					Estimated cost depends on provider pricing. Check provider dashboard for accurate billing.
 				</p>
 			</div>
@@ -186,13 +211,13 @@ templ AISettings(settings sqlc.AiSetting, providers []string, stats *ai.UsageSta
 templ providerCard(name, id string, available []string) {
 	<div class={ "p-4 rounded-lg border", providerCardClass(id, available) }>
 		<div class="flex items-center justify-between">
-			<span class="font-medium text-gray-900 dark:text-gray-100">{ name }</span>
+			<span class="font-medium text-foreground">{ name }</span>
 			if isProviderAvailable(id, available) {
 				<span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
 					Available
 				</span>
 			} else {
-				<span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400">
+				<span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-muted text-muted-foreground">
 					Not Configured
 				</span>
 			}
