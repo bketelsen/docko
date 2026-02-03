@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 6 of 8 (Search)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 06-01-PLAN.md
+Last activity: 2026-02-03 - Completed 06-02-PLAN.md
 
-Progress: [########################] 22/24 plans (92%)
+Progress: [########################] 23/24 plans (96%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 22
-- Average duration: 5.3 min
-- Total execution time: 1.95 hours
+- Total plans completed: 23
+- Average duration: 5.1 min
+- Total execution time: 1.97 hours
 
 **By Phase:**
 
@@ -32,11 +32,11 @@ Progress: [########################] 22/24 plans (92%)
 | 03-processing | 5 | 28 min | 5.6 min |
 | 04-viewing | 3 | 10 min | 3.3 min |
 | 05-organization | 5 | 29 min | 5.8 min |
-| 06-search | 1 | 3 min | 3.0 min |
+| 06-search | 2 | 7 min | 3.5 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 05-02 (8 min), 05-03 (5 min), 05-04 (8 min), 05-05 (4 min), 06-01 (3 min)
+- Last 5 plans: 05-03 (5 min), 05-04 (8 min), 05-05 (4 min), 06-01 (3 min), 06-02 (4 min)
 - Trend: Continuing efficient execution into Phase 6
 
 *Updated after each plan completion*
@@ -100,6 +100,9 @@ Recent decisions affecting current work:
 - websearch_to_tsquery for safe user input handling (no syntax errors)
 - Boolean flag pattern for optional sqlc filters (has_X + X_value)
 - Tag filter uses AND logic (must have ALL selected tags)
+- HX-Request header detection for partial vs full page responses
+- Date range presets (today, 7d, 30d, 1y) instead of date pickers
+- SearchResult wraps sqlc.SearchDocumentsRow directly (no manual mapping)
 
 ### Pending Todos
 
@@ -111,9 +114,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T16:38:00Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-02-03T16:44:00Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
 
 ---
-*Next action: Continue with 06-02-PLAN.md (Search UI)*
+*Next action: Continue with 06-03-PLAN.md (Search Refinements)*
