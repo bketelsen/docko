@@ -206,6 +206,7 @@
 
             // Send the request
             xhr.open('POST', '/api/upload');
+            xhr.setRequestHeader('Accept', 'application/json');
             xhr.send(formData);
             activeUploads++;
         });
