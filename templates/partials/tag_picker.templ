@@ -1,0 +1,230 @@
+package partials
+
+import (
+	"docko/internal/database/sqlc"
+)
+
+// TagPicker renders a full tag picker with current tags and search input
+templ TagPicker(documentID string, currentTags []sqlc.Tag) {
+	<div class="tag-picker">
+		// Display current tags as removable badges
+		@DocumentTagsList(documentID, currentTags)
+
+		// Search input
+		<div class="relative mt-2">
+			<input
+				type="search"
+				name="q"
+				placeholder="Add tag..."
+				class="w-full px-3 py-1.5 text-sm border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+				hx-get={ "/documents/" + documentID + "/tags/search" }
+				hx-trigger="input changed delay:300ms, focus"
+				hx-target={ "#tag-search-" + documentID }
+				autocomplete="off"
+			/>
+			<div
+				id={ "tag-search-" + documentID }
+				class="absolute z-10 w-full mt-1 bg-background border border-border rounded-md shadow-lg empty:hidden"
+			>
+				// Search results populated by HTMX
+			</div>
+		</div>
+	</div>
+}
+
+// InlineTagPicker renders a compact tag picker for document list view
+templ InlineTagPicker(documentID string, currentTags []sqlc.Tag) {
+	<div class="inline-tag-picker" x-data="{ open: false }">
+		// Current tags display
+		<div class="flex flex-wrap items-center gap-1">
+			for _, tag := range currentTags {
+				@TagBadgeSmall(documentID, tag, true)
+			}
+			// Add button
+			<button
+				type="button"
+				@click="open = !open"
+				class="inline-flex items-center justify-center w-5 h-5 text-xs border border-dashed border-muted-foreground/50 rounded text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+				title="Add tag"
+			>
+				<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+				</svg>
+			</button>
+		</div>
+
+		// Dropdown search (hidden by default)
+		<div x-show="open" @click.away="open = false" class="relative mt-1">
+			<input
+				type="search"
+				name="q"
+				placeholder="Search tags..."
+				class="w-full px-2 py-1 text-xs border border-input rounded-md bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+				hx-get={ "/documents/" + documentID + "/tags/search" }
+				hx-trigger="input changed delay:300ms, focus"
+				hx-target={ "#inline-tag-search-" + documentID }
+				autocomplete="off"
+				x-ref="searchInput"
+				@keydown.escape="open = false"
+			/>
+			<div
+				id={ "inline-tag-search-" + documentID }
+				class="absolute z-20 w-48 mt-1 bg-background border border-border rounded-md shadow-lg empty:hidden max-h-48 overflow-y-auto"
+			>
+				// Search results populated by HTMX
+			</div>
+		</div>
+	</div>
+}
+
+// DocumentTagsList renders the list of tags for HTMX swap after add/remove
+templ DocumentTagsList(documentID string, tags []sqlc.Tag) {
+	<div id={ "doc-" + documentID + "-tags" } class="flex flex-wrap gap-1">
+		for _, tag := range tags {
+			@TagBadge(documentID, tag, true)
+		}
+		if len(tags) == 0 {
+			<span class="text-sm text-muted-foreground">No tags</span>
+		}
+	</div>
+}
+
+// TagBadge renders a tag badge with optional remove button
+templ TagBadge(documentID string, tag sqlc.Tag, removable bool) {
+	<span class={ "inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full text-white", tagBgClass(tag.Color) }>
+		{ tag.Name }
+		if removable {
+			<button
+				type="button"
+				class="ml-0.5 hover:bg-white/20 rounded-full p-0.5"
+				hx-delete={ "/documents/" + documentID + "/tags/" + tag.ID.String() }
+				hx-target={ "#doc-" + documentID + "-tags" }
+				hx-swap="outerHTML"
+				title="Remove tag"
+			>
+				<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+				</svg>
+			</button>
+		}
+	</span>
+}
+
+// TagBadgeSmall renders a smaller tag badge for list view
+templ TagBadgeSmall(documentID string, tag sqlc.Tag, removable bool) {
+	<span class={ "inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium rounded text-white", tagBgClass(tag.Color) }>
+		{ tag.Name }
+		if removable {
+			<button
+				type="button"
+				class="hover:bg-white/20 rounded p-0.5"
+				hx-delete={ "/documents/" + documentID + "/tags/" + tag.ID.String() }
+				hx-target="closest .inline-tag-picker"
+				hx-swap="outerHTML"
+				hx-get={ "/documents/" + documentID + "/tags/picker" }
+				title="Remove tag"
+			>
+				<svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+				</svg>
+			</button>
+		}
+	</span>
+}
+
+// TagSearchResults renders the search dropdown results
+templ TagSearchResults(documentID string, tags []sqlc.Tag, query string, showCreate bool) {
+	if len(tags) > 0 || showCreate {
+		<ul class="py-1">
+			for _, tag := range tags {
+				<li>
+					<button
+						type="button"
+						class="w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2"
+						hx-post={ "/documents/" + documentID + "/tags" }
+						hx-vals={ `{"tag_id":"` + tag.ID.String() + `"}` }
+						hx-target={ "#doc-" + documentID + "-tags" }
+						hx-swap="outerHTML"
+					>
+						<span class={ "w-3 h-3 rounded-full", tagBgClass(tag.Color) }></span>
+						{ tag.Name }
+					</button>
+				</li>
+			}
+			if showCreate {
+				<li class="border-t border-border">
+					<button
+						type="button"
+						class="w-full px-3 py-2 text-left text-sm hover:bg-muted flex items-center gap-2 text-primary"
+						hx-post={ "/documents/" + documentID + "/tags" }
+						hx-vals={ `{"tag_id":"new","name":"` + escapeJSON(query) + `"}` }
+						hx-target={ "#doc-" + documentID + "-tags" }
+						hx-swap="outerHTML"
+					>
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+						</svg>
+						Create "{ query }"
+					</button>
+				</li>
+			}
+		</ul>
+	}
+}
+
+// tagBgClass returns the Tailwind background class for a tag color
+func tagBgClass(color *string) string {
+	if color == nil {
+		return "bg-blue-500"
+	}
+	switch *color {
+	case "red":
+		return "bg-red-500"
+	case "orange":
+		return "bg-orange-500"
+	case "amber":
+		return "bg-amber-500"
+	case "yellow":
+		return "bg-yellow-500"
+	case "green":
+		return "bg-green-500"
+	case "emerald":
+		return "bg-emerald-500"
+	case "teal":
+		return "bg-teal-500"
+	case "blue":
+		return "bg-blue-500"
+	case "indigo":
+		return "bg-indigo-500"
+	case "purple":
+		return "bg-purple-500"
+	case "pink":
+		return "bg-pink-500"
+	case "gray":
+		return "bg-gray-500"
+	default:
+		return "bg-blue-500"
+	}
+}
+
+// escapeJSON escapes a string for use in JSON
+func escapeJSON(s string) string {
+	result := ""
+	for _, c := range s {
+		switch c {
+		case '"':
+			result += `\"`
+		case '\\':
+			result += `\\`
+		case '\n':
+			result += `\n`
+		case '\r':
+			result += `\r`
+		case '\t':
+			result += `\t`
+		default:
+			result += string(c)
+		}
+	}
+	return result
+}

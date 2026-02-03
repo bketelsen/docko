@@ -3,9 +3,11 @@ package handler
 import (
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"docko/internal/database/sqlc"
 	"docko/templates/pages/admin"
+	"docko/templates/partials"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -169,4 +171,155 @@ func (h *Handler) DeleteTag(c echo.Context) error {
 
 	// Return empty response for HTMX to remove the element
 	return c.String(http.StatusOK, "")
+}
+
+// SearchTagsForDocument searches for tags not already assigned to a document
+// GET /documents/:id/tags/search?q=query
+func (h *Handler) SearchTagsForDocument(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid document ID")
+	}
+
+	query := strings.TrimSpace(c.QueryParam("q"))
+
+	// Search for tags not already assigned to this document
+	searchPattern := "%" + query + "%"
+	tags, err := h.db.Queries.SearchTagsExcludingDocument(ctx, sqlc.SearchTagsExcludingDocumentParams{
+		Name:       searchPattern,
+		DocumentID: docID,
+	})
+	if err != nil {
+		slog.Error("failed to search tags", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to search tags")
+	}
+
+	// Check if we should offer to create a new tag
+	showCreate := query != "" && !hasExactMatch(tags, query)
+
+	return partials.TagSearchResults(docID.String(), tags, query, showCreate).Render(ctx, c.Response().Writer)
+}
+
+// hasExactMatch checks if any tag has the exact name (case-insensitive)
+func hasExactMatch(tags []sqlc.Tag, query string) bool {
+	queryLower := strings.ToLower(query)
+	for _, tag := range tags {
+		if strings.ToLower(tag.Name) == queryLower {
+			return true
+		}
+	}
+	return false
+}
+
+// AddDocumentTag assigns a tag to a document
+// POST /documents/:id/tags
+func (h *Handler) AddDocumentTag(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid document ID")
+	}
+
+	tagIDStr := c.FormValue("tag_id")
+	tagName := strings.TrimSpace(c.FormValue("name"))
+
+	var tagID uuid.UUID
+
+	// If tag_id is "new", create the tag first
+	if tagIDStr == "new" {
+		if tagName == "" {
+			return c.String(http.StatusBadRequest, "Tag name is required")
+		}
+		defaultColor := "blue"
+		tag, err := h.db.Queries.CreateTag(ctx, sqlc.CreateTagParams{
+			Name:  tagName,
+			Color: &defaultColor,
+		})
+		if err != nil {
+			// If duplicate, try to find existing tag
+			if err.Error() == "no rows in result set" {
+				existingTags, err := h.db.Queries.SearchTags(ctx, tagName)
+				if err != nil || len(existingTags) == 0 {
+					return c.String(http.StatusConflict, "Tag already exists but couldn't be found")
+				}
+				// Find exact match
+				for _, t := range existingTags {
+					if strings.EqualFold(t.Name, tagName) {
+						tagID = t.ID
+						break
+					}
+				}
+				if tagID == uuid.Nil {
+					tagID = existingTags[0].ID
+				}
+			} else {
+				slog.Error("failed to create tag", "error", err)
+				return c.String(http.StatusInternalServerError, "Failed to create tag")
+			}
+		} else {
+			tagID = tag.ID
+		}
+	} else {
+		tagID, err = uuid.Parse(tagIDStr)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Invalid tag ID")
+		}
+	}
+
+	// Add tag to document
+	err = h.db.Queries.AddDocumentTag(ctx, sqlc.AddDocumentTagParams{
+		DocumentID: docID,
+		TagID:      tagID,
+	})
+	if err != nil {
+		slog.Error("failed to add document tag", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to add tag")
+	}
+
+	// Return updated tags list
+	tags, err := h.db.Queries.GetDocumentTags(ctx, docID)
+	if err != nil {
+		slog.Error("failed to get document tags", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to get tags")
+	}
+
+	return partials.DocumentTagsList(docID.String(), tags).Render(ctx, c.Response().Writer)
+}
+
+// RemoveDocumentTag removes a tag from a document
+// DELETE /documents/:id/tags/:tag_id
+func (h *Handler) RemoveDocumentTag(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid document ID")
+	}
+
+	tagID, err := uuid.Parse(c.Param("tag_id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid tag ID")
+	}
+
+	// Remove tag from document
+	err = h.db.Queries.RemoveDocumentTag(ctx, sqlc.RemoveDocumentTagParams{
+		DocumentID: docID,
+		TagID:      tagID,
+	})
+	if err != nil {
+		slog.Error("failed to remove document tag", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to remove tag")
+	}
+
+	// Return updated tags list
+	tags, err := h.db.Queries.GetDocumentTags(ctx, docID)
+	if err != nil {
+		slog.Error("failed to get document tags", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to get tags")
+	}
+
+	return partials.DocumentTagsList(docID.String(), tags).Render(ctx, c.Response().Writer)
 }

@@ -86,6 +86,11 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.GET("/documents/:id/viewer", h.ViewerModal, middleware.RequireAuth(h.auth))
 	e.POST("/api/documents/:id/retry", h.RetryDocument, middleware.RequireAuth(h.auth))
 
+	// Document tag assignment routes (protected)
+	e.GET("/documents/:id/tags/search", h.SearchTagsForDocument, middleware.RequireAuth(h.auth))
+	e.POST("/documents/:id/tags", h.AddDocumentTag, middleware.RequireAuth(h.auth))
+	e.DELETE("/documents/:id/tags/:tag_id", h.RemoveDocumentTag, middleware.RequireAuth(h.auth))
+
 	// SSE endpoint for processing status (protected)
 	e.GET("/api/processing/status", h.ProcessingStatus, middleware.RequireAuth(h.auth))
 }
