@@ -129,6 +129,27 @@ func (h *Handler) ServeThumbnail(c echo.Context) error {
 	return c.File(thumbnailPath)
 }
 
+// ViewerModal returns the PDF viewer modal HTML for HTMX
+// GET /documents/:id/viewer
+func (h *Handler) ViewerModal(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid document ID")
+	}
+
+	doc, err := h.db.Queries.GetDocument(ctx, docID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return echo.NewHTTPError(http.StatusNotFound, "document not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to fetch document")
+	}
+
+	return partials.PDFViewerModal(doc).Render(ctx, c.Response().Writer)
+}
+
 // RetryDocument re-queues a failed document for processing
 // POST /api/documents/:id/retry
 func (h *Handler) RetryDocument(c echo.Context) error {

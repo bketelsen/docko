@@ -70,6 +70,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.GET("/documents/:id/view", h.ViewPDF, middleware.RequireAuth(h.auth))
 	e.GET("/documents/:id/download", h.DownloadPDF, middleware.RequireAuth(h.auth))
 	e.GET("/documents/:id/thumbnail", h.ServeThumbnail, middleware.RequireAuth(h.auth))
+	e.GET("/documents/:id/viewer", h.ViewerModal, middleware.RequireAuth(h.auth))
 	e.POST("/api/documents/:id/retry", h.RetryDocument, middleware.RequireAuth(h.auth))
 
 	// SSE endpoint for processing status (protected)
