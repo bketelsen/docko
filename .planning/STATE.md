@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 4 - Viewing
+**Current focus:** Phase 4 - Viewing (Complete)
 
 ## Current Position
 
 Phase: 4 of 8 (Viewing)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-03 - Completed 04-02-PLAN.md
+Plan: 3 of 3 in current phase
+Status: Phase complete
+Last activity: 2026-02-03 - Completed 04-03-PLAN.md
 
-Progress: [###############-----] 75%
+Progress: [################----] 80%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15
-- Average duration: 5.5 min
-- Total execution time: 1.4 hours
+- Total plans completed: 16
+- Average duration: 5.3 min
+- Total execution time: 1.5 hours
 
 **By Phase:**
 
@@ -30,12 +30,12 @@ Progress: [###############-----] 75%
 | 01-foundation | 3 | 10 min | 3.3 min |
 | 02-ingestion | 5 | 39 min | 7.8 min |
 | 03-processing | 5 | 28 min | 5.6 min |
-| 04-viewing | 2 | 7 min | 3.5 min |
+| 04-viewing | 3 | 10 min | 3.3 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 03-04 (4 min), 03-05 (15 min), 04-01 (2 min), 04-02 (5 min)
-- Trend: Phase 4 progressing efficiently
+- Last 5 plans: 03-05 (15 min), 04-01 (2 min), 04-02 (5 min), 04-03 (3 min)
+- Trend: Phase 4 completed efficiently
 
 *Updated after each plan completion*
 
@@ -79,6 +79,9 @@ Recent decisions affecting current work:
 - ServeThumbnail checks ThumbnailGenerated flag before attempting to serve
 - Text extraction status shown instead of OCR status (TextContent field available)
 - Storage path not displayed (computed dynamically, not stored)
+- PDF.js 4.x legacy build for non-module script compatibility
+- HTMX beforeend swap to append modal to body
+- Canvas-based rendering with devicePixelRatio support for high-DPI
 
 ### Pending Todos
 
@@ -90,9 +93,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T14:15:00Z
-Stopped at: Completed 04-02-PLAN.md
+Last session: 2026-02-03T14:16:37Z
+Stopped at: Completed 04-03-PLAN.md (Phase 04 complete)
 Resume file: None
 
 ---
-*Next action: Continue Phase 04 - Viewing with 04-03-PLAN.md (PDF Viewer Modal)*
+*Next action: Begin Phase 05 - Search*
