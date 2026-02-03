@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 
@@ -97,4 +98,149 @@ func numericFromFloat(f float64) pgtype.Numeric {
 	var n pgtype.Numeric
 	n.Scan(str)
 	return n
+}
+
+// ReviewQueuePage renders the suggestion review queue
+func (h *Handler) ReviewQueuePage(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	// Parse pagination
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	if page < 1 {
+		page = 1
+	}
+	limit := int64(20)
+	offset := int64(page-1) * limit
+
+	// Get pending suggestions
+	suggestions, err := h.db.Queries.ListPendingSuggestions(ctx, sqlc.ListPendingSuggestionsParams{
+		Limit:  limit,
+		Offset: offset,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to list suggestions")
+	}
+
+	// Get total count
+	totalCount, _ := h.db.Queries.CountPendingSuggestions(ctx)
+
+	return admin.ReviewQueue(suggestions, page, int(totalCount), int(limit)).Render(ctx, c.Response().Writer)
+}
+
+// AcceptSuggestion handles accepting a suggestion
+func (h *Handler) AcceptSuggestion(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	suggestionID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid suggestion id")
+	}
+
+	// Get suggestion
+	suggestion, err := h.db.Queries.GetAISuggestion(ctx, suggestionID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "suggestion not found")
+	}
+
+	// Apply the suggestion
+	sug := ai.Suggestion{
+		Type:       string(suggestion.SuggestionType),
+		Value:      suggestion.Value,
+		Confidence: 1.0, // Accepted by user
+		IsNew:      suggestion.IsNew,
+	}
+	if err := h.aiSvc.ApplySuggestionManual(ctx, suggestion.DocumentID, sug); err != nil {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to apply suggestion", "type": "error"}}`)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	// Mark as accepted
+	_, err = h.db.Queries.AcceptSuggestion(ctx, suggestionID)
+	if err != nil {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to update suggestion status", "type": "error"}}`)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Suggestion applied", "type": "success"}}`)
+	return c.String(http.StatusOK, "") // Return empty to remove the row
+}
+
+// RejectSuggestion handles rejecting a suggestion
+func (h *Handler) RejectSuggestion(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	suggestionID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid suggestion id")
+	}
+
+	_, err = h.db.Queries.RejectSuggestion(ctx, suggestionID)
+	if err != nil {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to reject suggestion", "type": "error"}}`)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Suggestion rejected", "type": "success"}}`)
+	return c.String(http.StatusOK, "") // Return empty to remove the row
+}
+
+// QueueDashboardPage renders the queue status dashboard
+func (h *Handler) QueueDashboardPage(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	// Get queue stats
+	stats, err := h.db.Queries.GetQueueStats(ctx)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get queue stats")
+	}
+
+	// Get failed jobs
+	failedJobs, err := h.db.Queries.ListFailedJobs(ctx, sqlc.ListFailedJobsParams{
+		Limit:  int64(20),
+		Offset: int64(0),
+	})
+	if err != nil {
+		failedJobs = []sqlc.Job{}
+	}
+
+	// Get recent jobs
+	recentJobs, err := h.db.Queries.GetRecentJobs(ctx, 10)
+	if err != nil {
+		recentJobs = []sqlc.Job{}
+	}
+
+	return admin.QueueDashboard(stats, failedJobs, recentJobs).Render(ctx, c.Response().Writer)
+}
+
+// RetryJob handles retrying a failed job
+func (h *Handler) RetryJob(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	jobID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid job id")
+	}
+
+	_, err = h.db.Queries.ResetJobForRetry(ctx, jobID)
+	if err != nil {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to retry job", "type": "error"}}`)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Job queued for retry", "type": "success"}}`)
+	return c.Redirect(http.StatusSeeOther, "/queues")
+}
+
+// RetryAllFailedJobs handles retrying all failed jobs
+func (h *Handler) RetryAllFailedJobs(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	err := h.db.Queries.ResetAllFailedJobs(ctx)
+	if err != nil {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to retry jobs", "type": "error"}}`)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "All failed jobs queued for retry", "type": "success"}}`)
+	return c.Redirect(http.StatusSeeOther, "/queues")
 }

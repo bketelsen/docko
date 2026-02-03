@@ -488,6 +488,40 @@ func (s *Service) AvailableProviders() []string {
 	return names
 }
 
+// ApplySuggestionManual applies a suggestion that was manually accepted by user
+func (s *Service) ApplySuggestionManual(ctx context.Context, docID uuid.UUID, suggestion Suggestion) error {
+	// Start transaction
+	tx, err := s.db.Pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	qtx := s.db.Queries.WithTx(tx)
+
+	// Apply the suggestion based on type
+	if suggestion.Type == "tag" {
+		err = s.applyTagSuggestion(ctx, qtx, docID, suggestion)
+	} else if suggestion.Type == "correspondent" {
+		err = s.applyCorrespondentSuggestion(ctx, qtx, docID, suggestion)
+	}
+
+	if err != nil {
+		return fmt.Errorf("apply suggestion: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("commit: %w", err)
+	}
+
+	slog.Info("manually applied AI suggestion",
+		"doc_id", docID,
+		"type", suggestion.Type,
+		"value", suggestion.Value)
+
+	return nil
+}
+
 // Helper functions
 
 func numericToFloat64(n pgtype.Numeric) float64 {
