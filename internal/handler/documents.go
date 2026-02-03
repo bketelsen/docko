@@ -3,6 +3,10 @@ package handler
 import (
 	"errors"
 	"net/http"
+	"net/url"
+	"strconv"
+	"strings"
+	"time"
 
 	"docko/internal/database/sqlc"
 	"docko/internal/document"
@@ -15,72 +19,279 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// DocumentsPage renders the document list page with processing status
+// searchParams holds parsed search parameters
+type searchParams struct {
+	Query           string
+	CorrespondentID *uuid.UUID
+	TagIDs          []uuid.UUID
+	DateFrom        *time.Time
+	DateTo          *time.Time
+	DateRange       string // Original value: "today", "7d", "30d", "1y"
+	Page            int
+	PerPage         int
+}
+
+// parseSearchParams extracts search parameters from request
+func parseSearchParams(c echo.Context) searchParams {
+	params := searchParams{
+		Query:     strings.TrimSpace(c.QueryParam("q")),
+		DateRange: c.QueryParam("date"),
+		Page:      1,
+		PerPage:   20,
+	}
+
+	// Parse page number
+	if p := c.QueryParam("page"); p != "" {
+		if page, err := strconv.Atoi(p); err == nil && page > 0 {
+			params.Page = page
+		}
+	}
+
+	// Parse correspondent filter
+	if corrID := c.QueryParam("correspondent"); corrID != "" {
+		if id, err := uuid.Parse(corrID); err == nil {
+			params.CorrespondentID = &id
+		}
+	}
+
+	// Parse tag filters (multiple allowed)
+	for _, tagID := range c.QueryParams()["tag"] {
+		if id, err := uuid.Parse(tagID); err == nil {
+			params.TagIDs = append(params.TagIDs, id)
+		}
+	}
+
+	// Parse date range
+	now := time.Now()
+	switch params.DateRange {
+	case "today":
+		start := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+		params.DateFrom = &start
+	case "7d":
+		start := now.AddDate(0, 0, -7)
+		params.DateFrom = &start
+	case "30d":
+		start := now.AddDate(0, 0, -30)
+		params.DateFrom = &start
+	case "1y":
+		start := now.AddDate(-1, 0, 0)
+		params.DateFrom = &start
+	}
+
+	return params
+}
+
+// buildActiveFilters creates filter chip data from params
+func buildActiveFilters(params searchParams, correspondentName string, tagNames map[uuid.UUID]string) []partials.ActiveFilter {
+	var filters []partials.ActiveFilter
+	baseURL := "/documents?"
+
+	// Build base params (for removal URLs)
+	buildURL := func(exclude string) string {
+		var parts []string
+		if params.Query != "" && exclude != "query" {
+			parts = append(parts, "q="+url.QueryEscape(params.Query))
+		}
+		if params.CorrespondentID != nil && exclude != "correspondent" {
+			parts = append(parts, "correspondent="+params.CorrespondentID.String())
+		}
+		if params.DateRange != "" && exclude != "date" {
+			parts = append(parts, "date="+params.DateRange)
+		}
+		for _, tagID := range params.TagIDs {
+			if exclude != "tag-"+tagID.String() {
+				parts = append(parts, "tag="+tagID.String())
+			}
+		}
+		if len(parts) == 0 {
+			return "/documents"
+		}
+		return baseURL + strings.Join(parts, "&")
+	}
+
+	if params.Query != "" {
+		filters = append(filters, partials.ActiveFilter{
+			Type:      "Search",
+			Label:     params.Query,
+			Value:     params.Query,
+			RemoveURL: buildURL("query"),
+		})
+	}
+
+	if params.CorrespondentID != nil && correspondentName != "" {
+		filters = append(filters, partials.ActiveFilter{
+			Type:      "Correspondent",
+			Label:     correspondentName,
+			Value:     params.CorrespondentID.String(),
+			RemoveURL: buildURL("correspondent"),
+		})
+	}
+
+	if params.DateRange != "" {
+		labels := map[string]string{
+			"today": "Today",
+			"7d":    "Last 7 days",
+			"30d":   "Last 30 days",
+			"1y":    "Last year",
+		}
+		filters = append(filters, partials.ActiveFilter{
+			Type:      "Date",
+			Label:     labels[params.DateRange],
+			Value:     params.DateRange,
+			RemoveURL: buildURL("date"),
+		})
+	}
+
+	for _, tagID := range params.TagIDs {
+		if name, ok := tagNames[tagID]; ok {
+			filters = append(filters, partials.ActiveFilter{
+				Type:      "Tag",
+				Label:     name,
+				Value:     tagID.String(),
+				RemoveURL: buildURL("tag-" + tagID.String()),
+			})
+		}
+	}
+
+	return filters
+}
+
+// DocumentsPage renders the document list page with search support
+// GET /documents
 func (h *Handler) DocumentsPage(c echo.Context) error {
 	ctx := c.Request().Context()
+	params := parseSearchParams(c)
 
-	// Get documents with correspondent info (default limit 50)
-	rows, err := h.db.Queries.ListDocumentsWithCorrespondent(ctx, sqlc.ListDocumentsWithCorrespondentParams{
-		Limit:  50,
-		Offset: 0,
+	// Build query parameters for SearchDocuments
+	var query *string
+	if params.Query != "" {
+		query = &params.Query
+	}
+
+	var correspondentID uuid.UUID
+	hasCorrespondent := params.CorrespondentID != nil
+	if hasCorrespondent {
+		correspondentID = *params.CorrespondentID
+	}
+
+	var dateFrom, dateTo time.Time
+	hasDateFrom := params.DateFrom != nil
+	hasDateTo := params.DateTo != nil
+	if hasDateFrom {
+		dateFrom = *params.DateFrom
+	}
+	if hasDateTo {
+		dateTo = *params.DateTo
+	}
+
+	hasTags := len(params.TagIDs) > 0
+	tagCount := int32(len(params.TagIDs))
+
+	// Execute search
+	rows, err := h.db.Queries.SearchDocuments(ctx, sqlc.SearchDocumentsParams{
+		Query:            query,
+		HasCorrespondent: hasCorrespondent,
+		CorrespondentID:  correspondentID,
+		HasDateFrom:      hasDateFrom,
+		DateFrom:         dateFrom,
+		HasDateTo:        hasDateTo,
+		DateTo:           dateTo,
+		HasTags:          hasTags,
+		TagIds:           params.TagIDs,
+		TagCount:         tagCount,
+		LimitCount:       int64(params.PerPage),
+		OffsetCount:      int64((params.Page - 1) * params.PerPage),
 	})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "failed to list documents")
+		return echo.NewHTTPError(http.StatusInternalServerError, "search failed")
 	}
 
-	// Extract documents and build correspondent map
-	docs := make([]sqlc.Document, len(rows))
-	docCorrespondents := make(admin.DocumentCorrespondentMap)
+	// Get total count for pagination
+	total, err := h.db.Queries.CountSearchDocuments(ctx, sqlc.CountSearchDocumentsParams{
+		Query:            query,
+		HasCorrespondent: hasCorrespondent,
+		CorrespondentID:  correspondentID,
+		HasDateFrom:      hasDateFrom,
+		DateFrom:         dateFrom,
+		HasDateTo:        hasDateTo,
+		DateTo:           dateTo,
+		HasTags:          hasTags,
+		TagIds:           params.TagIDs,
+		TagCount:         tagCount,
+	})
+	if err != nil {
+		total = 0 // Non-fatal, just show results
+	}
+
+	// Convert rows to SearchResult
+	results := make([]partials.SearchResult, len(rows))
 	docIDs := make([]uuid.UUID, len(rows))
-
 	for i, row := range rows {
-		docs[i] = sqlc.Document{
-			ID:                 row.ID,
-			OriginalFilename:   row.OriginalFilename,
-			ContentHash:        row.ContentHash,
-			FileSize:           row.FileSize,
-			PageCount:          row.PageCount,
-			PdfTitle:           row.PdfTitle,
-			PdfAuthor:          row.PdfAuthor,
-			PdfCreatedAt:       row.PdfCreatedAt,
-			DocumentDate:       row.DocumentDate,
-			CreatedAt:          row.CreatedAt,
-			UpdatedAt:          row.UpdatedAt,
-			ProcessingStatus:   row.ProcessingStatus,
-			TextContent:        row.TextContent,
-			ThumbnailGenerated: row.ThumbnailGenerated,
-			ProcessingError:    row.ProcessingError,
-			ProcessedAt:        row.ProcessedAt,
-		}
+		results[i] = partials.SearchResult{SearchDocumentsRow: row}
 		docIDs[i] = row.ID
-
-		// Add correspondent to map if present
-		if row.CorrespondentName != nil {
-			docCorrespondents[row.ID] = *row.CorrespondentName
-		}
 	}
 
-	// Build tags map for all documents
-	docTags := make(admin.DocumentTagsMap)
-	if len(docs) > 0 {
-		// Fetch tags for all documents in one query
+	// Fetch tags for results
+	docTags := make(partials.DocumentTagsMap)
+	if len(docIDs) > 0 {
 		tagRows, err := h.db.Queries.GetTagsForDocuments(ctx, docIDs)
 		if err == nil {
-			// Build map from rows
 			for _, row := range tagRows {
-				tag := sqlc.Tag{
-					ID:        row.ID,
-					Name:      row.Name,
-					Color:     row.Color,
-					CreatedAt: row.CreatedAt,
-				}
+				tag := sqlc.Tag{ID: row.ID, Name: row.Name, Color: row.Color, CreatedAt: row.CreatedAt}
 				docTags[row.DocumentID] = append(docTags[row.DocumentID], tag)
 			}
 		}
-		// If error, just continue with empty tags - non-fatal
 	}
 
-	return admin.Documents(docs, docTags, docCorrespondents).Render(ctx, c.Response().Writer)
+	// Build correspondents map
+	docCorrespondents := make(partials.DocumentCorrespondentMap)
+	for _, result := range results {
+		if result.CorrespondentName != nil {
+			docCorrespondents[result.ID] = *result.CorrespondentName
+		}
+	}
+
+	// Get correspondent name for filter chip
+	var correspondentName string
+	if params.CorrespondentID != nil {
+		if corr, err := h.db.Queries.GetCorrespondent(ctx, *params.CorrespondentID); err == nil {
+			correspondentName = corr.Name
+		}
+	}
+
+	// Get tag names for filter chips
+	tagNames := make(map[uuid.UUID]string)
+	for _, tagID := range params.TagIDs {
+		if tag, err := h.db.Queries.GetTag(ctx, tagID); err == nil {
+			tagNames[tagID] = tag.Name
+		}
+	}
+
+	activeFilters := buildActiveFilters(params, correspondentName, tagNames)
+
+	// Convert params for template
+	templateParams := partials.SearchParams{
+		Query:     params.Query,
+		DateRange: params.DateRange,
+		Page:      params.Page,
+		PerPage:   params.PerPage,
+	}
+	if params.CorrespondentID != nil {
+		templateParams.CorrespondentID = params.CorrespondentID.String()
+	}
+	for _, tagID := range params.TagIDs {
+		templateParams.TagIDs = append(templateParams.TagIDs, tagID.String())
+	}
+
+	// Check if HTMX request (return partial) or full page
+	if c.Request().Header.Get("HX-Request") == "true" {
+		return partials.SearchResults(results, docTags, docCorrespondents, templateParams, int(total), activeFilters).
+			Render(ctx, c.Response().Writer)
+	}
+
+	// Full page - render Documents template with search results
+	return admin.DocumentsWithSearch(results, docTags, docCorrespondents, templateParams, int(total), activeFilters).
+		Render(ctx, c.Response().Writer)
 }
 
 // DocumentDetail renders the document detail page
