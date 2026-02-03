@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 8 of 8 (AI Integration)
-Plan: 2 of 6 in current phase
+Plan: 3 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 08-02-PLAN.md
+Last activity: 2026-02-03 - Completed 08-03-PLAN.md
 
-Progress: [############################] 32/36 plans
+Progress: [#############################] 33/36 plans
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 32
-- Average duration: 4.4 min
+- Total plans completed: 33
+- Average duration: 4.5 min
 - Total execution time: 2.5 hours
 
 **By Phase:**
@@ -34,12 +34,12 @@ Progress: [############################] 32/36 plans
 | 05-organization | 5 | 29 min | 5.8 min |
 | 06-search | 3 | 11 min | 3.7 min |
 | 07-network-sources | 6 | 19 min | 3.2 min |
-| 08-ai-integration | 2 | 10 min | 5.0 min |
+| 08-ai-integration | 3 | 17 min | 5.7 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 07-05 (5 min), 07-06 (8 min), 08-01 (4 min), 08-02 (6 min)
-- Trend: Building AI provider infrastructure
+- Last 5 plans: 07-06 (8 min), 08-01 (4 min), 08-02 (6 min), 08-03 (7 min)
+- Trend: Building AI service infrastructure
 
 *Updated after each plan completion*
 
@@ -133,6 +133,9 @@ Recent decisions affecting current work:
 - llama3.2 default for Ollama (configurable via OLLAMA_MODEL)
 - Provider interface: Analyze/Name/Available methods
 - Structured JSON output via OpenAI schema, prompt instructions for Anthropic/Ollama
+- Fallback tries all providers in order (OpenAI -> Anthropic -> Ollama)
+- Auto-apply creates tags/correspondents if not found (not just assigns existing)
+- AI queue runs as separate queue (ai) from document processing (default)
 
 ### Pending Todos
 
@@ -144,9 +147,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T19:47:54Z
-Stopped at: Completed 08-02-PLAN.md (AI Providers)
+Last session: 2026-02-03T19:55:00Z
+Stopped at: Completed 08-03-PLAN.md (AI Service)
 Resume file: None
 
 ---
-*Next action: Continue with 08-03 (AI Service)*
+*Next action: Continue with 08-04 (AI Handlers)*
