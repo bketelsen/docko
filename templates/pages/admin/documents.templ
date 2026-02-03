@@ -2,6 +2,9 @@ package admin
 
 import (
 	"fmt"
+
+	"docko/components/button"
+	"docko/components/input"
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
@@ -24,12 +27,14 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents
 					<h1 class="text-2xl font-bold">Documents</h1>
 					<p class="text-muted-foreground">View uploaded documents and processing status.</p>
 				</div>
-				<a href="/upload" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+				@button.Button(button.Props{
+					Href: "/upload",
+				}) {
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
 					</svg>
 					Upload
-				</a>
+				}
 			</div>
 		</div>
 
@@ -47,9 +52,11 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents
 					</svg>
 					<p class="text-lg font-medium mb-2">No documents yet</p>
 					<p class="text-muted-foreground mb-4">Upload your first document to get started.</p>
-					<a href="/upload" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+					@button.Button(button.Props{
+						Href: "/upload",
+					}) {
 						Upload Document
-					</a>
+					}
 				</div>
 			} else {
 				<div class="border border-border rounded-lg overflow-hidden">
@@ -175,12 +182,14 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 					<h1 class="text-2xl font-bold">Documents</h1>
 					<p class="text-muted-foreground">Search and filter your document library.</p>
 				</div>
-				<a href="/upload" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+				@button.Button(button.Props{
+					Href: "/upload",
+				}) {
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
 					</svg>
 					Upload
-				</a>
+				}
 			</div>
 
 			// Search form with HTMX
@@ -194,20 +203,20 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 
 				// Search input row with filters
 				<div class="flex gap-4">
-					// Search input with loading indicator
+					// Search input with icon and loading indicator
 					<div class="relative flex-1">
-						<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
 						</svg>
-						<input
-							type="search"
-							name="q"
-							value={ params.Query }
-							placeholder="Search documents..."
-							class="w-full pl-10 pr-10 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-						/>
+						@input.Input(input.Props{
+							Type:        input.TypeSearch,
+							Name:        "q",
+							Placeholder: "Search documents...",
+							Value:       params.Query,
+							Class:       "pl-10 pr-10",
+						})
 						// Loading indicator
-						<span id="search-indicator" class="htmx-indicator absolute right-3 top-1/2 -translate-y-1/2">
+						<span id="search-indicator" class="htmx-indicator absolute right-3 top-1/2 -translate-y-1/2 z-10">
 							<svg class="animate-spin w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24">
 								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -215,10 +224,10 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 						</span>
 					</div>
 
-					// Correspondent filter dropdown
+					// Correspondent filter dropdown (styled to match templUI)
 					<select
 						name="correspondent"
-						class="px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring min-w-[180px]"
+						class="flex h-9 min-w-[180px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 					>
 						<option value="">All correspondents</option>
 						for _, corr := range allCorrespondents {
@@ -228,10 +237,10 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 						}
 					</select>
 
-					// Date range filter dropdown
+					// Date range filter dropdown (styled to match templUI)
 					<select
 						name="date"
-						class="px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring min-w-[140px]"
+						class="flex h-9 min-w-[140px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 					>
 						<option value="">Any time</option>
 						<option value="today" selected?={ params.DateRange == "today" }>Today</option>
@@ -258,6 +267,8 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 			@partials.SearchResults(results, docTags, docCorrespondents, params, totalCount, activeFilters)
 		</div>
 
+		@input.Script()
+
 		// CSS for htmx-indicator (hidden by default, shown during request)
 		<style>
 			.htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
@@ -267,7 +278,7 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 	}
 }
 
-// tagFilterCheckbox renders a single tag filter toggle
+// tagFilterCheckbox renders a single tag filter toggle with improved styling
 templ tagFilterCheckbox(tag sqlc.Tag, selectedTagIDs []string) {
 	{{
 		isSelected := false
@@ -278,9 +289,9 @@ templ tagFilterCheckbox(tag sqlc.Tag, selectedTagIDs []string) {
 			}
 		}
 	}}
-	<label class={ "inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm cursor-pointer transition-colors",
-				   templ.KV("bg-primary text-primary-foreground", isSelected),
-				   templ.KV("bg-muted hover:bg-muted/80", !isSelected) }>
+	<label class={ "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm cursor-pointer transition-colors border",
+				   templ.KV("bg-primary text-primary-foreground border-primary", isSelected),
+				   templ.KV("bg-transparent hover:bg-muted border-input", !isSelected) }>
 		<input
 			type="checkbox"
 			name="tag"
@@ -289,7 +300,7 @@ templ tagFilterCheckbox(tag sqlc.Tag, selectedTagIDs []string) {
 			class="sr-only"
 		/>
 		if tag.Color != nil {
-			<span class="w-2 h-2 rounded-full" style={ fmt.Sprintf("background-color: %s", *tag.Color) }></span>
+			<span class={ "w-2 h-2 rounded-full", tagColorClass(tag.Color) }></span>
 		}
 		{ tag.Name }
 	</label>
