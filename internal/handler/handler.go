@@ -64,6 +64,18 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.POST("/inboxes/:id/toggle", h.ToggleInbox, middleware.RequireAuth(h.auth))
 	e.GET("/inboxes/:id/events", h.InboxEvents, middleware.RequireAuth(h.auth))
 
+	// Tag management routes (protected)
+	e.GET("/tags", h.TagsPage, middleware.RequireAuth(h.auth))
+	e.POST("/tags", h.CreateTag, middleware.RequireAuth(h.auth))
+	e.POST("/tags/:id", h.UpdateTag, middleware.RequireAuth(h.auth))
+	e.DELETE("/tags/:id", h.DeleteTag, middleware.RequireAuth(h.auth))
+
+	// Correspondent management routes (protected)
+	e.GET("/correspondents", h.CorrespondentsPage, middleware.RequireAuth(h.auth))
+	e.POST("/correspondents", h.CreateCorrespondent, middleware.RequireAuth(h.auth))
+	e.POST("/correspondents/:id", h.UpdateCorrespondent, middleware.RequireAuth(h.auth))
+	e.DELETE("/correspondents/:id", h.DeleteCorrespondent, middleware.RequireAuth(h.auth))
+
 	// Document routes (protected)
 	e.GET("/documents", h.DocumentsPage, middleware.RequireAuth(h.auth))
 	e.GET("/documents/:id", h.DocumentDetail, middleware.RequireAuth(h.auth))
