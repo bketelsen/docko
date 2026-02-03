@@ -9,13 +9,13 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Document Ingestion
 
-- [ ] **INGEST-01**: User can upload PDF files via web UI with drag-and-drop
-- [ ] **INGEST-02**: User can upload multiple files at once (bulk upload)
-- [ ] **INGEST-03**: System watches local inbox directory for new PDFs
+- [x] **INGEST-01**: User can upload PDF files via web UI with drag-and-drop
+- [x] **INGEST-02**: User can upload multiple files at once (bulk upload)
+- [x] **INGEST-03**: System watches local inbox directory for new PDFs
 - [ ] **INGEST-04**: System imports PDFs from configured SMB network shares
 - [ ] **INGEST-05**: System imports PDFs from configured NFS network shares
-- [ ] **INGEST-06**: System detects duplicate documents by content hash (SHA-256)
-- [ ] **INGEST-07**: User can configure duplicate handling per source (delete, rename, skip)
+- [x] **INGEST-06**: System detects duplicate documents by content hash (SHA-256)
+- [x] **INGEST-07**: User can configure duplicate handling per source (delete, rename, skip)
 
 ### Document Store
 
@@ -120,13 +120,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INGEST-01 | Phase 2 | Pending |
-| INGEST-02 | Phase 2 | Pending |
-| INGEST-03 | Phase 2 | Pending |
+| INGEST-01 | Phase 2 | Complete |
+| INGEST-02 | Phase 2 | Complete |
+| INGEST-03 | Phase 2 | Complete |
 | INGEST-04 | Phase 7 | Pending |
 | INGEST-05 | Phase 7 | Pending |
-| INGEST-06 | Phase 2 | Pending |
-| INGEST-07 | Phase 2 | Pending |
+| INGEST-06 | Phase 2 | Complete |
+| INGEST-07 | Phase 2 | Complete |
 | STORE-01 | Phase 1 | Complete |
 | STORE-02 | Phase 1 | Complete |
 | STORE-03 | Phase 1 | Complete |
@@ -163,4 +163,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after Phase 1 complete*
+*Last updated: 2026-02-02 after Phase 2 complete*

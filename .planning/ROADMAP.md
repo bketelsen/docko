@@ -13,7 +13,7 @@ Docko delivers a PDF document management system in 8 phases, progressing from fo
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Document store structure and queue infrastructure
-- [ ] **Phase 2: Ingestion** - Web upload and local inbox watching
+- [x] **Phase 2: Ingestion** - Web upload and local inbox watching
 - [ ] **Phase 3: Processing** - Text extraction and thumbnail generation
 - [ ] **Phase 4: Viewing** - PDF preview and download
 - [ ] **Phase 5: Organization** - Tags and correspondents management
@@ -53,11 +53,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Upload handler with PDF validation and dependencies
-- [ ] 02-02-PLAN.md — Upload UI with drag-drop, progress, and toasts
-- [ ] 02-03-PLAN.md — Inbox database schema and configuration
-- [ ] 02-04-PLAN.md — Inbox watcher service with fsnotify
-- [ ] 02-05-PLAN.md — Wire everything and inbox management UI
+- [x] 02-01-PLAN.md — Upload handler with PDF validation and dependencies
+- [x] 02-02-PLAN.md — Upload UI with drag-drop, progress, and toasts
+- [x] 02-03-PLAN.md — Inbox database schema and configuration
+- [x] 02-04-PLAN.md — Inbox watcher service with fsnotify
+- [x] 02-05-PLAN.md — Wire everything and inbox management UI
 
 ### Phase 3: Processing
 **Goal**: Uploaded documents are processed for text content and thumbnails
@@ -160,7 +160,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-02-02 |
-| 2. Ingestion | 0/5 | Not started | - |
+| 2. Ingestion | 5/5 | Complete | 2026-02-02 |
 | 3. Processing | 0/2 | Not started | - |
 | 4. Viewing | 0/1 | Not started | - |
 | 5. Organization | 0/2 | Not started | - |
