@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 8 of 8 (AI Integration)
-Plan: 3 of 6 in current phase
+Plan: 4 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 08-03-PLAN.md
+Last activity: 2026-02-03 - Completed 08-04-PLAN.md
 
-Progress: [#############################] 33/36 plans
+Progress: [##############################] 34/36 plans
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 33
+- Total plans completed: 34
 - Average duration: 4.5 min
-- Total execution time: 2.5 hours
+- Total execution time: 2.6 hours
 
 **By Phase:**
 
@@ -34,12 +34,12 @@ Progress: [#############################] 33/36 plans
 | 05-organization | 5 | 29 min | 5.8 min |
 | 06-search | 3 | 11 min | 3.7 min |
 | 07-network-sources | 6 | 19 min | 3.2 min |
-| 08-ai-integration | 3 | 17 min | 5.7 min |
+| 08-ai-integration | 4 | 23 min | 5.8 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 07-06 (8 min), 08-01 (4 min), 08-02 (6 min), 08-03 (7 min)
-- Trend: Building AI service infrastructure
+- Last 5 plans: 08-01 (4 min), 08-02 (6 min), 08-03 (7 min), 08-04 (6 min)
+- Trend: Building AI UI and configuration layer
 
 *Updated after each plan completion*
 
@@ -136,6 +136,9 @@ Recent decisions affecting current work:
 - Fallback tries all providers in order (OpenAI -> Anthropic -> Ollama)
 - Auto-apply creates tags/correspondents if not found (not just assigns existing)
 - AI queue runs as separate queue (ai) from document processing (default)
+- Provider status shows available vs not configured based on env vars
+- Settings form uses HTMX POST with redirect and toast feedback
+- Usage stats wraps sqlc query to handle nullable int64 fields
 
 ### Pending Todos
 
@@ -147,9 +150,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T19:55:00Z
-Stopped at: Completed 08-03-PLAN.md (AI Service)
+Last session: 2026-02-03T20:06:00Z
+Stopped at: Completed 08-04-PLAN.md (AI Settings)
 Resume file: None
 
 ---
-*Next action: Continue with 08-04 (AI Handlers)*
+*Next action: Continue with 08-05 (AI Review Queue)*
