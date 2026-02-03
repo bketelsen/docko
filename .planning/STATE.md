@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 8 of 8 (AI Integration)
-Plan: 4 of 6 in current phase
+Plan: 5 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 08-04-PLAN.md
+Last activity: 2026-02-03 - Completed 08-05-PLAN.md
 
-Progress: [##############################] 34/36 plans
+Progress: [##############################] 35/36 plans
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 34
+- Total plans completed: 35
 - Average duration: 4.5 min
-- Total execution time: 2.6 hours
+- Total execution time: 2.7 hours
 
 **By Phase:**
 
@@ -34,12 +34,12 @@ Progress: [##############################] 34/36 plans
 | 05-organization | 5 | 29 min | 5.8 min |
 | 06-search | 3 | 11 min | 3.7 min |
 | 07-network-sources | 6 | 19 min | 3.2 min |
-| 08-ai-integration | 4 | 23 min | 5.8 min |
+| 08-ai-integration | 5 | 30 min | 6.0 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 08-01 (4 min), 08-02 (6 min), 08-03 (7 min), 08-04 (6 min)
-- Trend: Building AI UI and configuration layer
+- Last 5 plans: 08-02 (6 min), 08-03 (7 min), 08-04 (6 min), 08-05 (7 min)
+- Trend: Building AI UI with review queue and queue dashboard
 
 *Updated after each plan completion*
 
@@ -139,6 +139,9 @@ Recent decisions affecting current work:
 - Provider status shows available vs not configured based on env vars
 - Settings form uses HTMX POST with redirect and toast feedback
 - Usage stats wraps sqlc query to handle nullable int64 fields
+- Queue stats use GROUP BY aggregation for efficient counting
+- HTMX outerHTML swap returns empty string to remove rows
+- ApplySuggestionManual uses transaction for atomic tag/correspondent creation
 
 ### Pending Todos
 
@@ -150,9 +153,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T20:06:00Z
-Stopped at: Completed 08-04-PLAN.md (AI Settings)
+Last session: 2026-02-03T20:03:00Z
+Stopped at: Completed 08-05-PLAN.md (Review Queue and Queue Dashboard)
 Resume file: None
 
 ---
-*Next action: Continue with 08-05 (AI Review Queue)*
+*Next action: Continue with 08-06 (AI Queue Worker)*
