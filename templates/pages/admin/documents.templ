@@ -6,10 +6,14 @@ import (
 	"docko/internal/meta"
 	"docko/templates/layouts"
 	"docko/templates/partials"
+	"github.com/google/uuid"
 )
 
+// DocumentTagsMap maps document ID to tags
+type DocumentTagsMap map[uuid.UUID][]sqlc.Tag
+
 // Documents renders the document list page with real-time status updates
-templ Documents(docs []sqlc.Document) {
+templ Documents(docs []sqlc.Document, docTags DocumentTagsMap) {
 	@layouts.Admin(meta.New("Documents", "View and manage uploaded documents")) {
 		<div class="mb-8">
 			<div class="flex items-center justify-between">
@@ -50,6 +54,7 @@ templ Documents(docs []sqlc.Document) {
 						<thead class="bg-muted/50">
 							<tr>
 								<th class="px-4 py-3 text-left text-sm font-medium">Filename</th>
+								<th class="px-4 py-3 text-left text-sm font-medium">Tags</th>
 								<th class="px-4 py-3 text-left text-sm font-medium">Size</th>
 								<th class="px-4 py-3 text-left text-sm font-medium">Date</th>
 								<th class="px-4 py-3 text-left text-sm font-medium">Status</th>
@@ -72,6 +77,9 @@ templ Documents(docs []sqlc.Document) {
 											</a>
 										</div>
 									</td>
+									<td class="px-4 py-3">
+										@partials.InlineTagPicker(doc.ID.String(), getDocTags(docTags, doc.ID))
+									</td>
 									<td class="px-4 py-3 text-sm text-muted-foreground">
 										{ formatFileSize(doc.FileSize) }
 									</td>
@@ -92,6 +100,18 @@ templ Documents(docs []sqlc.Document) {
 			}
 		</div>
 	}
+}
+
+// getDocTags safely retrieves tags for a document ID from the map
+func getDocTags(docTags DocumentTagsMap, docID uuid.UUID) []sqlc.Tag {
+	if docTags == nil {
+		return []sqlc.Tag{}
+	}
+	tags, ok := docTags[docID]
+	if !ok {
+		return []sqlc.Tag{}
+	}
+	return tags
 }
 
 // formatFileSize returns human-readable file size

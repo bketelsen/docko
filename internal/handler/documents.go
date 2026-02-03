@@ -28,7 +28,33 @@ func (h *Handler) DocumentsPage(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to list documents")
 	}
 
-	return admin.Documents(docs).Render(ctx, c.Response().Writer)
+	// Build tags map for all documents
+	docTags := make(admin.DocumentTagsMap)
+	if len(docs) > 0 {
+		// Collect document IDs
+		docIDs := make([]uuid.UUID, len(docs))
+		for i, doc := range docs {
+			docIDs[i] = doc.ID
+		}
+
+		// Fetch tags for all documents in one query
+		tagRows, err := h.db.Queries.GetTagsForDocuments(ctx, docIDs)
+		if err == nil {
+			// Build map from rows
+			for _, row := range tagRows {
+				tag := sqlc.Tag{
+					ID:        row.ID,
+					Name:      row.Name,
+					Color:     row.Color,
+					CreatedAt: row.CreatedAt,
+				}
+				docTags[row.DocumentID] = append(docTags[row.DocumentID], tag)
+			}
+		}
+		// If error, just continue with empty tags - non-fatal
+	}
+
+	return admin.Documents(docs, docTags).Render(ctx, c.Response().Writer)
 }
 
 // DocumentDetail renders the document detail page
@@ -49,7 +75,14 @@ func (h *Handler) DocumentDetail(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to fetch document")
 	}
 
-	return admin.DocumentDetail(doc).Render(ctx, c.Response().Writer)
+	// Fetch tags for this document
+	tags, err := h.db.Queries.GetDocumentTags(ctx, docID)
+	if err != nil {
+		// Non-fatal: render without tags
+		tags = []sqlc.Tag{}
+	}
+
+	return admin.DocumentDetail(doc, tags).Render(ctx, c.Response().Writer)
 }
 
 // ViewPDF serves a PDF file inline for browser viewing

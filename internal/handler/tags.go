@@ -174,7 +174,7 @@ func (h *Handler) DeleteTag(c echo.Context) error {
 }
 
 // SearchTagsForDocument searches for tags not already assigned to a document
-// GET /documents/:id/tags/search?q=query
+// GET /documents/:id/tags/search?q=query&inline=1
 func (h *Handler) SearchTagsForDocument(c echo.Context) error {
 	ctx := c.Request().Context()
 
@@ -184,6 +184,7 @@ func (h *Handler) SearchTagsForDocument(c echo.Context) error {
 	}
 
 	query := strings.TrimSpace(c.QueryParam("q"))
+	inline := c.QueryParam("inline") == "1"
 
 	// Search for tags not already assigned to this document
 	searchPattern := "%" + query + "%"
@@ -199,6 +200,10 @@ func (h *Handler) SearchTagsForDocument(c echo.Context) error {
 	// Check if we should offer to create a new tag
 	showCreate := query != "" && !hasExactMatch(tags, query)
 
+	// Return inline or regular search results based on context
+	if inline {
+		return partials.InlineTagSearchResults(docID.String(), tags, query, showCreate).Render(ctx, c.Response().Writer)
+	}
 	return partials.TagSearchResults(docID.String(), tags, query, showCreate).Render(ctx, c.Response().Writer)
 }
 
@@ -286,6 +291,12 @@ func (h *Handler) AddDocumentTag(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Failed to get tags")
 	}
 
+	// Check if request is from inline picker (target starts with "inline-picker-")
+	hxTarget := c.Request().Header.Get("HX-Target")
+	if strings.HasPrefix(hxTarget, "inline-picker-") {
+		return partials.InlineTagPicker(docID.String(), tags).Render(ctx, c.Response().Writer)
+	}
+
 	return partials.DocumentTagsList(docID.String(), tags).Render(ctx, c.Response().Writer)
 }
 
@@ -321,5 +332,30 @@ func (h *Handler) RemoveDocumentTag(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Failed to get tags")
 	}
 
+	// Check if request is from inline picker (target starts with "inline-picker-")
+	hxTarget := c.Request().Header.Get("HX-Target")
+	if strings.HasPrefix(hxTarget, "inline-picker-") {
+		return partials.InlineTagPicker(docID.String(), tags).Render(ctx, c.Response().Writer)
+	}
+
 	return partials.DocumentTagsList(docID.String(), tags).Render(ctx, c.Response().Writer)
+}
+
+// GetDocumentTagsPicker returns the InlineTagPicker partial for a document
+// GET /documents/:id/tags/picker
+func (h *Handler) GetDocumentTagsPicker(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid document ID")
+	}
+
+	tags, err := h.db.Queries.GetDocumentTags(ctx, docID)
+	if err != nil {
+		slog.Error("failed to get document tags", "error", err)
+		tags = []sqlc.Tag{}
+	}
+
+	return partials.InlineTagPicker(docID.String(), tags).Render(ctx, c.Response().Writer)
 }

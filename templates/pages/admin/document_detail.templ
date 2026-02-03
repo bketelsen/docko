@@ -5,12 +5,13 @@ import (
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
+	"docko/templates/partials"
 	"docko/components/tabs"
 	"docko/components/breadcrumb"
 )
 
 // DocumentDetail renders the document detail page with thumbnail and metadata
-templ DocumentDetail(doc sqlc.Document) {
+templ DocumentDetail(doc sqlc.Document, tags []sqlc.Tag) {
 	@layouts.Admin(meta.New(doc.OriginalFilename, "Document details")) {
 		// Breadcrumb navigation
 		<div class="mb-6">
@@ -151,6 +152,11 @@ templ DocumentDetail(doc sqlc.Document) {
 								<span>
 									@statusBadge(string(doc.ProcessingStatus))
 								</span>
+							</div>
+							// Tags section
+							<div class="py-3 border-b border-border">
+								<span class="text-muted-foreground block mb-2">Tags</span>
+								@partials.TagPicker(doc.ID.String(), tags)
 							</div>
 						</div>
 					}

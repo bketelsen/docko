@@ -52,3 +52,10 @@ AND t.id NOT IN (
 )
 ORDER BY t.name
 LIMIT 10;
+
+-- name: GetTagsForDocuments :many
+SELECT dt.document_id, t.id, t.name, t.color, t.created_at
+FROM document_tags dt
+INNER JOIN tags t ON t.id = dt.tag_id
+WHERE dt.document_id = ANY($1::uuid[])
+ORDER BY dt.document_id, t.name;
