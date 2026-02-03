@@ -1,28 +1,44 @@
 package partials
 
+import (
+	"docko/components/badge"
+	"docko/components/button"
+)
+
 // DocumentStatus renders status badge for a document
 // Used both for initial page render and SSE updates
 templ DocumentStatus(docID string, status string, errorMsg string) {
 	<div id={ "status-" + docID } class="inline-flex items-center gap-1">
 		if status == "pending" {
-			<span class="px-2 py-1 text-xs rounded bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">Pending</span>
-		} else if status == "processing" {
-			<span class="px-2 py-1 text-xs rounded bg-blue-200 dark:bg-blue-900 text-blue-700 dark:text-blue-300 animate-pulse">Processing...</span>
-		} else if status == "completed" {
-			<span class="px-2 py-1 text-xs rounded bg-green-200 dark:bg-green-900 text-green-700 dark:text-green-300">Complete</span>
-		} else if status == "failed" {
-			<span class="px-2 py-1 text-xs rounded bg-red-200 dark:bg-red-900 text-red-700 dark:text-red-300">Failed</span>
-			if errorMsg != "" {
-				<span class="text-xs text-red-600 dark:text-red-400 cursor-help" title={ errorMsg }>(?)</span>
+			@badge.Badge(badge.Props{Variant: badge.VariantSecondary}) {
+				Pending
 			}
-			<button
-				hx-post={ "/api/documents/" + docID + "/retry" }
-				hx-swap="outerHTML"
-				hx-target={ "#status-" + docID }
-				class="ml-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-			>
+		} else if status == "processing" {
+			@badge.Badge(badge.Props{Variant: badge.VariantDefault, Class: "animate-pulse"}) {
+				Processing...
+			}
+		} else if status == "completed" {
+			@badge.Badge(badge.Props{Variant: badge.VariantDefault, Class: "bg-green-600 hover:bg-green-600"}) {
+				Complete
+			}
+		} else if status == "failed" {
+			@badge.Badge(badge.Props{Variant: badge.VariantDestructive}) {
+				Failed
+			}
+			if errorMsg != "" {
+				<span class="text-xs text-destructive cursor-help" title={ errorMsg }>(?)</span>
+			}
+			@button.Button(button.Props{
+				Variant: button.VariantLink,
+				Size:    button.SizeSm,
+				Attributes: templ.Attributes{
+					"hx-post":   "/api/documents/" + docID + "/retry",
+					"hx-swap":   "outerHTML",
+					"hx-target": "#status-" + docID,
+				},
+			}) {
 				Retry
-			</button>
+			}
 		}
 	</div>
 }
