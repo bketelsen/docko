@@ -56,3 +56,11 @@ UPDATE documents SET
     updated_at = NOW()
 WHERE id = $1
 RETURNING *;
+
+-- name: ListDocumentsWithCorrespondent :many
+SELECT d.*, c.id as correspondent_id, c.name as correspondent_name
+FROM documents d
+LEFT JOIN document_correspondents dc ON dc.document_id = d.id
+LEFT JOIN correspondents c ON c.id = dc.correspondent_id
+ORDER BY d.created_at DESC
+LIMIT $1 OFFSET $2;

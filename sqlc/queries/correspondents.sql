@@ -46,3 +46,23 @@ RETURNING *;
 
 -- name: DeleteCorrespondentsByIds :exec
 DELETE FROM correspondents WHERE id = ANY($1::uuid[]);
+
+-- name: GetDocumentCorrespondent :one
+SELECT c.* FROM correspondents c
+INNER JOIN document_correspondents dc ON dc.correspondent_id = c.id
+WHERE dc.document_id = $1;
+
+-- name: SetDocumentCorrespondent :exec
+INSERT INTO document_correspondents (document_id, correspondent_id)
+VALUES ($1, $2)
+ON CONFLICT (document_id) DO UPDATE SET correspondent_id = $2;
+
+-- name: RemoveDocumentCorrespondent :exec
+DELETE FROM document_correspondents
+WHERE document_id = $1;
+
+-- name: SearchCorrespondentsWithLimit :many
+SELECT * FROM correspondents
+WHERE name ILIKE $1
+ORDER BY name
+LIMIT 10;
