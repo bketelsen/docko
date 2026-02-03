@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"docko/components/button"
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
@@ -18,14 +19,16 @@ templ NetworkSources(sources []sqlc.NetworkSource) {
 					<p class="text-muted-foreground">Configure SMB and NFS shares to automatically import PDF documents.</p>
 				</div>
 				if len(sources) > 0 {
-					<button
-						hx-post="/network-sources/sync-all"
-						hx-swap="none"
-						hx-on::after-request="showToast(event.detail.xhr.responseText, !event.detail.successful)"
-						class="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
-					>
+					@button.Button(button.Props{
+						Variant: button.VariantSecondary,
+						Attributes: templ.Attributes{
+							"hx-post":              "/network-sources/sync-all",
+							"hx-swap":              "none",
+							"hx-on::after-request": "showToast(event.detail.xhr.responseText, !event.detail.successful)",
+						},
+					}) {
 						Sync All
-					</button>
+					}
 				}
 			</div>
 		</div>
