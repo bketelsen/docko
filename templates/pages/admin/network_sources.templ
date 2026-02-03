@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"docko/components/button"
+	"docko/components/input"
+	"docko/components/label"
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
@@ -43,127 +45,144 @@ templ NetworkSources(sources []sqlc.NetworkSource) {
 				hx-on::after-request="if(event.detail.successful) this.reset()"
 				class="grid gap-4 md:grid-cols-2"
 			>
-				<div>
-					<label for="name" class="block text-sm font-medium mb-1">Name</label>
-					<input
-						type="text"
-						id="name"
-						name="name"
-						required
-						placeholder="Office Share"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "name"}) {
+						Name
+					}
+					@input.Input(input.Props{
+						ID:          "name",
+						Type:        input.TypeText,
+						Name:        "name",
+						Placeholder: "Office Share",
+						Attributes:  templ.Attributes{"required": "true"},
+					})
 				</div>
-				<div>
-					<label for="protocol" class="block text-sm font-medium mb-1">Protocol</label>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "protocol"}) {
+						Protocol
+					}
 					<select
 						id="protocol"
 						name="protocol"
 						onchange="toggleCredentials(this)"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+						class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 					>
 						<option value="smb">SMB (Windows/Samba)</option>
 						<option value="nfs">NFS</option>
 					</select>
 				</div>
-				<div>
-					<label for="host" class="block text-sm font-medium mb-1">Host</label>
-					<input
-						type="text"
-						id="host"
-						name="host"
-						required
-						placeholder="192.168.1.100 or server.local"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "host"}) {
+						Host
+					}
+					@input.Input(input.Props{
+						ID:          "host",
+						Type:        input.TypeText,
+						Name:        "host",
+						Placeholder: "192.168.1.100 or server.local",
+						Attributes:  templ.Attributes{"required": "true"},
+					})
 				</div>
-				<div>
-					<label for="share_path" class="block text-sm font-medium mb-1">Share/Export Path</label>
-					<input
-						type="text"
-						id="share_path"
-						name="share_path"
-						required
-						placeholder="Documents (SMB) or /exports/docs (NFS)"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "share_path"}) {
+						Share/Export Path
+					}
+					@input.Input(input.Props{
+						ID:          "share_path",
+						Type:        input.TypeText,
+						Name:        "share_path",
+						Placeholder: "Documents (SMB) or /exports/docs (NFS)",
+						Attributes:  templ.Attributes{"required": "true"},
+					})
 				</div>
-				<div id="smb-credentials">
-					<label for="username" class="block text-sm font-medium mb-1">Username (SMB only)</label>
-					<input
-						type="text"
-						id="username"
-						name="username"
-						placeholder="domain\\user or user"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+				<div id="smb-credentials" class="space-y-2">
+					@label.Label(label.Props{For: "username"}) {
+						Username (SMB only)
+					}
+					@input.Input(input.Props{
+						ID:          "username",
+						Type:        input.TypeText,
+						Name:        "username",
+						Placeholder: "domain\\user or user",
+					})
 				</div>
-				<div id="smb-password">
-					<label for="password" class="block text-sm font-medium mb-1">Password (SMB only)</label>
-					<input
-						type="password"
-						id="password"
-						name="password"
-						placeholder="Enter password"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+				<div id="smb-password" class="space-y-2">
+					@label.Label(label.Props{For: "password"}) {
+						Password (SMB only)
+					}
+					@input.Input(input.Props{
+						ID:               "password",
+						Type:             input.TypePassword,
+						Name:             "password",
+						Placeholder:      "Enter password",
+						NoTogglePassword: true,
+					})
 				</div>
-				<div>
-					<label for="post_import_action" class="block text-sm font-medium mb-1">After Import</label>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "post_import_action"}) {
+						After Import
+					}
 					<select
 						id="post_import_action"
 						name="post_import_action"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+						class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 					>
 						<option value="leave">Leave in place</option>
 						<option value="delete">Delete from source</option>
 						<option value="move">Move to subfolder</option>
 					</select>
 				</div>
-				<div>
-					<label for="duplicate_action" class="block text-sm font-medium mb-1">Duplicate Handling</label>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "duplicate_action"}) {
+						Duplicate Handling
+					}
 					<select
 						id="duplicate_action"
 						name="duplicate_action"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+						class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
 					>
 						<option value="delete">Skip (don't import)</option>
 						<option value="rename">Import with new name</option>
 						<option value="skip">Skip (leave on source)</option>
 					</select>
 				</div>
-				<div class="flex items-center gap-2">
+				<div class="flex items-center space-x-2">
 					<input
 						type="checkbox"
 						id="continuous_sync"
 						name="continuous_sync"
 						value="true"
 						checked
-						class="rounded border-input"
+						class="h-4 w-4 rounded border-input text-primary focus:ring-primary"
 					/>
-					<label for="continuous_sync" class="text-sm font-medium">Continuous sync (every 5 minutes)</label>
+					@label.Label(label.Props{For: "continuous_sync"}) {
+						Continuous sync (every 5 minutes)
+					}
 				</div>
-				<div>
-					<label for="batch_size" class="block text-sm font-medium mb-1">Batch Size</label>
-					<input
-						type="number"
-						id="batch_size"
-						name="batch_size"
-						value="100"
-						min="1"
-						max="1000"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "batch_size"}) {
+						Batch Size
+					}
+					@input.Input(input.Props{
+						ID:    "batch_size",
+						Type:  input.TypeNumber,
+						Name:  "batch_size",
+						Value: "100",
+						Attributes: templ.Attributes{
+							"min": "1",
+							"max": "1000",
+						},
+					})
 				</div>
 				<div class="md:col-span-2">
-					<button
-						type="submit"
-						class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-					>
+					@button.Button(button.Props{
+						Type: button.TypeSubmit,
+					}) {
 						Add Network Source
-					</button>
+					}
 				</div>
 			</form>
+			@input.Script()
 		</div>
 
 		<!-- Source List -->
