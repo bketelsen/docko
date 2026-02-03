@@ -5,6 +5,7 @@ import (
 
 	"docko/components/button"
 	"docko/components/input"
+	"docko/components/table"
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
@@ -60,21 +61,21 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents
 				</div>
 			} else {
 				<div class="border border-border rounded-lg overflow-hidden">
-					<table class="w-full">
-						<thead class="bg-muted/50">
-							<tr>
-								<th class="px-4 py-3 text-left text-sm font-medium">Filename</th>
-								<th class="px-4 py-3 text-left text-sm font-medium">Tags</th>
-								<th class="px-4 py-3 text-left text-sm font-medium">Correspondent</th>
-								<th class="px-4 py-3 text-left text-sm font-medium">Size</th>
-								<th class="px-4 py-3 text-left text-sm font-medium">Date</th>
-								<th class="px-4 py-3 text-left text-sm font-medium">Status</th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-border">
+					@table.Table() {
+						@table.Header(table.HeaderProps{Class: "bg-muted/50"}) {
+							@table.Row() {
+								@table.Head() { Filename }
+								@table.Head() { Tags }
+								@table.Head() { Correspondent }
+								@table.Head() { Size }
+								@table.Head() { Date }
+								@table.Head() { Status }
+							}
+						}
+						@table.Body() {
 							for _, doc := range docs {
-								<tr class="hover:bg-muted/30">
-									<td class="px-4 py-3">
+								@table.Row() {
+									@table.Cell() {
 										<div class="flex items-center gap-3">
 											<svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
 												<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
@@ -87,29 +88,29 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents
 												{ doc.OriginalFilename }
 											</a>
 										</div>
-									</td>
-									<td class="px-4 py-3">
+									}
+									@table.Cell() {
 										@partials.InlineTagPicker(doc.ID.String(), getDocTags(docTags, doc.ID))
-									</td>
-									<td class="px-4 py-3">
+									}
+									@table.Cell() {
 										@partials.InlineCorrespondentDisplay(getDocCorrespondent(docCorrespondents, doc.ID))
-									</td>
-									<td class="px-4 py-3 text-sm text-muted-foreground">
+									}
+									@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
 										{ formatFileSize(doc.FileSize) }
-									</td>
-									<td class="px-4 py-3 text-sm text-muted-foreground">
+									}
+									@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
 										{ doc.CreatedAt.Format("Jan 2, 2006") }
-									</td>
-									<td class="px-4 py-3">
+									}
+									@table.Cell() {
 										// Status badge - swapped by SSE event "doc-{id}"
 										<div sse-swap={ "doc-" + doc.ID.String() } hx-swap="innerHTML">
 											@partials.DocumentStatus(doc.ID.String(), string(doc.ProcessingStatus), derefStr(doc.ProcessingError))
 										</div>
-									</td>
-								</tr>
+									}
+								}
 							}
-						</tbody>
-					</table>
+						}
+					}
 				</div>
 			}
 		</div>

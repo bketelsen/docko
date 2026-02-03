@@ -1,6 +1,8 @@
 package partials
 
 import (
+	"docko/components/button"
+	"docko/components/table"
 	"docko/internal/database/sqlc"
 	"fmt"
 	"github.com/google/uuid"
@@ -90,20 +92,20 @@ templ SearchResults(results []SearchResult, docTags DocumentTagsMap, docCorrespo
 		@emptySearchResults(params, activeFilters)
 	} else {
 		<div class="border border-border rounded-lg overflow-hidden">
-			<table class="w-full">
-				<thead class="bg-muted/50">
-					<tr>
-						<th class="px-4 py-3 text-left text-sm font-medium">Document</th>
-						<th class="px-4 py-3 text-left text-sm font-medium">Tags</th>
-						<th class="px-4 py-3 text-left text-sm font-medium">Correspondent</th>
-						<th class="px-4 py-3 text-left text-sm font-medium">Date</th>
-						<th class="px-4 py-3 text-left text-sm font-medium">Status</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-border">
+			@table.Table() {
+				@table.Header(table.HeaderProps{Class: "bg-muted/50"}) {
+					@table.Row() {
+						@table.Head() { Document }
+						@table.Head() { Tags }
+						@table.Head() { Correspondent }
+						@table.Head() { Date }
+						@table.Head() { Status }
+					}
+				}
+				@table.Body() {
 					for _, result := range results {
-						<tr class="hover:bg-muted/30">
-							<td class="px-4 py-3">
+						@table.Row() {
+							@table.Cell() {
 								<div class="flex items-start gap-3">
 									<svg class="w-8 h-8 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 24 24">
 										<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
@@ -126,23 +128,23 @@ templ SearchResults(results []SearchResult, docTags DocumentTagsMap, docCorrespo
 										}
 									</div>
 								</div>
-							</td>
-							<td class="px-4 py-3">
+							}
+							@table.Cell() {
 								@InlineTagPicker(result.ID.String(), getResultTags(docTags, result.ID))
-							</td>
-							<td class="px-4 py-3">
+							}
+							@table.Cell() {
 								@InlineCorrespondentDisplay(result.CorrespondentName)
-							</td>
-							<td class="px-4 py-3 text-sm text-muted-foreground">
+							}
+							@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
 								{ formatDocDate(result.DocumentDate) }
-							</td>
-							<td class="px-4 py-3">
+							}
+							@table.Cell() {
 								@DocumentStatus(result.ID.String(), string(result.ProcessingStatus), derefStrPtr(result.ProcessingError))
-							</td>
-						</tr>
+							}
+						}
 					}
-				</tbody>
-			</table>
+				}
+			}
 		</div>
 
 		// Pagination
@@ -162,20 +164,21 @@ templ emptySearchResults(params SearchParams, activeFilters []ActiveFilter) {
 			<p class="text-muted-foreground mb-4">
 				Try removing some filters or adjusting your search.
 			</p>
-			<button
-				hx-get="/documents"
-				hx-target="#document-results"
-				hx-push-url="true"
-				class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-			>
+			@button.Button(button.Props{
+				Attributes: templ.Attributes{
+					"hx-get":      "/documents",
+					"hx-target":   "#document-results",
+					"hx-push-url": "true",
+				},
+			}) {
 				Clear all filters
-			</button>
+			}
 		} else {
 			<p class="text-lg font-medium mb-2">No documents yet</p>
 			<p class="text-muted-foreground mb-4">Upload your first document to get started.</p>
-			<a href="/upload" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+			@button.Button(button.Props{Href: "/upload"}) {
 				Upload Document
-			</a>
+			}
 		}
 	</div>
 }
@@ -199,24 +202,30 @@ templ searchPagination(params SearchParams, totalCount int) {
 		</div>
 		<div class="flex gap-1">
 			if currentPage > 1 {
-				<button
-					hx-get={ buildPaginationURL(params, currentPage-1) }
-					hx-target="#document-results"
-					hx-push-url="true"
-					class="px-3 py-1 text-sm border border-border rounded hover:bg-muted"
-				>
+				@button.Button(button.Props{
+					Variant: button.VariantOutline,
+					Size:    button.SizeSm,
+					Attributes: templ.Attributes{
+						"hx-get":      buildPaginationURL(params, currentPage-1),
+						"hx-target":   "#document-results",
+						"hx-push-url": "true",
+					},
+				}) {
 					Previous
-				</button>
+				}
 			}
 			if currentPage < totalPages {
-				<button
-					hx-get={ buildPaginationURL(params, currentPage+1) }
-					hx-target="#document-results"
-					hx-push-url="true"
-					class="px-3 py-1 text-sm border border-border rounded hover:bg-muted"
-				>
+				@button.Button(button.Props{
+					Variant: button.VariantOutline,
+					Size:    button.SizeSm,
+					Attributes: templ.Attributes{
+						"hx-get":      buildPaginationURL(params, currentPage+1),
+						"hx-target":   "#document-results",
+						"hx-push-url": "true",
+					},
+				}) {
 					Next
-				</button>
+				}
 			}
 		</div>
 	</div>
