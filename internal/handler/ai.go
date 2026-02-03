@@ -74,7 +74,7 @@ func (h *Handler) UpdateAISettings(c echo.Context) error {
 	}
 
 	minWordCount, err := strconv.Atoi(minWordCountStr)
-	if err != nil || minWordCount < 0 {
+	if err != nil || minWordCount < 0 || minWordCount > 10000 {
 		minWordCount = 0
 	}
 
