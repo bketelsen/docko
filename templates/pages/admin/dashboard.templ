@@ -1,6 +1,8 @@
 package admin
 
 import (
+	"docko/components/button"
+	"docko/components/card"
 	"docko/internal/meta"
 	"docko/templates/layouts"
 )
@@ -18,51 +20,79 @@ templ Dashboard() {
 			@StatCard("Conversion", "3.2%", "-2%", "conversion")
 		</div>
 		<div class="grid lg:grid-cols-2 gap-6">
-			<div class="border border-border rounded-lg p-6">
-				<h2 class="text-lg font-semibold mb-4">Recent Activity</h2>
-				<div class="space-y-4">
-					@ActivityItem("New user registered", "2 minutes ago")
-					@ActivityItem("Order #1234 completed", "15 minutes ago")
-					@ActivityItem("Payment received", "1 hour ago")
-					@ActivityItem("New comment on post", "2 hours ago")
-				</div>
-			</div>
-			<div class="border border-border rounded-lg p-6">
-				<h2 class="text-lg font-semibold mb-4">Quick Actions</h2>
-				<div class="grid grid-cols-2 gap-4">
-					<button class="p-4 border border-border rounded-lg hover:bg-accent text-left">
-						<div class="font-medium">Add User</div>
-						<div class="text-sm text-muted-foreground">Create new account</div>
-					</button>
-					<button class="p-4 border border-border rounded-lg hover:bg-accent text-left">
-						<div class="font-medium">View Reports</div>
-						<div class="text-sm text-muted-foreground">Analytics & stats</div>
-					</button>
-					<button class="p-4 border border-border rounded-lg hover:bg-accent text-left">
-						<div class="font-medium">Settings</div>
-						<div class="text-sm text-muted-foreground">Configure app</div>
-					</button>
-					<button class="p-4 border border-border rounded-lg hover:bg-accent text-left">
-						<div class="font-medium">Help</div>
-						<div class="text-sm text-muted-foreground">Documentation</div>
-					</button>
-				</div>
-			</div>
+			@card.Card() {
+				@card.Header() {
+					@card.Title() {
+						Recent Activity
+					}
+				}
+				@card.Content() {
+					<div class="space-y-4">
+						@ActivityItem("New user registered", "2 minutes ago")
+						@ActivityItem("Order #1234 completed", "15 minutes ago")
+						@ActivityItem("Payment received", "1 hour ago")
+						@ActivityItem("New comment on post", "2 hours ago")
+					</div>
+				}
+			}
+			@card.Card() {
+				@card.Header() {
+					@card.Title() {
+						Quick Actions
+					}
+				}
+				@card.Content() {
+					<div class="grid grid-cols-2 gap-4">
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+							Class:   "h-auto p-4 flex flex-col items-start",
+						}) {
+							<div class="font-medium">Add User</div>
+							<div class="text-sm text-muted-foreground">Create new account</div>
+						}
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+							Class:   "h-auto p-4 flex flex-col items-start",
+						}) {
+							<div class="font-medium">View Reports</div>
+							<div class="text-sm text-muted-foreground">Analytics & stats</div>
+						}
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+							Class:   "h-auto p-4 flex flex-col items-start",
+						}) {
+							<div class="font-medium">Settings</div>
+							<div class="text-sm text-muted-foreground">Configure app</div>
+						}
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+							Class:   "h-auto p-4 flex flex-col items-start",
+						}) {
+							<div class="font-medium">Help</div>
+							<div class="text-sm text-muted-foreground">Documentation</div>
+						}
+					</div>
+				}
+			}
 		</div>
 	}
 }
 
 templ StatCard(title, value, change, cardType string) {
-	<div class="border border-border rounded-lg p-6">
-		<div class="flex items-center justify-between mb-2">
-			<span class="text-sm text-muted-foreground">{ title }</span>
+	@card.Card() {
+		@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+			@card.Title(card.TitleProps{Class: "text-sm font-medium text-muted-foreground"}) {
+				{ title }
+			}
 			@StatIcon(cardType)
-		</div>
-		<div class="text-2xl font-bold">{ value }</div>
-		<div class={ "text-sm", templ.KV("text-green-500", change[0] == '+'), templ.KV("text-red-500", change[0] == '-') }>
-			{ change } from last month
-		</div>
-	</div>
+		}
+		@card.Content(card.ContentProps{Class: "pt-0"}) {
+			<div class="text-2xl font-bold">{ value }</div>
+			<p class={ "text-xs", templ.KV("text-green-500", change[0] == '+'), templ.KV("text-red-500", change[0] == '-') }>
+				{ change } from last month
+			</p>
+		}
+	}
 }
 
 templ StatIcon(iconType string) {
@@ -88,7 +118,7 @@ templ StatIcon(iconType string) {
 
 templ ActivityItem(title, time string) {
 	<div class="flex items-center justify-between py-2 border-b border-border last:border-0">
-		<span class="text-sm">{ title }</span>
+		<span class="text-sm text-foreground">{ title }</span>
 		<span class="text-xs text-muted-foreground">{ time }</span>
 	</div>
 }
