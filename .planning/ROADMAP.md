@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Document store structure and queue infrastructure
 - [x] **Phase 2: Ingestion** - Web upload and local inbox watching
 - [x] **Phase 3: Processing** - Text extraction and thumbnail generation
-- [ ] **Phase 4: Viewing** - PDF preview and download
+- [x] **Phase 4: Viewing** - PDF preview and download
 - [ ] **Phase 5: Organization** - Tags and correspondents management
 - [ ] **Phase 6: Search** - Full-text search with filtering
 - [ ] **Phase 7: Network Sources** - SMB and NFS share integration
@@ -88,8 +88,8 @@ Plans:
 
 Plans:
 - [x] 04-01-PLAN.md — File serving handlers and templUI components
-- [ ] 04-02-PLAN.md — Document detail page with tabs and breadcrumbs
-- [ ] 04-03-PLAN.md — PDF viewer modal with JavaScript controls
+- [x] 04-02-PLAN.md — Document detail page with tabs and breadcrumbs
+- [x] 04-03-PLAN.md — PDF viewer modal with JavaScript controls
 
 ### Phase 5: Organization
 **Goal**: Users can organize documents with tags and correspondents
@@ -167,7 +167,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Foundation | 3/3 | Complete | 2026-02-02 |
 | 2. Ingestion | 5/5 | Complete | 2026-02-02 |
 | 3. Processing | 5/5 | Complete | 2026-02-03 |
-| 4. Viewing | 1/3 | In progress | - |
+| 4. Viewing | 3/3 | Complete | 2026-02-03 |
 | 5. Organization | 0/2 | Not started | - |
 | 6. Search | 0/2 | Not started | - |
 | 7. Network Sources | 0/2 | Not started | - |

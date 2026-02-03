@@ -41,8 +41,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Document Viewing
 
-- [ ] **VIEW-01**: User can view PDF in browser without downloading
-- [ ] **VIEW-02**: User can download original PDF file
+- [x] **VIEW-01**: User can view PDF in browser without downloading
+- [x] **VIEW-02**: User can download original PDF file
 - [x] **VIEW-03**: Documents display thumbnail preview (first page)
 
 ### Processing Pipeline
@@ -140,8 +140,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SEARCH-02 | Phase 6 | Pending |
 | SEARCH-03 | Phase 6 | Pending |
 | SEARCH-04 | Phase 6 | Pending |
-| VIEW-01 | Phase 4 | Pending |
-| VIEW-02 | Phase 4 | Pending |
+| VIEW-01 | Phase 4 | Complete |
+| VIEW-02 | Phase 4 | Complete |
 | VIEW-03 | Phase 3 | Complete |
 | QUEUE-01 | Phase 1 | Complete |
 | QUEUE-02 | Phase 3 | Complete |
@@ -163,4 +163,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after Phase 2 complete*
+*Last updated: 2026-02-03 after Phase 4 complete*
