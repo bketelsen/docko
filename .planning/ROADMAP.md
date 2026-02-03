@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Document store structure and queue infrastructure
 - [x] **Phase 2: Ingestion** - Web upload and local inbox watching
-- [ ] **Phase 3: Processing** - Text extraction and thumbnail generation
+- [x] **Phase 3: Processing** - Text extraction and thumbnail generation
 - [ ] **Phase 4: Viewing** - PDF preview and download
 - [ ] **Phase 5: Organization** - Tags and correspondents management
 - [ ] **Phase 6: Search** - Full-text search with filtering
@@ -70,11 +70,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Database schema and Docker setup for processing
-- [ ] 03-02-PLAN.md — Text extraction with embedded + OCR fallback
-- [ ] 03-03-PLAN.md — Thumbnail generation with WebP output
-- [ ] 03-04-PLAN.md — Processing job handler and queue wiring
-- [ ] 03-05-PLAN.md — Status UI with SSE live updates
+- [x] 03-01-PLAN.md — Database schema and Docker setup for processing
+- [x] 03-02-PLAN.md — Text extraction with embedded + OCR fallback
+- [x] 03-03-PLAN.md — Thumbnail generation with WebP output
+- [x] 03-04-PLAN.md — Processing job handler and queue wiring
+- [x] 03-05-PLAN.md — Status UI with SSE live updates
 
 ### Phase 4: Viewing
 **Goal**: Users can view and download documents
@@ -164,7 +164,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-02-02 |
 | 2. Ingestion | 5/5 | Complete | 2026-02-02 |
-| 3. Processing | 0/5 | Not started | - |
+| 3. Processing | 5/5 | Complete | 2026-02-03 |
 | 4. Viewing | 0/1 | Not started | - |
 | 5. Organization | 0/2 | Not started | - |
 | 6. Search | 0/2 | Not started | - |

@@ -43,12 +43,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **VIEW-01**: User can view PDF in browser without downloading
 - [ ] **VIEW-02**: User can download original PDF file
-- [ ] **VIEW-03**: Documents display thumbnail preview (first page)
+- [x] **VIEW-03**: Documents display thumbnail preview (first page)
 
 ### Processing Pipeline
 
 - [ ] **QUEUE-01**: Document processing uses queue-based architecture
-- [ ] **QUEUE-02**: Text is extracted from PDFs and indexed for search
+- [x] **QUEUE-02**: Text is extracted from PDFs and indexed for search
 - [ ] **QUEUE-03**: Dashboard shows pending/completed counts per queue
 - [ ] **QUEUE-04**: Each document has audit trail of processing steps
 - [ ] **QUEUE-05**: User can retry failed document processing
@@ -142,9 +142,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SEARCH-04 | Phase 6 | Pending |
 | VIEW-01 | Phase 4 | Pending |
 | VIEW-02 | Phase 4 | Pending |
-| VIEW-03 | Phase 3 | Pending |
+| VIEW-03 | Phase 3 | Complete |
 | QUEUE-01 | Phase 1 | Complete |
-| QUEUE-02 | Phase 3 | Pending |
+| QUEUE-02 | Phase 3 | Complete |
 | QUEUE-03 | Phase 8 | Pending |
 | QUEUE-04 | Phase 1 | Complete |
 | QUEUE-05 | Phase 8 | Pending |
