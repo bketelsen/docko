@@ -19,8 +19,8 @@ import (
 func (h *Handler) DocumentsPage(c echo.Context) error {
 	ctx := c.Request().Context()
 
-	// Get documents with pagination (default limit 50)
-	docs, err := h.db.Queries.ListDocuments(ctx, sqlc.ListDocumentsParams{
+	// Get documents with correspondent info (default limit 50)
+	rows, err := h.db.Queries.ListDocumentsWithCorrespondent(ctx, sqlc.ListDocumentsWithCorrespondentParams{
 		Limit:  50,
 		Offset: 0,
 	})
@@ -28,15 +28,41 @@ func (h *Handler) DocumentsPage(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to list documents")
 	}
 
+	// Extract documents and build correspondent map
+	docs := make([]sqlc.Document, len(rows))
+	docCorrespondents := make(admin.DocumentCorrespondentMap)
+	docIDs := make([]uuid.UUID, len(rows))
+
+	for i, row := range rows {
+		docs[i] = sqlc.Document{
+			ID:                 row.ID,
+			OriginalFilename:   row.OriginalFilename,
+			ContentHash:        row.ContentHash,
+			FileSize:           row.FileSize,
+			PageCount:          row.PageCount,
+			PdfTitle:           row.PdfTitle,
+			PdfAuthor:          row.PdfAuthor,
+			PdfCreatedAt:       row.PdfCreatedAt,
+			DocumentDate:       row.DocumentDate,
+			CreatedAt:          row.CreatedAt,
+			UpdatedAt:          row.UpdatedAt,
+			ProcessingStatus:   row.ProcessingStatus,
+			TextContent:        row.TextContent,
+			ThumbnailGenerated: row.ThumbnailGenerated,
+			ProcessingError:    row.ProcessingError,
+			ProcessedAt:        row.ProcessedAt,
+		}
+		docIDs[i] = row.ID
+
+		// Add correspondent to map if present
+		if row.CorrespondentName != nil {
+			docCorrespondents[row.ID] = *row.CorrespondentName
+		}
+	}
+
 	// Build tags map for all documents
 	docTags := make(admin.DocumentTagsMap)
 	if len(docs) > 0 {
-		// Collect document IDs
-		docIDs := make([]uuid.UUID, len(docs))
-		for i, doc := range docs {
-			docIDs[i] = doc.ID
-		}
-
 		// Fetch tags for all documents in one query
 		tagRows, err := h.db.Queries.GetTagsForDocuments(ctx, docIDs)
 		if err == nil {
@@ -54,7 +80,7 @@ func (h *Handler) DocumentsPage(c echo.Context) error {
 		// If error, just continue with empty tags - non-fatal
 	}
 
-	return admin.Documents(docs, docTags).Render(ctx, c.Response().Writer)
+	return admin.Documents(docs, docTags, docCorrespondents).Render(ctx, c.Response().Writer)
 }
 
 // DocumentDetail renders the document detail page
@@ -82,7 +108,15 @@ func (h *Handler) DocumentDetail(c echo.Context) error {
 		tags = []sqlc.Tag{}
 	}
 
-	return admin.DocumentDetail(doc, tags).Render(ctx, c.Response().Writer)
+	// Fetch correspondent for this document (may not exist)
+	var correspondent *sqlc.Correspondent
+	c2, err := h.db.Queries.GetDocumentCorrespondent(ctx, docID)
+	if err == nil {
+		correspondent = &c2
+	}
+	// If error (including no rows), correspondent stays nil - that's fine
+
+	return admin.DocumentDetail(doc, tags, correspondent).Render(ctx, c.Response().Writer)
 }
 
 // ViewPDF serves a PDF file inline for browser viewing

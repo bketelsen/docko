@@ -12,8 +12,11 @@ import (
 // DocumentTagsMap maps document ID to tags
 type DocumentTagsMap map[uuid.UUID][]sqlc.Tag
 
+// DocumentCorrespondentMap maps document ID to correspondent name
+type DocumentCorrespondentMap map[uuid.UUID]string
+
 // Documents renders the document list page with real-time status updates
-templ Documents(docs []sqlc.Document, docTags DocumentTagsMap) {
+templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents DocumentCorrespondentMap) {
 	@layouts.Admin(meta.New("Documents", "View and manage uploaded documents")) {
 		<div class="mb-8">
 			<div class="flex items-center justify-between">
@@ -55,6 +58,7 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap) {
 							<tr>
 								<th class="px-4 py-3 text-left text-sm font-medium">Filename</th>
 								<th class="px-4 py-3 text-left text-sm font-medium">Tags</th>
+								<th class="px-4 py-3 text-left text-sm font-medium">Correspondent</th>
 								<th class="px-4 py-3 text-left text-sm font-medium">Size</th>
 								<th class="px-4 py-3 text-left text-sm font-medium">Date</th>
 								<th class="px-4 py-3 text-left text-sm font-medium">Status</th>
@@ -79,6 +83,9 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap) {
 									</td>
 									<td class="px-4 py-3">
 										@partials.InlineTagPicker(doc.ID.String(), getDocTags(docTags, doc.ID))
+									</td>
+									<td class="px-4 py-3">
+										@partials.InlineCorrespondentDisplay(getDocCorrespondent(docCorrespondents, doc.ID))
 									</td>
 									<td class="px-4 py-3 text-sm text-muted-foreground">
 										{ formatFileSize(doc.FileSize) }
@@ -112,6 +119,18 @@ func getDocTags(docTags DocumentTagsMap, docID uuid.UUID) []sqlc.Tag {
 		return []sqlc.Tag{}
 	}
 	return tags
+}
+
+// getDocCorrespondent safely retrieves correspondent name for a document ID from the map
+func getDocCorrespondent(docCorrespondents DocumentCorrespondentMap, docID uuid.UUID) *string {
+	if docCorrespondents == nil {
+		return nil
+	}
+	name, ok := docCorrespondents[docID]
+	if !ok || name == "" {
+		return nil
+	}
+	return &name
 }
 
 // formatFileSize returns human-readable file size
