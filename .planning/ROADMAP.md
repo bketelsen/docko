@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Ingestion** - Web upload and local inbox watching
 - [x] **Phase 3: Processing** - Text extraction and thumbnail generation
 - [x] **Phase 4: Viewing** - PDF preview and download
-- [ ] **Phase 5: Organization** - Tags and correspondents management
+- [x] **Phase 5: Organization** - Tags and correspondents management
 - [ ] **Phase 6: Search** - Full-text search with filtering
 - [ ] **Phase 7: Network Sources** - SMB and NFS share integration
 - [ ] **Phase 8: AI Integration** - Auto-tagging and correspondent detection
@@ -104,11 +104,11 @@ Plans:
 **Plans**: 5 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — Tag CRUD with management UI
-- [ ] 05-02-PLAN.md — Correspondent CRUD with management UI
-- [ ] 05-03-PLAN.md — Correspondent merge functionality
-- [ ] 05-04-PLAN.md — Tag assignment to documents
-- [ ] 05-05-PLAN.md — Correspondent assignment to documents
+- [x] 05-01-PLAN.md — Tag CRUD with management UI
+- [x] 05-02-PLAN.md — Correspondent CRUD with management UI
+- [x] 05-03-PLAN.md — Correspondent merge functionality
+- [x] 05-04-PLAN.md — Tag assignment to documents
+- [x] 05-05-PLAN.md — Correspondent assignment to documents
 
 ### Phase 6: Search
 **Goal**: Users can find any document by content, tags, or correspondent
@@ -171,7 +171,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 2. Ingestion | 5/5 | Complete | 2026-02-02 |
 | 3. Processing | 5/5 | Complete | 2026-02-03 |
 | 4. Viewing | 3/3 | Complete | 2026-02-03 |
-| 5. Organization | 0/5 | Not started | - |
+| 5. Organization | 5/5 | Complete | 2026-02-03 |
 | 6. Search | 0/2 | Not started | - |
 | 7. Network Sources | 0/2 | Not started | - |
 | 8. AI Integration | 0/3 | Not started | - |

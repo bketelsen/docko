@@ -25,12 +25,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Tags & Correspondents
 
-- [ ] **TAG-01**: User can create, edit, and delete tags
-- [ ] **TAG-02**: User can assign tags to documents manually
-- [ ] **TAG-03**: User can remove tags from documents
-- [ ] **CORR-01**: User can create, edit, and delete correspondents
-- [ ] **CORR-02**: User can assign correspondent to document manually
-- [ ] **CORR-03**: User can merge duplicate correspondents
+- [x] **TAG-01**: User can create, edit, and delete tags
+- [x] **TAG-02**: User can assign tags to documents manually
+- [x] **TAG-03**: User can remove tags from documents
+- [x] **CORR-01**: User can create, edit, and delete correspondents
+- [x] **CORR-02**: User can assign correspondent to document manually
+- [x] **CORR-03**: User can merge duplicate correspondents
 
 ### Search & Retrieval
 
@@ -130,12 +130,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STORE-01 | Phase 1 | Complete |
 | STORE-02 | Phase 1 | Complete |
 | STORE-03 | Phase 1 | Complete |
-| TAG-01 | Phase 5 | Pending |
-| TAG-02 | Phase 5 | Pending |
-| TAG-03 | Phase 5 | Pending |
-| CORR-01 | Phase 5 | Pending |
-| CORR-02 | Phase 5 | Pending |
-| CORR-03 | Phase 5 | Pending |
+| TAG-01 | Phase 5 | Complete |
+| TAG-02 | Phase 5 | Complete |
+| TAG-03 | Phase 5 | Complete |
+| CORR-01 | Phase 5 | Complete |
+| CORR-02 | Phase 5 | Complete |
+| CORR-03 | Phase 5 | Complete |
 | SEARCH-01 | Phase 6 | Pending |
 | SEARCH-02 | Phase 6 | Pending |
 | SEARCH-03 | Phase 6 | Pending |
@@ -163,4 +163,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-03 after Phase 4 complete*
+*Last updated: 2026-02-03 after Phase 5 complete*
