@@ -12,8 +12,8 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **INGEST-01**: User can upload PDF files via web UI with drag-and-drop
 - [x] **INGEST-02**: User can upload multiple files at once (bulk upload)
 - [x] **INGEST-03**: System watches local inbox directory for new PDFs
-- [ ] **INGEST-04**: System imports PDFs from configured SMB network shares
-- [ ] **INGEST-05**: System imports PDFs from configured NFS network shares
+- [x] **INGEST-04**: System imports PDFs from configured SMB network shares
+- [x] **INGEST-05**: System imports PDFs from configured NFS network shares
 - [x] **INGEST-06**: System detects duplicate documents by content hash (SHA-256)
 - [x] **INGEST-07**: User can configure duplicate handling per source (delete, rename, skip)
 
@@ -62,8 +62,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Admin & Configuration
 
-- [ ] **ADMIN-01**: Admin can configure document sources (local, SMB, NFS)
-- [ ] **ADMIN-02**: Admin can enable/disable document sources
+- [x] **ADMIN-01**: Admin can configure document sources (local, SMB, NFS)
+- [x] **ADMIN-02**: Admin can enable/disable document sources
 - [ ] **ADMIN-03**: Admin can view system status and queue health
 
 ## v2 Requirements
@@ -123,8 +123,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INGEST-01 | Phase 2 | Complete |
 | INGEST-02 | Phase 2 | Complete |
 | INGEST-03 | Phase 2 | Complete |
-| INGEST-04 | Phase 7 | Pending |
-| INGEST-05 | Phase 7 | Pending |
+| INGEST-04 | Phase 7 | Complete |
+| INGEST-05 | Phase 7 | Complete |
 | INGEST-06 | Phase 2 | Complete |
 | INGEST-07 | Phase 2 | Complete |
 | STORE-01 | Phase 1 | Complete |
@@ -136,10 +136,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CORR-01 | Phase 5 | Complete |
 | CORR-02 | Phase 5 | Complete |
 | CORR-03 | Phase 5 | Complete |
-| SEARCH-01 | Phase 6 | Pending |
-| SEARCH-02 | Phase 6 | Pending |
-| SEARCH-03 | Phase 6 | Pending |
-| SEARCH-04 | Phase 6 | Pending |
+| SEARCH-01 | Phase 6 | Complete |
+| SEARCH-02 | Phase 6 | Complete |
+| SEARCH-03 | Phase 6 | Complete |
+| SEARCH-04 | Phase 6 | Complete |
 | VIEW-01 | Phase 4 | Complete |
 | VIEW-02 | Phase 4 | Complete |
 | VIEW-03 | Phase 3 | Complete |
@@ -152,8 +152,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AI-02 | Phase 8 | Pending |
 | AI-03 | Phase 8 | Pending |
 | AI-04 | Phase 8 | Pending |
-| ADMIN-01 | Phase 7 | Pending |
-| ADMIN-02 | Phase 7 | Pending |
+| ADMIN-01 | Phase 7 | Complete |
+| ADMIN-02 | Phase 7 | Complete |
 | ADMIN-03 | Phase 8 | Pending |
 
 **Coverage:**
@@ -163,4 +163,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-03 after Phase 5 complete*
+*Last updated: 2026-02-03 after Phase 7 complete*

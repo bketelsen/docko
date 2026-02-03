@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Viewing** - PDF preview and download
 - [x] **Phase 5: Organization** - Tags and correspondents management
 - [x] **Phase 6: Search** - Full-text search with filtering
-- [ ] **Phase 7: Network Sources** - SMB and NFS share integration
+- [x] **Phase 7: Network Sources** - SMB and NFS share integration
 - [ ] **Phase 8: AI Integration** - Auto-tagging and correspondent detection
 
 ## Phase Details
@@ -139,12 +139,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — Database schema and credential encryption
-- [ ] 07-02-PLAN.md — SMB client implementation
-- [ ] 07-03-PLAN.md — NFS client implementation
-- [ ] 07-04-PLAN.md — Polling service and sync logic
-- [ ] 07-05-PLAN.md — Handler endpoints and UI templates
-- [ ] 07-06-PLAN.md — Integration wiring and navigation
+- [x] 07-01-PLAN.md — Database schema and credential encryption
+- [x] 07-02-PLAN.md — SMB client implementation
+- [x] 07-03-PLAN.md — NFS client implementation
+- [x] 07-04-PLAN.md — Polling service and sync logic
+- [x] 07-05-PLAN.md — Handler endpoints and UI templates
+- [x] 07-06-PLAN.md — Integration wiring and navigation
 
 ### Phase 8: AI Integration
 **Goal**: AI automates tagging and correspondent detection
@@ -178,7 +178,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Viewing | 3/3 | Complete | 2026-02-03 |
 | 5. Organization | 5/5 | Complete | 2026-02-03 |
 | 6. Search | 3/3 | Complete | 2026-02-03 |
-| 7. Network Sources | 0/6 | Not started | - |
+| 7. Network Sources | 6/6 | Complete | 2026-02-03 |
 | 8. AI Integration | 0/3 | Not started | - |
 
 ---
