@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 5: Organization** - Tags and correspondents management
 - [x] **Phase 6: Search** - Full-text search with filtering
 - [x] **Phase 7: Network Sources** - SMB and NFS share integration
-- [ ] **Phase 8: AI Integration** - Auto-tagging and correspondent detection
+- [x] **Phase 8: AI Integration** - Auto-tagging and correspondent detection
 
 ## Phase Details
 
@@ -161,13 +161,12 @@ Plans:
 **Plans**: 6 plans
 
 Plans:
-
-- [ ] 08-01-PLAN.md — Database schema and sqlc queries
-- [ ] 08-02-PLAN.md — Provider interface and implementations
-- [ ] 08-03-PLAN.md — AI service and job handler
-- [ ] 08-04-PLAN.md — Settings UI and provider configuration
-- [ ] 08-05-PLAN.md — Review queue and queue dashboard
-- [ ] 08-06-PLAN.md — Document detail integration
+- [x] 08-01-PLAN.md — Database schema and sqlc queries
+- [x] 08-02-PLAN.md — Provider interface and implementations
+- [x] 08-03-PLAN.md — AI service and job handler
+- [x] 08-04-PLAN.md — Settings UI and provider configuration
+- [x] 08-05-PLAN.md — Review queue and queue dashboard
+- [x] 08-06-PLAN.md — Document detail integration
 
 ## Progress
 
@@ -183,7 +182,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Organization | 5/5 | Complete | 2026-02-03 |
 | 6. Search | 3/3 | Complete | 2026-02-03 |
 | 7. Network Sources | 6/6 | Complete | 2026-02-03 |
-| 8. AI Integration | 0/6 | Not started | - |
+| 8. AI Integration | 6/6 | Complete | 2026-02-03 |
 
 ---
 *Roadmap created: 2026-02-02*

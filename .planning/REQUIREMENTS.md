@@ -49,22 +49,22 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **QUEUE-01**: Document processing uses queue-based architecture
 - [x] **QUEUE-02**: Text is extracted from PDFs and indexed for search
-- [ ] **QUEUE-03**: Dashboard shows pending/completed counts per queue
+- [x] **QUEUE-03**: Dashboard shows pending/completed counts per queue
 - [ ] **QUEUE-04**: Each document has audit trail of processing steps
-- [ ] **QUEUE-05**: User can retry failed document processing
+- [x] **QUEUE-05**: User can retry failed document processing
 
 ### AI Features
 
-- [ ] **AI-01**: System auto-suggests tags using AI (LLM integration)
-- [ ] **AI-02**: System auto-detects correspondent using AI
-- [ ] **AI-03**: User can configure AI provider (OpenAI, Claude, Ollama)
-- [ ] **AI-04**: User can configure max pages sent to AI (cost control)
+- [x] **AI-01**: System auto-suggests tags using AI (LLM integration)
+- [x] **AI-02**: System auto-detects correspondent using AI
+- [x] **AI-03**: User can configure AI provider (OpenAI, Claude, Ollama)
+- [x] **AI-04**: User can configure max pages sent to AI (cost control)
 
 ### Admin & Configuration
 
 - [x] **ADMIN-01**: Admin can configure document sources (local, SMB, NFS)
 - [x] **ADMIN-02**: Admin can enable/disable document sources
-- [ ] **ADMIN-03**: Admin can view system status and queue health
+- [x] **ADMIN-03**: Admin can view system status and queue health
 
 ## v2 Requirements
 
@@ -145,16 +145,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | VIEW-03 | Phase 3 | Complete |
 | QUEUE-01 | Phase 1 | Complete |
 | QUEUE-02 | Phase 3 | Complete |
-| QUEUE-03 | Phase 8 | Pending |
+| QUEUE-03 | Phase 8 | Complete |
 | QUEUE-04 | Phase 1 | Complete |
-| QUEUE-05 | Phase 8 | Pending |
-| AI-01 | Phase 8 | Pending |
-| AI-02 | Phase 8 | Pending |
-| AI-03 | Phase 8 | Pending |
-| AI-04 | Phase 8 | Pending |
+| QUEUE-05 | Phase 8 | Complete |
+| AI-01 | Phase 8 | Complete |
+| AI-02 | Phase 8 | Complete |
+| AI-03 | Phase 8 | Complete |
+| AI-04 | Phase 8 | Complete |
 | ADMIN-01 | Phase 7 | Complete |
 | ADMIN-02 | Phase 7 | Complete |
-| ADMIN-03 | Phase 8 | Pending |
+| ADMIN-03 | Phase 8 | Complete |
 
 **Coverage:**
 - v1 requirements: 35 total
