@@ -84,10 +84,12 @@ Plans:
   1. User can view PDF in browser without downloading
   2. User can download the original PDF file
   3. Document detail page shows metadata and thumbnail
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md — File serving handlers and templUI components
+- [ ] 04-02-PLAN.md — Document detail page with tabs and breadcrumbs
+- [ ] 04-03-PLAN.md — PDF viewer modal with JavaScript controls
 
 ### Phase 5: Organization
 **Goal**: Users can organize documents with tags and correspondents
@@ -165,7 +167,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 1. Foundation | 3/3 | Complete | 2026-02-02 |
 | 2. Ingestion | 5/5 | Complete | 2026-02-02 |
 | 3. Processing | 5/5 | Complete | 2026-02-03 |
-| 4. Viewing | 0/1 | Not started | - |
+| 4. Viewing | 0/3 | Planned | - |
 | 5. Organization | 0/2 | Not started | - |
 | 6. Search | 0/2 | Not started | - |
 | 7. Network Sources | 0/2 | Not started | - |
