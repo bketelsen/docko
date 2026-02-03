@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 10 of 12 (templUI Refactor)
-Plan: 4 of 7 in current phase
+Plan: 5 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 10-04-PLAN.md
+Last activity: 2026-02-03 - Completed 10-05-PLAN.md
 
-Progress: [#######################################] 43/46 plans complete
+Progress: [########################################] 44/46 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 43
+- Total plans completed: 44
 - Average duration: 4.2 min
-- Total execution time: 3.1 hours
+- Total execution time: 3.2 hours
 
 **By Phase:**
 
@@ -36,11 +36,11 @@ Progress: [#######################################] 43/46 plans complete
 | 07-network-sources | 6 | 19 min | 3.2 min |
 | 08-ai-integration | 6 | 33 min | 5.5 min |
 | 09-minimum-words | 2 | 7 min | 3.5 min |
-| 10-templui-refactor | 4 | 24 min | 6.0 min |
+| 10-templui-refactor | 5 | 28 min | 5.6 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 10-01 (8 min), 10-02 (8 min), 10-03 (4 min), 10-04 (4 min)
+- Last 5 plans: 10-01 (8 min), 10-02 (8 min), 10-03 (4 min), 10-04 (4 min), 10-05 (4 min)
 - Trend: Phase 10 in progress - templUI component refactoring
 
 *Updated after each plan completion*
@@ -161,6 +161,9 @@ Recent decisions affecting current work:
 - Badge variants mapped to status: pending=Secondary, processing=Default+animate-pulse, completed=green custom, failed=Destructive (Phase 10)
 - Table cells use CellProps{Class} for muted-foreground styling (Phase 10)
 - SSE swap targets preserved inside table.Cell elements (Phase 10)
+- templUI alert with Title+Description for error messages (Phase 10)
+- Keep toggle switches as custom buttons (templUI lacks switch component) (Phase 10)
+- Use bg-input for disabled toggle state instead of gray (Phase 10)
 
 ### Pending Todos
 
@@ -172,8 +175,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T21:27:00Z
-Stopped at: Completed 10-04-PLAN.md (Documents Tables and Status Badges)
+Last session: 2026-02-03T21:28:24Z
+Stopped at: Completed 10-05-PLAN.md (Alerts, Switches, and Card Actions)
 Resume file: None
 
 ### Roadmap Evolution
@@ -184,4 +187,4 @@ Resume file: None
 - Phase 12 added: Queues route with expanders for failed jobs and recent activity
 
 ---
-*43 plans executed across 10 phases, Phase 10 in progress (4/7 complete)*
+*44 plans executed across 10 phases, Phase 10 in progress (5/7 complete)*
