@@ -5,22 +5,22 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 8 - AI Integration (IN PROGRESS)
+**Current focus:** Phase 8 - AI Integration (COMPLETE)
 
 ## Current Position
 
 Phase: 8 of 8 (AI Integration)
-Plan: 5 of 6 in current phase
-Status: In progress
-Last activity: 2026-02-03 - Completed 08-05-PLAN.md
+Plan: 6 of 6 in current phase
+Status: Phase complete
+Last activity: 2026-02-03 - Completed 08-06-PLAN.md
 
-Progress: [##############################] 35/36 plans
+Progress: [################################] 36/36 plans
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 35
-- Average duration: 4.5 min
+- Total plans completed: 36
+- Average duration: 4.4 min
 - Total execution time: 2.7 hours
 
 **By Phase:**
@@ -34,12 +34,12 @@ Progress: [##############################] 35/36 plans
 | 05-organization | 5 | 29 min | 5.8 min |
 | 06-search | 3 | 11 min | 3.7 min |
 | 07-network-sources | 6 | 19 min | 3.2 min |
-| 08-ai-integration | 5 | 30 min | 6.0 min |
+| 08-ai-integration | 6 | 33 min | 5.5 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 08-02 (6 min), 08-03 (7 min), 08-04 (6 min), 08-05 (7 min)
-- Trend: Building AI UI with review queue and queue dashboard
+- Last 5 plans: 08-03 (7 min), 08-04 (6 min), 08-05 (7 min), 08-06 (3 min)
+- Trend: Completed AI integration phase
 
 *Updated after each plan completion*
 
@@ -142,6 +142,9 @@ Recent decisions affecting current work:
 - Queue stats use GROUP BY aggregation for efficient counting
 - HTMX outerHTML swap returns empty string to remove rows
 - ApplySuggestionManual uses transaction for atomic tag/correspondent creation
+- AI suggestions displayed in Overview tab below correspondent picker
+- Re-analyze deletes existing pending suggestions before queuing new job
+- AI auto-processing enqueues job after document processing commit
 
 ### Pending Todos
 
@@ -153,9 +156,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T20:03:00Z
-Stopped at: Completed 08-05-PLAN.md (Review Queue and Queue Dashboard)
+Last session: 2026-02-03T20:08:43Z
+Stopped at: Completed 08-06-PLAN.md (AI Suggestions Integration)
 Resume file: None
 
 ---
-*Next action: Continue with 08-06 (AI Queue Worker)*
+*Project complete - all 36 plans executed across 8 phases*
