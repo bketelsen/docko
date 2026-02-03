@@ -5,34 +5,34 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 2 - Ingestion (in progress)
+**Current focus:** Phase 2 - Ingestion (COMPLETE)
 
 ## Current Position
 
-Phase: 2 of 8 (Ingestion)
-Plan: 4 of 5 in current phase
-Status: In progress
-Last activity: 2026-02-02 - Completed 02-04-PLAN.md
+Phase: 2 of 8 (Ingestion) - COMPLETE
+Plan: 5 of 5 in current phase
+Status: Phase complete
+Last activity: 2026-02-03 - Completed 02-05-PLAN.md
 
-Progress: [#####-----] 50%
+Progress: [######----] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7
-- Average duration: 2.9 min
-- Total execution time: 0.33 hours
+- Total plans completed: 8
+- Average duration: 6.1 min
+- Total execution time: 0.81 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 3 | 10 min | 3.3 min |
-| 02-ingestion | 4 | 10 min | 2.5 min |
+| 02-ingestion | 5 | 39 min | 7.8 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-03 (4 min), 02-01 (2 min), 02-02 (3 min), 02-03 (2 min), 02-04 (3 min)
-- Trend: stable
+- Last 5 plans: 02-01 (2 min), 02-02 (3 min), 02-03 (2 min), 02-04 (3 min), 02-05 (30 min)
+- Trend: 02-05 longer due to human verification checkpoint
 
 *Updated after each plan completion*
 
@@ -57,6 +57,8 @@ Recent decisions affecting current work:
 - 500ms debounce delay for file watcher events
 - 4 concurrent inbox workers via semaphore
 - PDF validation via magic bytes before ingestion
+- Inbox watcher runs in background goroutine with cancellable context
+- HTMX partial updates for inbox toggle and delete operations
 
 ### Pending Todos
 
@@ -68,9 +70,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-02T21:28:54Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-02-03T01:01:32Z
+Stopped at: Completed 02-05-PLAN.md (Phase 02 complete)
 Resume file: None
 
 ---
-*Next action: Continue with 02-05-PLAN.md*
+*Next action: Begin Phase 03 (Processing) - OCR, text extraction, AI processing*
