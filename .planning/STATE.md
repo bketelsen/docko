@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 10 of 12 (templUI Refactor)
-Plan: 5 of 7 in current phase
+Plan: 6 of 7 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 10-05-PLAN.md
+Last activity: 2026-02-03 - Completed 10-06-PLAN.md
 
-Progress: [########################################] 44/46 plans complete
+Progress: [#########################################] 45/46 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 44
-- Average duration: 4.2 min
+- Total plans completed: 45
+- Average duration: 4.1 min
 - Total execution time: 3.2 hours
 
 **By Phase:**
@@ -36,11 +36,11 @@ Progress: [########################################] 44/46 plans complete
 | 07-network-sources | 6 | 19 min | 3.2 min |
 | 08-ai-integration | 6 | 33 min | 5.5 min |
 | 09-minimum-words | 2 | 7 min | 3.5 min |
-| 10-templui-refactor | 5 | 28 min | 5.6 min |
+| 10-templui-refactor | 6 | 31 min | 5.2 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 10-01 (8 min), 10-02 (8 min), 10-03 (4 min), 10-04 (4 min), 10-05 (4 min)
+- Last 5 plans: 10-02 (8 min), 10-03 (4 min), 10-04 (4 min), 10-05 (4 min), 10-06 (3 min)
 - Trend: Phase 10 in progress - templUI component refactoring
 
 *Updated after each plan completion*
@@ -164,6 +164,11 @@ Recent decisions affecting current work:
 - templUI alert with Title+Description for error messages (Phase 10)
 - Keep toggle switches as custom buttons (templUI lacks switch component) (Phase 10)
 - Use bg-input for disabled toggle state instead of gray (Phase 10)
+- Keep StatIcon template as-is (SVG icons for stat cards remain inline) (Phase 10)
+- Use card.HeaderProps/ContentProps for custom layout variations (Phase 10)
+- Use templUI button Href prop for pagination links (Phase 10)
+- Card stat pattern: Header with row flex, Content with pt-0 (Phase 10)
+- Table in card: Content with p-0 for edge-to-edge table (Phase 10)
 
 ### Pending Todos
 
@@ -175,8 +180,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T21:28:24Z
-Stopped at: Completed 10-05-PLAN.md (Alerts, Switches, and Card Actions)
+Last session: 2026-02-03T21:33:18Z
+Stopped at: Completed 10-06-PLAN.md (Remaining Pages)
 Resume file: None
 
 ### Roadmap Evolution
@@ -187,4 +192,4 @@ Resume file: None
 - Phase 12 added: Queues route with expanders for failed jobs and recent activity
 
 ---
-*44 plans executed across 10 phases, Phase 10 in progress (5/7 complete)*
+*45 plans executed across 10 phases, Phase 10 in progress (6/7 complete)*
