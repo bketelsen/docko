@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 2 - Ingestion (COMPLETE)
+**Current focus:** Phase 3 - Processing
 
 ## Current Position
 
-Phase: 2 of 8 (Ingestion) - COMPLETE
-Plan: 5 of 5 in current phase
-Status: Phase complete
-Last activity: 2026-02-03 - Completed 02-05-PLAN.md
+Phase: 3 of 8 (Processing)
+Plan: 1 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-03 - Completed 03-01-PLAN.md
 
-Progress: [######----] 60%
+Progress: [#######---] 69%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8
-- Average duration: 6.1 min
-- Total execution time: 0.81 hours
+- Total plans completed: 9
+- Average duration: 6.0 min
+- Total execution time: 0.90 hours
 
 **By Phase:**
 
@@ -29,10 +29,11 @@ Progress: [######----] 60%
 |-------|-------|-------|----------|
 | 01-foundation | 3 | 10 min | 3.3 min |
 | 02-ingestion | 5 | 39 min | 7.8 min |
+| 03-processing | 1 | 5 min | 5.0 min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (2 min), 02-02 (3 min), 02-03 (2 min), 02-04 (3 min), 02-05 (30 min)
-- Trend: 02-05 longer due to human verification checkpoint
+- Last 5 plans: 02-02 (3 min), 02-03 (2 min), 02-04 (3 min), 02-05 (30 min), 03-01 (5 min)
+- Trend: 03-01 back to normal speed (no checkpoint)
 
 *Updated after each plan completion*
 
@@ -59,6 +60,9 @@ Recent decisions affecting current work:
 - PDF validation via magic bytes before ingestion
 - Inbox watcher runs in background goroutine with cancellable context
 - HTMX partial updates for inbox toggle and delete operations
+- OCRmyPDF runs as persistent Docker service (like postgres) with inotify watcher
+- App communicates with OCR via shared volumes (ocr-input, ocr-output)
+- Thumbnails generated in app container, OCR in separate service
 
 ### Pending Todos
 
@@ -70,9 +74,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T01:01:32Z
-Stopped at: Completed 02-05-PLAN.md (Phase 02 complete)
+Last session: 2026-02-03T01:51:47Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
 
 ---
-*Next action: Begin Phase 03 (Processing) - OCR, text extraction, AI processing*
+*Next action: Continue Phase 03 - Execute 03-02-PLAN.md (text extraction implementation)*
