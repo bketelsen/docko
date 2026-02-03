@@ -116,4 +116,8 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	// SSE endpoint for processing status (protected)
 	e.GET("/api/processing/status", h.ProcessingStatus, middleware.RequireAuth(h.auth))
+
+	// AI routes (protected)
+	e.GET("/ai", h.AISettingsPage, middleware.RequireAuth(h.auth))
+	e.POST("/ai", h.UpdateAISettings, middleware.RequireAuth(h.auth))
 }
