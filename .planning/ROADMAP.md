@@ -20,6 +20,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Search** - Full-text search with filtering
 - [x] **Phase 7: Network Sources** - SMB and NFS share integration
 - [x] **Phase 8: AI Integration** - Auto-tagging and correspondent detection
+- [ ] **Phase 9: Minimum Number of Words Import Block** - Block document import if text content below threshold
+- [ ] **Phase 10: Refactor to Use More templUI Components** - Replace custom UI with templUI components
+- [ ] **Phase 11: Dashboard** - Real dashboard at root with stats, counts, and navigation links
+- [ ] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
 
 ## Phase Details
 
@@ -168,10 +172,85 @@ Plans:
 - [x] 08-05-PLAN.md — Review queue and queue dashboard
 - [x] 08-06-PLAN.md — Document detail integration
 
+### Phase 9: Minimum Number of Words Import Block
+
+**Goal**: Block document import when extracted text is below configurable word threshold
+**Depends on**: Phase 3
+**Requirements**: None (enhancement feature)
+**Success Criteria** (what must be TRUE):
+
+  1. Admin can configure minimum word count threshold for document import
+  2. Documents with insufficient text are blocked during ingestion
+  3. User is informed when document is rejected due to word count
+  4. Threshold can be disabled (set to 0) for unrestricted import
+
+**Plans**: 2 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Database migration and sqlc queries for min_word_count
+- [ ] 09-02-PLAN.md — Processor validation and UI configuration
+
+### Phase 10: Refactor to Use More templUI Components
+
+**Goal**: Replace custom UI elements with standardized templUI components for consistency
+**Depends on**: Phase 9
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+
+  1. Custom form elements replaced with templUI components
+  2. Custom modals use templUI modal component
+  3. Custom buttons/inputs standardized across the app
+  4. UI styling is consistent throughout the application
+
+**Plans**: 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd:plan-phase 10 to break down)
+
+### Phase 11: Dashboard
+
+**Goal**: Real dashboard at root route with stats, counts, and links to detail pages
+**Depends on**: Phase 10
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+
+  1. Dashboard shows document count and recent uploads
+  2. Dashboard shows inbox status and counts
+  3. Dashboard shows queue health and pending jobs
+  4. Dashboard shows tag and correspondent counts
+  5. Dashboard shows AI processing stats
+  6. Quick navigation links to all management pages
+
+**Plans**: 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd:plan-phase 11 to break down)
+
+### Phase 12: Queues Detail
+
+**Goal**: Enhanced queues route with expandable details for failed jobs and recent activity
+**Depends on**: Phase 11
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+
+  1. Queues page shows all queue names with job counts
+  2. Expander reveals failed jobs with error details
+  3. Expander shows recent activity/completed jobs
+  4. User can retry failed jobs from the detail view
+  5. User can clear failed jobs from queue
+
+**Plans**: 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd:plan-phase 12 to break down)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -183,6 +262,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 6. Search | 3/3 | Complete | 2026-02-03 |
 | 7. Network Sources | 6/6 | Complete | 2026-02-03 |
 | 8. AI Integration | 6/6 | Complete | 2026-02-03 |
+| 9. Minimum Word Block | 0/2 | Not Started | - |
+| 10. templUI Refactor | 0/? | Not Started | - |
+| 11. Dashboard | 0/? | Not Started | - |
+| 12. Queues Detail | 0/? | Not Started | - |
 
 ---
 *Roadmap created: 2026-02-02*
