@@ -3,6 +3,10 @@ package admin
 import (
 	"strconv"
 
+	"docko/components/badge"
+	"docko/components/button"
+	"docko/components/card"
+	"docko/components/table"
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
@@ -11,7 +15,7 @@ import (
 templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sqlc.Job) {
 	@layouts.Admin(meta.New("Queue Dashboard", "Monitor job queues")) {
 		<div class="space-y-6">
-			<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Queue Dashboard</h1>
+			<h1 class="text-2xl font-bold">Queue Dashboard</h1>
 
 			<!-- Queue Stats -->
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -19,91 +23,111 @@ templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sql
 			</div>
 
 			<!-- Failed Jobs -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-				<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-					<h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Failed Jobs</h2>
-					if len(failedJobs) > 0 {
-						<button hx-post="/queues/retry-all"
-								hx-swap="none"
-								class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm rounded">
-							Retry All Failed
-						</button>
+			@card.Card() {
+				@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between"}) {
+					@card.Title() {
+						Failed Jobs
 					}
-				</div>
-				if len(failedJobs) == 0 {
-					<div class="p-6 text-center text-gray-500 dark:text-gray-400">
-						No failed jobs
-					</div>
-				} else {
-					<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-						<thead class="bg-gray-50 dark:bg-gray-900">
-							<tr>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Queue</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Attempts</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Last Error</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Actions</th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-							for _, job := range failedJobs {
-								<tr>
-									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{ job.QueueName }</td>
-									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{ job.JobType }</td>
-									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{ strconv.Itoa(int(job.Attempt)) }/{ strconv.Itoa(int(job.MaxAttempts)) }</td>
-									<td class="px-6 py-4 text-sm text-red-600 dark:text-red-400 max-w-xs truncate" title={ safeString(job.LastError) }>
-										{ safeString(job.LastError) }
-									</td>
-									<td class="px-6 py-4 whitespace-nowrap">
-										<button hx-post={ "/queues/jobs/" + job.ID.String() + "/retry" }
-												hx-swap="none"
-												class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded">
-											Retry
-										</button>
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
+					if len(failedJobs) > 0 {
+						@button.Button(button.Props{
+							Size: button.SizeSm,
+							Attributes: templ.Attributes{
+								"hx-post": "/queues/retry-all",
+								"hx-swap": "none",
+							},
+						}) {
+							Retry All Failed
+						}
+					}
 				}
-			</div>
+				@card.Content(card.ContentProps{Class: "pt-0"}) {
+					if len(failedJobs) == 0 {
+						<div class="py-6 text-center text-muted-foreground">
+							No failed jobs
+						</div>
+					} else {
+						@table.Table() {
+							@table.Header() {
+								@table.Row() {
+									@table.Head() { Queue }
+									@table.Head() { Type }
+									@table.Head() { Attempts }
+									@table.Head() { Last Error }
+									@table.Head() { Actions }
+								}
+							}
+							@table.Body() {
+								for _, job := range failedJobs {
+									@table.Row() {
+										@table.Cell() { { job.QueueName } }
+										@table.Cell() { { job.JobType } }
+										@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
+											{ strconv.Itoa(int(job.Attempt)) }/{ strconv.Itoa(int(job.MaxAttempts)) }
+										}
+										@table.Cell(table.CellProps{Class: "max-w-xs truncate"}) {
+											<span class="text-destructive" title={ safeString(job.LastError) }>
+												{ safeString(job.LastError) }
+											</span>
+										}
+										@table.Cell() {
+											@button.Button(button.Props{
+												Size: button.SizeSm,
+												Attributes: templ.Attributes{
+													"hx-post": "/queues/jobs/" + job.ID.String() + "/retry",
+													"hx-swap": "none",
+												},
+											}) {
+												Retry
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 
 			<!-- Recent Jobs -->
-			<div class="bg-white dark:bg-gray-800 rounded-lg shadow">
-				<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-					<h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Activity</h2>
-				</div>
-				if len(recentJobs) == 0 {
-					<div class="p-6 text-center text-gray-500 dark:text-gray-400">
-						No recent jobs
-					</div>
-				} else {
-					<table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-						<thead class="bg-gray-50 dark:bg-gray-900">
-							<tr>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Queue</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Type</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Status</th>
-								<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase">Created</th>
-							</tr>
-						</thead>
-						<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-							for _, job := range recentJobs {
-								<tr>
-									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{ job.QueueName }</td>
-									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">{ job.JobType }</td>
-									<td class="px-6 py-4 whitespace-nowrap">
-										@jobStatusBadge(job.Status)
-									</td>
-									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-										{ job.CreatedAt.Format("Jan 2 15:04") }
-									</td>
-								</tr>
-							}
-						</tbody>
-					</table>
+			@card.Card() {
+				@card.Header() {
+					@card.Title() {
+						Recent Activity
+					}
 				}
-			</div>
+				@card.Content(card.ContentProps{Class: "pt-0"}) {
+					if len(recentJobs) == 0 {
+						<div class="py-6 text-center text-muted-foreground">
+							No recent jobs
+						</div>
+					} else {
+						@table.Table() {
+							@table.Header() {
+								@table.Row() {
+									@table.Head() { Queue }
+									@table.Head() { Type }
+									@table.Head() { Status }
+									@table.Head() { Created }
+								}
+							}
+							@table.Body() {
+								for _, job := range recentJobs {
+									@table.Row() {
+										@table.Cell() { { job.QueueName } }
+										@table.Cell() { { job.JobType } }
+										@table.Cell() {
+											@jobStatusBadge(job.Status)
+										}
+										@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
+											{ job.CreatedAt.Format("Jan 2 15:04") }
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		</div>
 
 		<!-- Toast container -->
@@ -138,40 +162,54 @@ templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sql
 templ queueStatCards(stats []sqlc.GetQueueStatsRow) {
 	{{ queueMap := aggregateQueueStats(stats) }}
 	for queueName, counts := range queueMap {
-		<div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-			<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">{ queueName }</h3>
-			<div class="grid grid-cols-2 gap-4 text-sm">
-				<div>
-					<span class="text-gray-500 dark:text-gray-400">Pending:</span>
-					<span class="ml-2 font-medium text-gray-900 dark:text-gray-100">{ strconv.FormatInt(counts["pending"], 10) }</span>
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "pb-2"}) {
+				@card.Title(card.TitleProps{Class: "text-base"}) {
+					{ queueName }
+				}
+			}
+			@card.Content(card.ContentProps{Class: "pt-0"}) {
+				<div class="grid grid-cols-2 gap-4 text-sm">
+					<div>
+						<span class="text-muted-foreground">Pending:</span>
+						<span class="ml-2 font-medium">{ strconv.FormatInt(counts["pending"], 10) }</span>
+					</div>
+					<div>
+						<span class="text-muted-foreground">Processing:</span>
+						<span class="ml-2 font-medium">{ strconv.FormatInt(counts["processing"], 10) }</span>
+					</div>
+					<div>
+						<span class="text-muted-foreground">Completed:</span>
+						<span class="ml-2 font-medium text-green-600 dark:text-green-400">{ strconv.FormatInt(counts["completed"], 10) }</span>
+					</div>
+					<div>
+						<span class="text-muted-foreground">Failed:</span>
+						<span class="ml-2 font-medium text-destructive">{ strconv.FormatInt(counts["failed"], 10) }</span>
+					</div>
 				</div>
-				<div>
-					<span class="text-gray-500 dark:text-gray-400">Processing:</span>
-					<span class="ml-2 font-medium text-gray-900 dark:text-gray-100">{ strconv.FormatInt(counts["processing"], 10) }</span>
-				</div>
-				<div>
-					<span class="text-gray-500 dark:text-gray-400">Completed:</span>
-					<span class="ml-2 font-medium text-green-600 dark:text-green-400">{ strconv.FormatInt(counts["completed"], 10) }</span>
-				</div>
-				<div>
-					<span class="text-gray-500 dark:text-gray-400">Failed:</span>
-					<span class="ml-2 font-medium text-red-600 dark:text-red-400">{ strconv.FormatInt(counts["failed"], 10) }</span>
-				</div>
-			</div>
-		</div>
+			}
+		}
 	}
 }
 
 templ jobStatusBadge(status sqlc.JobStatus) {
 	switch status {
 		case sqlc.JobStatusPending:
-			<span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">Pending</span>
+			@badge.Badge(badge.Props{Variant: badge.VariantSecondary}) {
+				Pending
+			}
 		case sqlc.JobStatusProcessing:
-			<span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Processing</span>
+			@badge.Badge(badge.Props{Class: "animate-pulse"}) {
+				Processing
+			}
 		case sqlc.JobStatusCompleted:
-			<span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Completed</span>
+			@badge.Badge(badge.Props{Class: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-transparent"}) {
+				Completed
+			}
 		case sqlc.JobStatusFailed:
-			<span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Failed</span>
+			@badge.Badge(badge.Props{Variant: badge.VariantDestructive}) {
+				Failed
+			}
 	}
 }
 
