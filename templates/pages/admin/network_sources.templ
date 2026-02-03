@@ -222,6 +222,10 @@ templ NetworkSources(sources []sqlc.NetworkSource) {
 			if (btn.classList.contains('test-btn')) {
 				btn.querySelector('.test-spinner').classList.add('hidden');
 				btn.querySelector('.test-icon').classList.remove('hidden');
+				// Show toast with response
+				const xhr = evt.detail.xhr;
+				const isError = xhr.status >= 400;
+				showToast(xhr.responseText, isError);
 			}
 		});
 		</script>
