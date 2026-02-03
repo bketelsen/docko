@@ -65,9 +65,11 @@ templ Documents(docs []sqlc.Document) {
 												<path fill="white" d="M14 2v6h6"></path>
 												<text x="7" y="17" fill="white" font-size="6" font-weight="bold">PDF</text>
 											</svg>
-											<span class="truncate max-w-xs" title={ doc.OriginalFilename }>
+											<a href={ templ.SafeURL("/documents/" + doc.ID.String()) }
+											   class="truncate max-w-xs hover:text-primary hover:underline"
+											   title={ doc.OriginalFilename }>
 												{ doc.OriginalFilename }
-											</span>
+											</a>
 										</div>
 									</td>
 									<td class="px-4 py-3 text-sm text-muted-foreground">

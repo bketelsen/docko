@@ -47,11 +47,13 @@ templ DocumentDetail(doc sqlc.Document) {
 					<p class="text-muted-foreground">View document details and metadata.</p>
 				</div>
 				<div class="flex items-center gap-2">
-					// View PDF button (primary) - will be wired to modal in Plan 03
+					// View PDF button (primary) - opens modal via HTMX
 					<button
 						type="button"
 						class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-						data-view-pdf={ doc.ID.String() }
+						hx-get={ "/documents/" + doc.ID.String() + "/viewer" }
+						hx-target="body"
+						hx-swap="beforeend"
 					>
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
