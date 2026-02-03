@@ -13,6 +13,7 @@ require (
 	github.com/labstack/echo/v4 v4.15.0
 	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
 	github.com/lmittmann/tint v1.1.2
+	github.com/openai/openai-go v1.12.0
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/vmware/go-nfs-client v0.0.0-20190605212624-d43b92724c1b
 	golang.org/x/crypto v0.47.0
@@ -29,6 +30,10 @@ require (
 	github.com/mfridman/interpolate v0.0.2 // indirect
 	github.com/rasky/go-xdr v0.0.0-20170124162913-1a41d1a06c93 // indirect
 	github.com/sethvargo/go-retry v0.3.0 // indirect
+	github.com/tidwall/gjson v1.14.4 // indirect
+	github.com/tidwall/match v1.1.1 // indirect
+	github.com/tidwall/pretty v1.2.1 // indirect
+	github.com/tidwall/sjson v1.2.5 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
