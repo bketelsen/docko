@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"time"
 
+	"docko/components/button"
+	"docko/components/input"
+	"docko/components/label"
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
@@ -26,44 +29,49 @@ templ Inboxes(inboxes []sqlc.Inbox) {
 				hx-on::after-request="if(event.detail.successful) this.reset()"
 				class="grid gap-4 md:grid-cols-2"
 			>
-				<div>
-					<label for="name" class="block text-sm font-medium mb-1">Name</label>
-					<input
-						type="text"
-						id="name"
-						name="name"
-						required
-						placeholder="My Documents"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "name"}) {
+						Name
+					}
+					@input.Input(input.Props{
+						ID:          "name",
+						Type:        input.TypeText,
+						Name:        "name",
+						Placeholder: "My Documents",
+						Attributes:  templ.Attributes{"required": "true"},
+					})
 				</div>
-				<div>
-					<label for="path" class="block text-sm font-medium mb-1">Directory Path</label>
-					<input
-						type="text"
-						id="path"
-						name="path"
-						required
-						placeholder="/path/to/inbox"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "path"}) {
+						Directory Path
+					}
+					@input.Input(input.Props{
+						ID:          "path",
+						Type:        input.TypeText,
+						Name:        "path",
+						Placeholder: "/path/to/inbox",
+						Attributes:  templ.Attributes{"required": "true"},
+					})
 				</div>
-				<div>
-					<label for="error_path" class="block text-sm font-medium mb-1">Error Path (optional)</label>
-					<input
-						type="text"
-						id="error_path"
-						name="error_path"
-						placeholder="Defaults to {path}/errors"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "error_path"}) {
+						Error Path (optional)
+					}
+					@input.Input(input.Props{
+						ID:          "error_path",
+						Type:        input.TypeText,
+						Name:        "error_path",
+						Placeholder: "Defaults to {path}/errors",
+					})
 				</div>
-				<div>
-					<label for="duplicate_action" class="block text-sm font-medium mb-1">Duplicate Handling</label>
+				<div class="space-y-2">
+					@label.Label(label.Props{For: "duplicate_action"}) {
+						Duplicate Handling
+					}
 					<select
 						id="duplicate_action"
 						name="duplicate_action"
-						class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+						class="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						<option value="delete">Delete duplicate files</option>
 						<option value="rename">Rename with timestamp</option>
@@ -71,15 +79,15 @@ templ Inboxes(inboxes []sqlc.Inbox) {
 					</select>
 				</div>
 				<div class="md:col-span-2">
-					<button
-						type="submit"
-						class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-					>
+					@button.Button(button.Props{
+						Type: button.TypeSubmit,
+					}) {
 						Add Inbox
-					</button>
+					}
 				</div>
 			</form>
 		</div>
+		@input.Script()
 
 		<!-- Inbox List -->
 		<div id="inbox-list" class="space-y-4">
