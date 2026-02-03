@@ -8,7 +8,6 @@ import (
 
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
-	"github.com/openai/openai-go/shared"
 )
 
 // OpenAIProvider implements Provider using the OpenAI API
@@ -51,17 +50,11 @@ func (p *OpenAIProvider) Analyze(ctx context.Context, req AnalyzeRequest) (*Anal
 	chatResp, err := p.client.Chat.Completions.New(ctx, openai.ChatCompletionNewParams{
 		Model: openai.ChatModelGPT4oMini,
 		Messages: []openai.ChatCompletionMessageParamUnion{
-			openai.SystemMessage(SystemPrompt),
+			openai.SystemMessage(SystemPrompt + "\n\nRespond with valid JSON only."),
 			openai.UserMessage(prompt),
 		},
 		ResponseFormat: openai.ChatCompletionNewParamsResponseFormatUnion{
-			OfJSONSchema: &shared.ResponseFormatJSONSchemaParam{
-				JSONSchema: shared.ResponseFormatJSONSchemaJSONSchemaParam{
-					Name:   "document_analysis",
-					Schema: JSONSchema,
-					Strict: openai.Bool(true),
-				},
-			},
+			OfJSONObject: &openai.ResponseFormatJSONObjectParam{},
 		},
 		MaxTokens: openai.Int(int64(maxTokens)),
 	})
