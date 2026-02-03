@@ -1,6 +1,8 @@
 package admin
 
 import (
+	"docko/components/button"
+	"docko/components/card"
 	"docko/internal/meta"
 	"docko/templates/layouts"
 )
@@ -13,35 +15,36 @@ templ Upload() {
 		</div>
 
 		<!-- Upload Area -->
-		<div class="border border-border rounded-lg p-8 mb-6">
-			<div
-				id="upload-area"
-				class="border-2 border-dashed border-muted rounded-lg p-12 text-center cursor-pointer hover:border-primary hover:bg-accent/50 transition-colors"
-			>
-				<svg class="w-12 h-12 mx-auto mb-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-				</svg>
-				<p class="text-lg font-medium mb-2">Drop PDF files here</p>
-				<p class="text-sm text-muted-foreground mb-4">or click to select files</p>
-				<input
-					type="file"
-					id="file-input"
-					class="hidden"
-					accept=".pdf,application/pdf"
-					multiple
-				/>
-				<button
-					type="button"
-					id="select-files-btn"
-					class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+		@card.Card() {
+			@card.Content() {
+				<div
+					id="upload-area"
+					class="border-2 border-dashed border-muted rounded-lg p-12 text-center cursor-pointer hover:border-primary hover:bg-accent/50 transition-colors"
 				>
-					Select Files
-				</button>
-			</div>
-		</div>
+					<svg class="w-12 h-12 mx-auto mb-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+					</svg>
+					<p class="text-lg font-medium mb-2">Drop PDF files here</p>
+					<p class="text-sm text-muted-foreground mb-4">or click to select files</p>
+					<input
+						type="file"
+						id="file-input"
+						class="hidden"
+						accept=".pdf,application/pdf"
+						multiple
+					/>
+					@button.Button(button.Props{
+						ID: "select-files-btn",
+						Type: button.TypeButton,
+					}) {
+						Select Files
+					}
+				</div>
+			}
+		}
 
 		<!-- Upload Progress Container -->
-		<div id="upload-progress" class="space-y-3 mb-6"></div>
+		<div id="upload-progress" class="space-y-3 mt-6"></div>
 
 		<!-- Upload Results Container (filled by HTMX responses) -->
 		<div id="upload-results" class="space-y-3"></div>
