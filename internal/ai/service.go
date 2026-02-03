@@ -450,6 +450,33 @@ func (s *Service) AnyProviderAvailable() bool {
 	return false
 }
 
+// UsageStats holds aggregated AI usage statistics
+type UsageStats struct {
+	DocumentsProcessed int64
+	TotalInputTokens   int64
+	TotalOutputTokens  int64
+}
+
+// GetUsageStats returns aggregated AI usage statistics
+func (s *Service) GetUsageStats(ctx context.Context) (*UsageStats, error) {
+	row, err := s.db.Queries.GetAIUsageStats(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("get usage stats: %w", err)
+	}
+
+	stats := &UsageStats{
+		DocumentsProcessed: row.DocumentsProcessed,
+	}
+	if row.TotalInputTokens != nil {
+		stats.TotalInputTokens = *row.TotalInputTokens
+	}
+	if row.TotalOutputTokens != nil {
+		stats.TotalOutputTokens = *row.TotalOutputTokens
+	}
+
+	return stats, nil
+}
+
 // AvailableProviders returns list of available provider names
 func (s *Service) AvailableProviders() []string {
 	var names []string
