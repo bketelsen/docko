@@ -1,0 +1,304 @@
+package admin
+
+import (
+	"fmt"
+
+	"docko/internal/database/sqlc"
+	"docko/internal/meta"
+	"docko/templates/layouts"
+)
+
+// Color represents a tag color option
+type Color struct {
+	Name    string
+	BgClass string
+}
+
+// TagColors is the curated color palette for tags
+var TagColors = []Color{
+	{Name: "red", BgClass: "bg-red-500"},
+	{Name: "orange", BgClass: "bg-orange-500"},
+	{Name: "amber", BgClass: "bg-amber-500"},
+	{Name: "yellow", BgClass: "bg-yellow-500"},
+	{Name: "green", BgClass: "bg-green-500"},
+	{Name: "emerald", BgClass: "bg-emerald-500"},
+	{Name: "teal", BgClass: "bg-teal-500"},
+	{Name: "blue", BgClass: "bg-blue-500"},
+	{Name: "indigo", BgClass: "bg-indigo-500"},
+	{Name: "purple", BgClass: "bg-purple-500"},
+	{Name: "pink", BgClass: "bg-pink-500"},
+	{Name: "gray", BgClass: "bg-gray-500"},
+}
+
+templ Tags(tags []sqlc.ListTagsWithCountsRow) {
+	@layouts.Admin(meta.New("Tag Management", "Manage document tags")) {
+		<div class="mb-8 flex items-center justify-between">
+			<div>
+				<h1 class="text-2xl font-bold">Tag Management</h1>
+				<p class="text-muted-foreground">Create and manage tags for document organization.</p>
+			</div>
+			<button
+				onclick="openTagModal()"
+				class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+			>
+				Add Tag
+			</button>
+		</div>
+
+		<!-- Tag List -->
+		<div id="tag-list" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+			if len(tags) == 0 {
+				<div class="col-span-full text-center py-12 text-muted-foreground">
+					<svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+					</svg>
+					<p>No tags created yet.</p>
+					<p class="text-sm">Click "Add Tag" to create your first tag.</p>
+				</div>
+			} else {
+				for _, tag := range tags {
+					@TagCard(tag)
+				}
+			}
+		</div>
+
+		<!-- Modal Dialog -->
+		<div
+			id="tag-modal"
+			class="fixed inset-0 z-50 hidden"
+			onclick="if(event.target === this) closeTagModal()"
+		>
+			<div class="absolute inset-0 bg-black/50"></div>
+			<div class="absolute inset-0 flex items-center justify-center p-4">
+				<div class="bg-background border border-border rounded-lg shadow-lg w-full max-w-md p-6" onclick="event.stopPropagation()">
+					<h2 id="modal-title" class="text-lg font-semibold mb-4">Create Tag</h2>
+					<form
+						id="tag-form"
+						hx-post="/tags"
+						hx-target="#tag-list"
+						hx-swap="beforeend"
+					>
+						<div class="space-y-4">
+							<!-- Name input -->
+							<div>
+								<label for="tag-name" class="block text-sm font-medium mb-1">Name</label>
+								<input
+									type="text"
+									id="tag-name"
+									name="name"
+									required
+									placeholder="Enter tag name"
+									class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+								/>
+							</div>
+
+							<!-- Color picker -->
+							<div>
+								<label class="block text-sm font-medium mb-2">Color</label>
+								<div class="grid grid-cols-6 gap-2">
+									for _, color := range TagColors {
+										<label class="cursor-pointer">
+											<input
+												type="radio"
+												name="color"
+												value={ color.Name }
+												class="sr-only peer"
+											/>
+											<div
+												class={ "w-8 h-8 rounded-full transition-all peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-ring", color.BgClass }
+												title={ color.Name }
+											></div>
+										</label>
+									}
+								</div>
+							</div>
+						</div>
+
+						<!-- Buttons -->
+						<div class="flex justify-end gap-2 mt-6">
+							<button
+								type="button"
+								onclick="closeTagModal()"
+								class="px-4 py-2 border border-border rounded-md hover:bg-accent transition-colors"
+							>
+								Cancel
+							</button>
+							<button
+								type="submit"
+								id="modal-submit"
+								class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+							>
+								Create
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			function openTagModal(id, name, color) {
+				const modal = document.getElementById('tag-modal');
+				const form = document.getElementById('tag-form');
+				const title = document.getElementById('modal-title');
+				const nameInput = document.getElementById('tag-name');
+				const submitBtn = document.getElementById('modal-submit');
+
+				if (id) {
+					// Edit mode
+					title.textContent = 'Edit Tag';
+					submitBtn.textContent = 'Save';
+					form.setAttribute('hx-post', '/tags/' + id);
+					form.setAttribute('hx-target', '#tag-' + id);
+					form.setAttribute('hx-swap', 'outerHTML');
+					nameInput.value = name || '';
+					// Select the color
+					const colorRadio = form.querySelector('input[name="color"][value="' + (color || 'blue') + '"]');
+					if (colorRadio) colorRadio.checked = true;
+				} else {
+					// Create mode
+					title.textContent = 'Create Tag';
+					submitBtn.textContent = 'Create';
+					form.setAttribute('hx-post', '/tags');
+					form.setAttribute('hx-target', '#tag-list');
+					form.setAttribute('hx-swap', 'beforeend');
+					form.reset();
+					// Default to blue
+					const blueRadio = form.querySelector('input[name="color"][value="blue"]');
+					if (blueRadio) blueRadio.checked = true;
+				}
+
+				// Re-process HTMX attributes
+				htmx.process(form);
+
+				modal.classList.remove('hidden');
+				nameInput.focus();
+			}
+
+			function closeTagModal() {
+				const modal = document.getElementById('tag-modal');
+				modal.classList.add('hidden');
+			}
+
+			// Listen for HX-Trigger to close modal
+			document.body.addEventListener('closeModal', function() {
+				closeTagModal();
+			});
+
+			// Close modal on Escape key
+			document.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape') {
+					closeTagModal();
+				}
+			});
+		</script>
+	}
+}
+
+templ TagCard(tag sqlc.ListTagsWithCountsRow) {
+	<div
+		id={ fmt.Sprintf("tag-%s", tag.ID.String()) }
+		class="border border-border rounded-lg p-4 flex items-center justify-between"
+	>
+		<div class="flex items-center gap-3">
+			<!-- Color indicator -->
+			<div class={ "w-4 h-4 rounded-full", tagColorClass(tag.Color) }></div>
+			<div>
+				<h3 class="font-semibold">{ tag.Name }</h3>
+				<p class="text-sm text-muted-foreground">
+					{ fmt.Sprintf("%d", tag.DocumentCount) }
+					if tag.DocumentCount == 1 {
+						document
+					} else {
+						documents
+					}
+				</p>
+			</div>
+		</div>
+		<div class="flex items-center gap-2">
+			<!-- Edit button -->
+			<button
+				onclick={ editTagOnClick(tag) }
+				class="p-2 text-muted-foreground hover:text-foreground transition-colors"
+				title="Edit tag"
+			>
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+				</svg>
+			</button>
+			<!-- Delete button -->
+			<button
+				hx-delete={ fmt.Sprintf("/tags/%s", tag.ID.String()) }
+				hx-target={ fmt.Sprintf("#tag-%s", tag.ID.String()) }
+				hx-swap="outerHTML"
+				hx-confirm={ fmt.Sprintf("Delete tag \"%s\"? This tag has %d document(s).", tag.Name, tag.DocumentCount) }
+				class="p-2 text-muted-foreground hover:text-destructive transition-colors"
+				title="Delete tag"
+			>
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+				</svg>
+			</button>
+		</div>
+	</div>
+}
+
+func tagColorClass(color *string) string {
+	if color == nil {
+		return "bg-blue-500"
+	}
+	switch *color {
+	case "red":
+		return "bg-red-500"
+	case "orange":
+		return "bg-orange-500"
+	case "amber":
+		return "bg-amber-500"
+	case "yellow":
+		return "bg-yellow-500"
+	case "green":
+		return "bg-green-500"
+	case "emerald":
+		return "bg-emerald-500"
+	case "teal":
+		return "bg-teal-500"
+	case "blue":
+		return "bg-blue-500"
+	case "indigo":
+		return "bg-indigo-500"
+	case "purple":
+		return "bg-purple-500"
+	case "pink":
+		return "bg-pink-500"
+	case "gray":
+		return "bg-gray-500"
+	default:
+		return "bg-blue-500"
+	}
+}
+
+func safeColor(color *string) string {
+	if color == nil {
+		return "blue"
+	}
+	return *color
+}
+
+func escapeJS(s string) string {
+	// Simple escape for single quotes in JS strings
+	result := ""
+	for _, c := range s {
+		if c == '\'' {
+			result += "\\'"
+		} else if c == '\\' {
+			result += "\\\\"
+		} else {
+			result += string(c)
+		}
+	}
+	return result
+}
+
+script editTagOnClick(tag sqlc.ListTagsWithCountsRow) {
+	openTagModal(tag.ID, tag.Name, tag.Color || 'blue');
+}

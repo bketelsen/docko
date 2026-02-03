@@ -1,0 +1,240 @@
+package admin
+
+import (
+	"fmt"
+
+	"docko/internal/database/sqlc"
+	"docko/internal/meta"
+	"docko/templates/layouts"
+)
+
+templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
+	@layouts.Admin(meta.New("Correspondent Management", "Manage correspondents for document organization")) {
+		<div class="mb-8">
+			<h1 class="text-2xl font-bold">Correspondent Management</h1>
+			<p class="text-muted-foreground">Manage people and organizations associated with your documents.</p>
+		</div>
+
+		<!-- Add Correspondent Button -->
+		<div class="mb-6">
+			<button
+				type="button"
+				onclick="openCorrespondentModal()"
+				class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+			>
+				Add Correspondent
+			</button>
+		</div>
+
+		<!-- Correspondent List -->
+		<div id="correspondent-list" class="space-y-4">
+			if len(correspondents) == 0 {
+				<div class="text-center py-12 text-muted-foreground">
+					<svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+					</svg>
+					<p>No correspondents configured yet.</p>
+					<p class="text-sm">Add a correspondent to start organizing your documents.</p>
+				</div>
+			} else {
+				for _, correspondent := range correspondents {
+					@CorrespondentCard(correspondent)
+				}
+			}
+		</div>
+
+		<!-- Modal Dialog -->
+		<div id="correspondent-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" onclick="closeCorrespondentModalOnBackdrop(event)">
+			<div class="bg-background border border-border rounded-lg shadow-lg w-full max-w-md mx-4 p-6" onclick="event.stopPropagation()">
+				<div class="flex items-center justify-between mb-4">
+					<h2 id="modal-title" class="text-lg font-semibold">Add Correspondent</h2>
+					<button type="button" onclick="closeCorrespondentModal()" class="p-1 hover:bg-accent rounded">
+						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+						</svg>
+					</button>
+				</div>
+				<form id="correspondent-form" class="space-y-4">
+					<input type="hidden" id="correspondent-id" name="id" value=""/>
+					<div>
+						<label for="correspondent-name" class="block text-sm font-medium mb-1">Name</label>
+						<input
+							type="text"
+							id="correspondent-name"
+							name="name"
+							required
+							placeholder="Person or organization name"
+							class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+						/>
+					</div>
+					<div>
+						<label for="correspondent-notes" class="block text-sm font-medium mb-1">Notes (optional)</label>
+						<textarea
+							id="correspondent-notes"
+							name="notes"
+							rows="3"
+							placeholder="Additional information about this correspondent"
+							class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+						></textarea>
+					</div>
+					<div class="flex justify-end gap-3 pt-2">
+						<button
+							type="button"
+							onclick="closeCorrespondentModal()"
+							class="px-4 py-2 border border-input rounded-md hover:bg-accent transition-colors"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							id="modal-submit-btn"
+							class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+						>
+							Create
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+
+		<!-- Modal Script -->
+		<script>
+			function openCorrespondentModal(id, name, notes) {
+				const modal = document.getElementById('correspondent-modal');
+				const form = document.getElementById('correspondent-form');
+				const title = document.getElementById('modal-title');
+				const submitBtn = document.getElementById('modal-submit-btn');
+				const idInput = document.getElementById('correspondent-id');
+				const nameInput = document.getElementById('correspondent-name');
+				const notesInput = document.getElementById('correspondent-notes');
+
+				if (id) {
+					// Edit mode
+					title.textContent = 'Edit Correspondent';
+					submitBtn.textContent = 'Save';
+					idInput.value = id;
+					nameInput.value = name || '';
+					notesInput.value = notes || '';
+					form.setAttribute('hx-post', '/correspondents/' + id);
+					form.setAttribute('hx-target', '#correspondent-' + id);
+					form.setAttribute('hx-swap', 'outerHTML');
+				} else {
+					// Create mode
+					title.textContent = 'Add Correspondent';
+					submitBtn.textContent = 'Create';
+					idInput.value = '';
+					nameInput.value = '';
+					notesInput.value = '';
+					form.setAttribute('hx-post', '/correspondents');
+					form.setAttribute('hx-target', '#correspondent-list');
+					form.setAttribute('hx-swap', 'beforeend');
+				}
+
+				// Re-process HTMX attributes
+				htmx.process(form);
+
+				modal.classList.remove('hidden');
+				modal.classList.add('flex');
+				nameInput.focus();
+			}
+
+			function closeCorrespondentModal() {
+				const modal = document.getElementById('correspondent-modal');
+				modal.classList.add('hidden');
+				modal.classList.remove('flex');
+			}
+
+			function closeCorrespondentModalOnBackdrop(event) {
+				if (event.target.id === 'correspondent-modal') {
+					closeCorrespondentModal();
+				}
+			}
+
+			// Close modal on successful form submission
+			document.body.addEventListener('htmx:afterRequest', function(event) {
+				if (event.detail.elt.id === 'correspondent-form' && event.detail.successful) {
+					closeCorrespondentModal();
+					// Reset form
+					event.detail.elt.reset();
+				}
+			});
+
+			// Close modal on Escape key
+			document.addEventListener('keydown', function(event) {
+				if (event.key === 'Escape') {
+					closeCorrespondentModal();
+				}
+			});
+		</script>
+	}
+}
+
+templ CorrespondentCard(correspondent sqlc.ListCorrespondentsWithCountsRow) {
+	<div
+		id={ fmt.Sprintf("correspondent-%s", correspondent.ID.String()) }
+		class="border border-border rounded-lg p-4"
+	>
+		<div class="flex items-start justify-between">
+			<div class="flex-1 min-w-0">
+				<div class="flex items-center gap-3 mb-1">
+					<!-- Person icon -->
+					<svg class="w-5 h-5 text-muted-foreground flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+					</svg>
+					<h3 class="font-semibold truncate">{ correspondent.Name }</h3>
+					<!-- Document count badge -->
+					<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground">
+						{ fmt.Sprintf("%d", correspondent.DocumentCount) }
+						if correspondent.DocumentCount == 1 {
+							document
+						} else {
+							documents
+						}
+					</span>
+				</div>
+				if correspondent.Notes != nil && *correspondent.Notes != "" {
+					<p class="text-sm text-muted-foreground ml-8 line-clamp-2">{ *correspondent.Notes }</p>
+				}
+			</div>
+			<div class="flex items-center gap-2 ml-4 flex-shrink-0">
+				<!-- Edit button -->
+				<button
+					type="button"
+					onclick={ editCorrespondentOnClick(correspondent) }
+					class="p-2 text-muted-foreground hover:text-foreground transition-colors"
+					title="Edit correspondent"
+				>
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+					</svg>
+				</button>
+				<!-- Delete button -->
+				<button
+					hx-delete={ fmt.Sprintf("/correspondents/%s", correspondent.ID.String()) }
+					hx-target={ fmt.Sprintf("#correspondent-%s", correspondent.ID.String()) }
+					hx-swap="outerHTML"
+					hx-confirm={ deleteConfirmMessage(correspondent) }
+					class="p-2 text-muted-foreground hover:text-destructive transition-colors"
+					title="Delete correspondent"
+				>
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+					</svg>
+				</button>
+			</div>
+		</div>
+	</div>
+}
+
+script editCorrespondentOnClick(correspondent sqlc.ListCorrespondentsWithCountsRow) {
+	openCorrespondentModal(correspondent.ID, correspondent.Name, correspondent.Notes || '');
+}
+
+func deleteConfirmMessage(correspondent sqlc.ListCorrespondentsWithCountsRow) string {
+	if correspondent.DocumentCount == 0 {
+		return fmt.Sprintf("Delete correspondent '%s'? This correspondent has no documents.", correspondent.Name)
+	} else if correspondent.DocumentCount == 1 {
+		return fmt.Sprintf("Delete correspondent '%s'? This will unlink 1 document.", correspondent.Name)
+	}
+	return fmt.Sprintf("Delete correspondent '%s'? This will unlink %d documents.", correspondent.Name, correspondent.DocumentCount)
+}
