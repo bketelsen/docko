@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 4 of 8 (Viewing)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 04-01-PLAN.md
+Last activity: 2026-02-03 - Completed 04-02-PLAN.md
 
-Progress: [##############------] 70%
+Progress: [###############-----] 75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14
-- Average duration: 5.6 min
-- Total execution time: 1.35 hours
+- Total plans completed: 15
+- Average duration: 5.5 min
+- Total execution time: 1.4 hours
 
 **By Phase:**
 
@@ -30,12 +30,12 @@ Progress: [##############------] 70%
 | 01-foundation | 3 | 10 min | 3.3 min |
 | 02-ingestion | 5 | 39 min | 7.8 min |
 | 03-processing | 5 | 28 min | 5.6 min |
-| 04-viewing | 1 | 2 min | 2.0 min |
+| 04-viewing | 2 | 7 min | 3.5 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 03-02 (3 min), 03-04 (4 min), 03-05 (15 min), 04-01 (2 min)
-- Trend: 04-01 fast execution (simple file serving + component install)
+- Last 5 plans: 03-04 (4 min), 03-05 (15 min), 04-01 (2 min), 04-02 (5 min)
+- Trend: Phase 4 progressing efficiently
 
 *Updated after each plan completion*
 
@@ -77,6 +77,8 @@ Recent decisions affecting current work:
 - 100 subscriber limit for StatusBroadcaster
 - docSvc.FileExists helper wraps storage.FileExists for handler access
 - ServeThumbnail checks ThumbnailGenerated flag before attempting to serve
+- Text extraction status shown instead of OCR status (TextContent field available)
+- Storage path not displayed (computed dynamically, not stored)
 
 ### Pending Todos
 
@@ -88,9 +90,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T14:05:01Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-02-03T14:15:00Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
 
 ---
-*Next action: Continue Phase 04 - Viewing with 04-02-PLAN.md (Document Detail Page)*
+*Next action: Continue Phase 04 - Viewing with 04-03-PLAN.md (PDF Viewer Modal)*
