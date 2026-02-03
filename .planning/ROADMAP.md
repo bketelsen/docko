@@ -192,21 +192,26 @@ Plans:
 
 ### Phase 10: Refactor to Use More templUI Components
 
-**Goal**: Replace custom UI elements with standardized templUI components for consistency
+**Goal**: Replace custom UI elements with standardized templUI components for visual and behavioral consistency
 **Depends on**: Phase 9
-**Requirements**: TBD
+**Requirements**: None (enhancement feature)
 **Success Criteria** (what must be TRUE):
 
   1. Custom form elements replaced with templUI components
-  2. Custom modals use templUI modal component
+  2. Custom modals use templUI dialog component
   3. Custom buttons/inputs standardized across the app
   4. UI styling is consistent throughout the application
 
-**Plans**: 0 plans
+**Plans**: 7 plans
 
 Plans:
-
-- [ ] TBD (run /gsd:plan-phase 10 to break down)
+- [ ] 10-01-PLAN.md — Admin layout with templUI sidebar and header buttons
+- [ ] 10-02-PLAN.md — Form components in Inboxes, Network Sources, AI Settings
+- [ ] 10-03-PLAN.md — Tags dialog, Correspondents forms, Documents search
+- [ ] 10-04-PLAN.md — Document tables and status badges
+- [ ] 10-05-PLAN.md — Alerts, switches, and card action buttons
+- [ ] 10-06-PLAN.md — Dashboard, Upload, Queue Dashboard, AI Review pages
+- [ ] 10-07-PLAN.md — Final verification and cleanup
 
 ### Phase 11: Dashboard
 
@@ -263,7 +268,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 7. Network Sources | 6/6 | Complete | 2026-02-03 |
 | 8. AI Integration | 6/6 | Complete | 2026-02-03 |
 | 9. Minimum Word Block | 2/2 | Complete | 2026-02-03 |
-| 10. templUI Refactor | 0/? | Not Started | - |
+| 10. templUI Refactor | 0/7 | Not Started | - |
 | 11. Dashboard | 0/? | Not Started | - |
 | 12. Queues Detail | 0/? | Not Started | - |
 
