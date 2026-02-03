@@ -15,6 +15,7 @@ import (
 	"docko/internal/handler"
 	"docko/internal/inbox"
 	"docko/internal/middleware"
+	"docko/internal/network"
 	"docko/internal/processing"
 	"docko/internal/queue"
 	"docko/internal/storage"
@@ -57,6 +58,9 @@ func main() {
 	// Initialize inbox service
 	inboxSvc := inbox.New(db, docService, cfg)
 
+	// Initialize network service
+	networkSvc := network.New(db, docService, cfg)
+
 	// Check processing dependencies (pdftoppm, cwebp)
 	if err := processing.CheckDependencies(); err != nil {
 		slog.Warn("processing dependencies missing", "error", err)
@@ -91,7 +95,7 @@ func main() {
 
 	middleware.Setup(e, cfg)
 
-	h := handler.New(cfg, db, authService, docService, inboxSvc, q, broadcaster)
+	h := handler.New(cfg, db, authService, docService, inboxSvc, networkSvc, q, broadcaster)
 	h.RegisterRoutes(e)
 
 	// Start inbox watcher in background
@@ -101,6 +105,13 @@ func main() {
 			slog.Error("inbox service error", "error", err)
 		}
 	}()
+
+	// Start network service
+	networkCtx, networkCancel := context.WithCancel(context.Background())
+	if err := networkSvc.Start(networkCtx); err != nil {
+		slog.Error("failed to start network service", "error", err)
+		os.Exit(1)
+	}
 
 	go func() {
 		addr := ":" + cfg.Port
@@ -130,6 +141,13 @@ func main() {
 	inboxCancel()
 	if err := inboxSvc.Stop(); err != nil {
 		slog.Error("failed to stop inbox watcher", "error", err)
+	}
+
+	// Stop network service
+	slog.Info("stopping network service...")
+	networkCancel()
+	if err := networkSvc.Stop(); err != nil {
+		slog.Error("failed to stop network service", "error", err)
 	}
 
 	// Stop queue workers
