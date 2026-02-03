@@ -207,6 +207,23 @@ templ NetworkSources(sources []sqlc.NetworkSource) {
 				setTimeout(() => toast.remove(), 300);
 			}, 5000);
 		}
+
+		// Show spinner on test button during request
+		document.body.addEventListener('htmx:beforeRequest', function(evt) {
+			const btn = evt.detail.elt;
+			if (btn.classList.contains('test-btn')) {
+				btn.querySelector('.test-spinner').classList.remove('hidden');
+				btn.querySelector('.test-icon').classList.add('hidden');
+			}
+		});
+
+		document.body.addEventListener('htmx:afterRequest', function(evt) {
+			const btn = evt.detail.elt;
+			if (btn.classList.contains('test-btn')) {
+				btn.querySelector('.test-spinner').classList.add('hidden');
+				btn.querySelector('.test-icon').classList.remove('hidden');
+			}
+		});
 		</script>
 	}
 }
@@ -239,10 +256,15 @@ templ NetworkSourceCard(source sqlc.NetworkSource) {
 					hx-post={ fmt.Sprintf("/network-sources/%s/test", source.ID.String()) }
 					hx-swap="none"
 					hx-on::after-request="showToast(event.detail.xhr.responseText, !event.detail.successful)"
-					class="p-2 text-muted-foreground hover:text-foreground transition-colors"
+					class="test-btn p-2 text-muted-foreground hover:text-foreground transition-colors"
 					title="Test connection"
 				>
-					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<!-- Spinner (hidden by default, shown during request) -->
+					<svg class="test-spinner hidden w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+					</svg>
+					<!-- Normal icon (shown by default, hidden during request) -->
+					<svg class="test-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 					</svg>
 				</button>
