@@ -15,6 +15,7 @@ import (
 	"docko/internal/handler"
 	"docko/internal/inbox"
 	"docko/internal/middleware"
+	"docko/internal/processing"
 	"docko/internal/queue"
 	"docko/internal/storage"
 
@@ -55,6 +56,20 @@ func main() {
 
 	// Initialize inbox service
 	inboxSvc := inbox.New(db, docService, cfg)
+
+	// Check processing dependencies (pdftoppm, cwebp)
+	if err := processing.CheckDependencies(); err != nil {
+		slog.Warn("processing dependencies missing", "error", err)
+		// Don't fatal - app can run, just processing will fail
+	}
+
+	// Initialize processor and register with queue
+	processor := processing.New(db, docService, store, "static/images/placeholder.webp")
+	q.RegisterHandler(document.JobTypeProcess, processor.HandleJob)
+
+	// Start queue workers
+	queueCtx, queueCancel := context.WithCancel(context.Background())
+	q.Start(queueCtx, document.QueueDefault)
 
 	// Start background cleanup of expired sessions
 	go func() {
@@ -111,6 +126,8 @@ func main() {
 	}
 
 	// Stop queue workers
+	slog.Info("stopping queue workers...")
+	queueCancel()
 	q.Stop()
 
 	slog.Info("server stopped")
