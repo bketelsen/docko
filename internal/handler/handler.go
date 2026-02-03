@@ -120,4 +120,14 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	// AI routes (protected)
 	e.GET("/ai", h.AISettingsPage, middleware.RequireAuth(h.auth))
 	e.POST("/ai", h.UpdateAISettings, middleware.RequireAuth(h.auth))
+
+	// AI review queue routes (protected)
+	e.GET("/ai/review", h.ReviewQueuePage, middleware.RequireAuth(h.auth))
+	e.POST("/ai/suggestions/:id/accept", h.AcceptSuggestion, middleware.RequireAuth(h.auth))
+	e.POST("/ai/suggestions/:id/reject", h.RejectSuggestion, middleware.RequireAuth(h.auth))
+
+	// Queue dashboard routes (protected)
+	e.GET("/queues", h.QueueDashboardPage, middleware.RequireAuth(h.auth))
+	e.POST("/queues/jobs/:id/retry", h.RetryJob, middleware.RequireAuth(h.auth))
+	e.POST("/queues/retry-all", h.RetryAllFailedJobs, middleware.RequireAuth(h.auth))
 }
