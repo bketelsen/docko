@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -10,7 +11,9 @@ import (
 
 	"docko/internal/ai"
 	"docko/internal/database/sqlc"
+	"docko/internal/processing"
 	"docko/templates/pages/admin"
+	"docko/templates/partials"
 )
 
 // AISettingsPage renders the AI configuration page
@@ -243,4 +246,60 @@ func (h *Handler) RetryAllFailedJobs(c echo.Context) error {
 
 	c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "All failed jobs queued for retry", "type": "success"}}`)
 	return c.Redirect(http.StatusSeeOther, "/queues")
+}
+
+// ReanalyzeDocument triggers AI analysis for a document
+func (h *Handler) ReanalyzeDocument(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid document id")
+	}
+
+	// Check document exists
+	doc, err := h.db.Queries.GetDocument(ctx, docID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "document not found")
+	}
+
+	// Check document has text content
+	if doc.TextContent == nil || *doc.TextContent == "" {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Document has no text content", "type": "error"}}`)
+		return h.returnSuggestionsPartial(c, docID)
+	}
+
+	// Delete existing pending suggestions for this document
+	err = h.db.Queries.DeleteDocumentSuggestions(ctx, docID)
+	if err != nil {
+		slog.Warn("failed to delete existing suggestions", "error", err)
+		// Continue anyway
+	}
+
+	// Enqueue AI analysis job
+	payload := processing.AIPayload{DocumentID: docID}
+	_, err = h.queue.Enqueue(ctx, processing.QueueAI, processing.JobTypeAI, payload)
+	if err != nil {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to queue analysis", "type": "error"}}`)
+		return h.returnSuggestionsPartial(c, docID)
+	}
+
+	c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Analysis queued", "type": "success"}}`)
+	return h.returnSuggestionsPartial(c, docID)
+}
+
+// returnSuggestionsPartial returns the AI suggestions partial for a document
+func (h *Handler) returnSuggestionsPartial(c echo.Context, docID uuid.UUID) error {
+	ctx := c.Request().Context()
+
+	// Check if AI is enabled (has available providers)
+	aiEnabled := len(h.aiSvc.AvailableProviders()) > 0
+
+	// Get pending suggestions
+	suggestions, err := h.db.Queries.ListPendingSuggestionsForDocument(ctx, docID)
+	if err != nil {
+		suggestions = []sqlc.AiSuggestion{}
+	}
+
+	return partials.AISuggestions(docID, suggestions, aiEnabled).Render(ctx, c.Response().Writer)
 }
