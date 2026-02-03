@@ -118,6 +118,10 @@ func main() {
 		slog.Error("server shutdown error", "error", err)
 	}
 
+	// Stop queue workers
+	slog.Info("stopping queue workers...")
+	queueCancel()
+
 	// Stop inbox watcher
 	slog.Info("stopping inbox watcher...")
 	inboxCancel()
