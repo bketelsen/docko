@@ -289,8 +289,42 @@ func (h *Handler) DocumentsPage(c echo.Context) error {
 			Render(ctx, c.Response().Writer)
 	}
 
+	// Fetch all tags for filter dropdown (full page only)
+	allTagRows, err := h.db.Queries.ListTagsWithCounts(ctx)
+	if err != nil {
+		allTagRows = []sqlc.ListTagsWithCountsRow{} // Non-fatal
+	}
+
+	// Convert to Tag slice (ListTagsWithCounts returns rows with extra count field)
+	allTags := make([]sqlc.Tag, len(allTagRows))
+	for i, t := range allTagRows {
+		allTags[i] = sqlc.Tag{
+			ID:        t.ID,
+			Name:      t.Name,
+			Color:     t.Color,
+			CreatedAt: t.CreatedAt,
+		}
+	}
+
+	// Fetch all correspondents for filter dropdown (full page only)
+	allCorrRows, err := h.db.Queries.ListCorrespondentsWithCounts(ctx)
+	if err != nil {
+		allCorrRows = []sqlc.ListCorrespondentsWithCountsRow{} // Non-fatal
+	}
+
+	// Convert to Correspondent slice
+	allCorrespondents := make([]sqlc.Correspondent, len(allCorrRows))
+	for i, c := range allCorrRows {
+		allCorrespondents[i] = sqlc.Correspondent{
+			ID:        c.ID,
+			Name:      c.Name,
+			Notes:     c.Notes,
+			CreatedAt: c.CreatedAt,
+		}
+	}
+
 	// Full page - render Documents template with search results
-	return admin.DocumentsWithSearch(results, docTags, docCorrespondents, templateParams, int(total), activeFilters).
+	return admin.DocumentsWithSearch(results, docTags, docCorrespondents, templateParams, int(total), activeFilters, allTags, allCorrespondents).
 		Render(ctx, c.Response().Writer)
 }
 
