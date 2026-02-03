@@ -37,11 +37,10 @@ services:
           done
         done
     volumes:
-      - ocr-input:/input
-      - ocr-output:/output
+      # Bind mounts for app communication (storage/ocr-input and storage/ocr-output)
+      - ./storage/ocr-input:/input
+      - ./storage/ocr-output:/output
     restart: unless-stopped
 
 volumes:
   docko-postgres-data:
-  ocr-input:
-  ocr-output:
