@@ -12,7 +12,7 @@ provides:
   - min_word_count column in ai_settings table
   - Updated sqlc queries with MinWordCount field
   - Handler support for min_word_count form field
-affects: [09-02, 09-03]
+affects: [09-02]
 
 # Tech tracking
 tech-stack:
@@ -99,8 +99,7 @@ None - no external service configuration required.
 ## Next Phase Readiness
 - Database schema ready for processing logic
 - Handler ready to receive min_word_count settings from UI
-- Next plan (09-02) can implement the UI form field
-- Plan 09-03 will implement the quarantine logic using this threshold
+- Next plan (09-02) implements the UI form field and quarantine logic
 
 ---
 *Phase: 09-minimum-words*
