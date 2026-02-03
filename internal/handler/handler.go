@@ -7,6 +7,7 @@ import (
 	"docko/internal/document"
 	"docko/internal/inbox"
 	"docko/internal/middleware"
+	"docko/internal/network"
 	"docko/internal/processing"
 	"docko/internal/queue"
 
@@ -19,17 +20,19 @@ type Handler struct {
 	auth        *auth.Service
 	docSvc      *document.Service
 	inboxSvc    *inbox.Service
+	networkSvc  *network.Service
 	queue       *queue.Queue
 	broadcaster *processing.StatusBroadcaster
 }
 
-func New(cfg *config.Config, db *database.DB, authService *auth.Service, docSvc *document.Service, inboxSvc *inbox.Service, q *queue.Queue, broadcaster *processing.StatusBroadcaster) *Handler {
+func New(cfg *config.Config, db *database.DB, authService *auth.Service, docSvc *document.Service, inboxSvc *inbox.Service, networkSvc *network.Service, q *queue.Queue, broadcaster *processing.StatusBroadcaster) *Handler {
 	return &Handler{
 		cfg:         cfg,
 		db:          db,
 		auth:        authService,
 		docSvc:      docSvc,
 		inboxSvc:    inboxSvc,
+		networkSvc:  networkSvc,
 		queue:       q,
 		broadcaster: broadcaster,
 	}
@@ -63,6 +66,16 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.DELETE("/inboxes/:id", h.DeleteInbox, middleware.RequireAuth(h.auth))
 	e.POST("/inboxes/:id/toggle", h.ToggleInbox, middleware.RequireAuth(h.auth))
 	e.GET("/inboxes/:id/events", h.InboxEvents, middleware.RequireAuth(h.auth))
+
+	// Network sources management routes (protected)
+	e.GET("/network-sources", h.NetworkSourcesPage, middleware.RequireAuth(h.auth))
+	e.POST("/network-sources", h.CreateNetworkSource, middleware.RequireAuth(h.auth))
+	e.DELETE("/network-sources/:id", h.DeleteNetworkSource, middleware.RequireAuth(h.auth))
+	e.POST("/network-sources/:id/toggle", h.ToggleNetworkSource, middleware.RequireAuth(h.auth))
+	e.POST("/network-sources/:id/test", h.TestNetworkSourceConnection, middleware.RequireAuth(h.auth))
+	e.POST("/network-sources/:id/sync", h.SyncNetworkSource, middleware.RequireAuth(h.auth))
+	e.POST("/network-sources/sync-all", h.SyncAllNetworkSources, middleware.RequireAuth(h.auth))
+	e.GET("/network-sources/:id/events", h.NetworkSourceEvents, middleware.RequireAuth(h.auth))
 
 	// Tag management routes (protected)
 	e.GET("/tags", h.TagsPage, middleware.RequireAuth(h.auth))
