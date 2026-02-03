@@ -1,0 +1,126 @@
+package admin
+
+import (
+	"fmt"
+	"docko/internal/database/sqlc"
+	"docko/internal/meta"
+	"docko/templates/layouts"
+	"docko/templates/partials"
+)
+
+// Documents renders the document list page with real-time status updates
+templ Documents(docs []sqlc.Document) {
+	@layouts.Admin(meta.New("Documents", "View and manage uploaded documents")) {
+		<div class="mb-8">
+			<div class="flex items-center justify-between">
+				<div>
+					<h1 class="text-2xl font-bold">Documents</h1>
+					<p class="text-muted-foreground">View uploaded documents and processing status.</p>
+				</div>
+				<a href="/upload" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+					</svg>
+					Upload
+				</a>
+			</div>
+		</div>
+
+		// SSE connection for real-time status updates
+		<div hx-ext="sse" sse-connect="/api/processing/status" sse-close="close">
+			// Bulk progress summary (updated via SSE event "bulk-progress")
+			<div id="bulk-progress-container" class="mb-4">
+				@partials.BulkProgress(countProcessed(docs), len(docs))
+			</div>
+
+			if len(docs) == 0 {
+				<div class="border border-border rounded-lg p-8 text-center">
+					<svg class="w-12 h-12 mx-auto text-muted-foreground mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+					</svg>
+					<p class="text-lg font-medium mb-2">No documents yet</p>
+					<p class="text-muted-foreground mb-4">Upload your first document to get started.</p>
+					<a href="/upload" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+						Upload Document
+					</a>
+				</div>
+			} else {
+				<div class="border border-border rounded-lg overflow-hidden">
+					<table class="w-full">
+						<thead class="bg-muted/50">
+							<tr>
+								<th class="px-4 py-3 text-left text-sm font-medium">Filename</th>
+								<th class="px-4 py-3 text-left text-sm font-medium">Size</th>
+								<th class="px-4 py-3 text-left text-sm font-medium">Date</th>
+								<th class="px-4 py-3 text-left text-sm font-medium">Status</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-border">
+							for _, doc := range docs {
+								<tr class="hover:bg-muted/30">
+									<td class="px-4 py-3">
+										<div class="flex items-center gap-3">
+											<svg class="w-8 h-8 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+												<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"></path>
+												<path fill="white" d="M14 2v6h6"></path>
+												<text x="7" y="17" fill="white" font-size="6" font-weight="bold">PDF</text>
+											</svg>
+											<span class="truncate max-w-xs" title={ doc.OriginalFilename }>
+												{ doc.OriginalFilename }
+											</span>
+										</div>
+									</td>
+									<td class="px-4 py-3 text-sm text-muted-foreground">
+										{ formatFileSize(doc.FileSize) }
+									</td>
+									<td class="px-4 py-3 text-sm text-muted-foreground">
+										{ doc.CreatedAt.Format("Jan 2, 2006") }
+									</td>
+									<td class="px-4 py-3">
+										// Status badge - swapped by SSE event "doc-{id}"
+										<div sse-swap={ "doc-" + doc.ID.String() } hx-swap="innerHTML">
+											@partials.DocumentStatus(doc.ID.String(), string(doc.ProcessingStatus), derefStr(doc.ProcessingError))
+										</div>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			}
+		</div>
+	}
+}
+
+// formatFileSize returns human-readable file size
+func formatFileSize(bytes int64) string {
+	const unit = 1024
+	if bytes < unit {
+		return fmt.Sprintf("%d B", bytes)
+	}
+	div, exp := int64(unit), 0
+	for n := bytes / unit; n >= unit; n /= unit {
+		div *= unit
+		exp++
+	}
+	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
+}
+
+// countProcessed returns count of completed documents
+func countProcessed(docs []sqlc.Document) int {
+	count := 0
+	for _, doc := range docs {
+		if doc.ProcessingStatus == sqlc.ProcessingStatusCompleted {
+			count++
+		}
+	}
+	return count
+}
+
+// derefStr safely dereferences a string pointer
+func derefStr(s *string) string {
+	if s == nil {
+		return ""
+	}
+	return *s
+}
