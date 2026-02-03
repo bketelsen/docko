@@ -10,162 +10,376 @@ import (
 
 templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 	@layouts.Admin(meta.New("Correspondent Management", "Manage correspondents for document organization")) {
-		<div class="mb-8">
-			<h1 class="text-2xl font-bold">Correspondent Management</h1>
-			<p class="text-muted-foreground">Manage people and organizations associated with your documents.</p>
-		</div>
+		<div id="correspondents-container">
+			<div class="mb-8">
+				<h1 class="text-2xl font-bold">Correspondent Management</h1>
+				<p class="text-muted-foreground">Manage people and organizations associated with your documents.</p>
+			</div>
 
-		<!-- Add Correspondent Button -->
-		<div class="mb-6">
-			<button
-				type="button"
-				onclick="openCorrespondentModal()"
-				class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-			>
-				Add Correspondent
-			</button>
-		</div>
-
-		<!-- Correspondent List -->
-		<div id="correspondent-list" class="space-y-4">
-			if len(correspondents) == 0 {
-				<div class="text-center py-12 text-muted-foreground">
-					<svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-					</svg>
-					<p>No correspondents configured yet.</p>
-					<p class="text-sm">Add a correspondent to start organizing your documents.</p>
-				</div>
-			} else {
-				for _, correspondent := range correspondents {
-					@CorrespondentCard(correspondent)
+			<!-- Action Buttons -->
+			<div class="mb-6 flex items-center gap-3">
+				<button
+					type="button"
+					onclick="openCorrespondentModal()"
+					class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+				>
+					Add Correspondent
+				</button>
+				if len(correspondents) >= 2 {
+					<button
+						type="button"
+						id="merge-mode-btn"
+						onclick="toggleMergeMode()"
+						class="px-4 py-2 border border-input rounded-md hover:bg-accent transition-colors"
+					>
+						Merge Mode
+					</button>
 				}
-			}
-		</div>
+			</div>
 
-		<!-- Modal Dialog -->
-		<div id="correspondent-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" onclick="closeCorrespondentModalOnBackdrop(event)">
-			<div class="bg-background border border-border rounded-lg shadow-lg w-full max-w-md mx-4 p-6" onclick="event.stopPropagation()">
-				<div class="flex items-center justify-between mb-4">
-					<h2 id="modal-title" class="text-lg font-semibold">Add Correspondent</h2>
-					<button type="button" onclick="closeCorrespondentModal()" class="p-1 hover:bg-accent rounded">
-						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-						</svg>
+			<!-- Merge Action Bar (hidden by default) -->
+			<div id="merge-bar" class="hidden mb-6 p-4 bg-muted/50 border border-border rounded-lg">
+				<div class="flex flex-wrap items-center gap-4">
+					<span class="text-sm text-muted-foreground">
+						<span id="merge-count">0</span> selected
+					</span>
+					<div class="flex items-center gap-2">
+						<label for="merge-target" class="text-sm font-medium">Merge into:</label>
+						<select
+							id="merge-target"
+							class="px-3 py-1.5 border border-input rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+							onchange="updateMergeButton()"
+						>
+							<option value="">Select target...</option>
+							for _, c := range correspondents {
+								<option value={ c.ID.String() }>{ c.Name }</option>
+							}
+						</select>
+					</div>
+					<button
+						type="button"
+						id="merge-btn"
+						onclick="executeMerge()"
+						disabled
+						class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						Merge Selected
+					</button>
+					<button
+						type="button"
+						onclick="exitMergeMode()"
+						class="px-4 py-2 border border-input rounded-md hover:bg-accent transition-colors"
+					>
+						Cancel
 					</button>
 				</div>
-				<form id="correspondent-form" class="space-y-4">
-					<input type="hidden" id="correspondent-id" name="id" value=""/>
-					<div>
-						<label for="correspondent-name" class="block text-sm font-medium mb-1">Name</label>
-						<input
-							type="text"
-							id="correspondent-name"
-							name="name"
-							required
-							placeholder="Person or organization name"
-							class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-						/>
-					</div>
-					<div>
-						<label for="correspondent-notes" class="block text-sm font-medium mb-1">Notes (optional)</label>
-						<textarea
-							id="correspondent-notes"
-							name="notes"
-							rows="3"
-							placeholder="Additional information about this correspondent"
-							class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-						></textarea>
-					</div>
-					<div class="flex justify-end gap-3 pt-2">
-						<button
-							type="button"
-							onclick="closeCorrespondentModal()"
-							class="px-4 py-2 border border-input rounded-md hover:bg-accent transition-colors"
-						>
-							Cancel
-						</button>
-						<button
-							type="submit"
-							id="modal-submit-btn"
-							class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-						>
-							Create
-						</button>
-					</div>
-				</form>
 			</div>
-		</div>
 
-		<!-- Modal Script -->
-		<script>
-			function openCorrespondentModal(id, name, notes) {
-				const modal = document.getElementById('correspondent-modal');
-				const form = document.getElementById('correspondent-form');
-				const title = document.getElementById('modal-title');
-				const submitBtn = document.getElementById('modal-submit-btn');
-				const idInput = document.getElementById('correspondent-id');
-				const nameInput = document.getElementById('correspondent-name');
-				const notesInput = document.getElementById('correspondent-notes');
+			<!-- Merge Form (hidden, used for HTMX submission) -->
+			<form
+				id="merge-form"
+				hx-post="/correspondents/merge"
+				hx-target="#correspondent-list"
+				hx-swap="innerHTML"
+				class="hidden"
+			>
+				<input type="hidden" name="target_id" id="merge-target-input"/>
+			</form>
 
-				if (id) {
-					// Edit mode
-					title.textContent = 'Edit Correspondent';
-					submitBtn.textContent = 'Save';
-					idInput.value = id;
-					nameInput.value = name || '';
-					notesInput.value = notes || '';
-					form.setAttribute('hx-post', '/correspondents/' + id);
-					form.setAttribute('hx-target', '#correspondent-' + id);
-					form.setAttribute('hx-swap', 'outerHTML');
+			<!-- Correspondent List -->
+			<div id="correspondent-list" class="space-y-4">
+				if len(correspondents) == 0 {
+					<div class="text-center py-12 text-muted-foreground">
+						<svg class="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+						</svg>
+						<p>No correspondents configured yet.</p>
+						<p class="text-sm">Add a correspondent to start organizing your documents.</p>
+					</div>
 				} else {
-					// Create mode
-					title.textContent = 'Add Correspondent';
-					submitBtn.textContent = 'Create';
-					idInput.value = '';
-					nameInput.value = '';
-					notesInput.value = '';
-					form.setAttribute('hx-post', '/correspondents');
-					form.setAttribute('hx-target', '#correspondent-list');
-					form.setAttribute('hx-swap', 'beforeend');
+					for _, correspondent := range correspondents {
+						@CorrespondentCard(correspondent)
+					}
+				}
+			</div>
+
+			<!-- Modal Dialog -->
+			<div id="correspondent-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" onclick="closeCorrespondentModalOnBackdrop(event)">
+				<div class="bg-background border border-border rounded-lg shadow-lg w-full max-w-md mx-4 p-6" onclick="event.stopPropagation()">
+					<div class="flex items-center justify-between mb-4">
+						<h2 id="modal-title" class="text-lg font-semibold">Add Correspondent</h2>
+						<button type="button" onclick="closeCorrespondentModal()" class="p-1 hover:bg-accent rounded">
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+							</svg>
+						</button>
+					</div>
+					<form id="correspondent-form" class="space-y-4">
+						<input type="hidden" id="correspondent-id" name="id" value=""/>
+						<div>
+							<label for="correspondent-name" class="block text-sm font-medium mb-1">Name</label>
+							<input
+								type="text"
+								id="correspondent-name"
+								name="name"
+								required
+								placeholder="Person or organization name"
+								class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+							/>
+						</div>
+						<div>
+							<label for="correspondent-notes" class="block text-sm font-medium mb-1">Notes (optional)</label>
+							<textarea
+								id="correspondent-notes"
+								name="notes"
+								rows="3"
+								placeholder="Additional information about this correspondent"
+								class="w-full px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+							></textarea>
+						</div>
+						<div class="flex justify-end gap-3 pt-2">
+							<button
+								type="button"
+								onclick="closeCorrespondentModal()"
+								class="px-4 py-2 border border-input rounded-md hover:bg-accent transition-colors"
+							>
+								Cancel
+							</button>
+							<button
+								type="submit"
+								id="modal-submit-btn"
+								class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+							>
+								Create
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<!-- Scripts -->
+			<script>
+				// Modal functions
+				function openCorrespondentModal(id, name, notes) {
+					const modal = document.getElementById('correspondent-modal');
+					const form = document.getElementById('correspondent-form');
+					const title = document.getElementById('modal-title');
+					const submitBtn = document.getElementById('modal-submit-btn');
+					const idInput = document.getElementById('correspondent-id');
+					const nameInput = document.getElementById('correspondent-name');
+					const notesInput = document.getElementById('correspondent-notes');
+
+					if (id) {
+						// Edit mode
+						title.textContent = 'Edit Correspondent';
+						submitBtn.textContent = 'Save';
+						idInput.value = id;
+						nameInput.value = name || '';
+						notesInput.value = notes || '';
+						form.setAttribute('hx-post', '/correspondents/' + id);
+						form.setAttribute('hx-target', '#correspondent-' + id);
+						form.setAttribute('hx-swap', 'outerHTML');
+					} else {
+						// Create mode
+						title.textContent = 'Add Correspondent';
+						submitBtn.textContent = 'Create';
+						idInput.value = '';
+						nameInput.value = '';
+						notesInput.value = '';
+						form.setAttribute('hx-post', '/correspondents');
+						form.setAttribute('hx-target', '#correspondent-list');
+						form.setAttribute('hx-swap', 'beforeend');
+					}
+
+					// Re-process HTMX attributes
+					htmx.process(form);
+
+					modal.classList.remove('hidden');
+					modal.classList.add('flex');
+					nameInput.focus();
 				}
 
-				// Re-process HTMX attributes
-				htmx.process(form);
-
-				modal.classList.remove('hidden');
-				modal.classList.add('flex');
-				nameInput.focus();
-			}
-
-			function closeCorrespondentModal() {
-				const modal = document.getElementById('correspondent-modal');
-				modal.classList.add('hidden');
-				modal.classList.remove('flex');
-			}
-
-			function closeCorrespondentModalOnBackdrop(event) {
-				if (event.target.id === 'correspondent-modal') {
-					closeCorrespondentModal();
+				function closeCorrespondentModal() {
+					const modal = document.getElementById('correspondent-modal');
+					modal.classList.add('hidden');
+					modal.classList.remove('flex');
 				}
-			}
 
-			// Close modal on successful form submission
-			document.body.addEventListener('htmx:afterRequest', function(event) {
-				if (event.detail.elt.id === 'correspondent-form' && event.detail.successful) {
-					closeCorrespondentModal();
-					// Reset form
-					event.detail.elt.reset();
+				function closeCorrespondentModalOnBackdrop(event) {
+					if (event.target.id === 'correspondent-modal') {
+						closeCorrespondentModal();
+					}
 				}
-			});
 
-			// Close modal on Escape key
-			document.addEventListener('keydown', function(event) {
-				if (event.key === 'Escape') {
-					closeCorrespondentModal();
+				// Close modal on successful form submission
+				document.body.addEventListener('htmx:afterRequest', function(event) {
+					if (event.detail.elt.id === 'correspondent-form' && event.detail.successful) {
+						closeCorrespondentModal();
+						// Reset form
+						event.detail.elt.reset();
+					}
+					// Exit merge mode after successful merge
+					if (event.detail.elt.id === 'merge-form' && event.detail.successful) {
+						exitMergeMode();
+					}
+				});
+
+				// Close modal on Escape key
+				document.addEventListener('keydown', function(event) {
+					if (event.key === 'Escape') {
+						closeCorrespondentModal();
+						if (document.getElementById('correspondents-container').classList.contains('merge-mode')) {
+							exitMergeMode();
+						}
+					}
+				});
+
+				// Merge mode functions
+				let mergeMode = false;
+
+				function toggleMergeMode() {
+					if (mergeMode) {
+						exitMergeMode();
+					} else {
+						enterMergeMode();
+					}
 				}
-			});
-		</script>
+
+				function enterMergeMode() {
+					mergeMode = true;
+					const container = document.getElementById('correspondents-container');
+					const mergeBar = document.getElementById('merge-bar');
+					const mergeBtn = document.getElementById('merge-mode-btn');
+
+					container.classList.add('merge-mode');
+					mergeBar.classList.remove('hidden');
+					mergeBtn.textContent = 'Exit Merge Mode';
+					mergeBtn.classList.add('bg-muted');
+
+					// Show all checkboxes
+					document.querySelectorAll('.merge-checkbox').forEach(cb => {
+						cb.classList.remove('hidden');
+					});
+
+					updateMergeCount();
+				}
+
+				function exitMergeMode() {
+					mergeMode = false;
+					const container = document.getElementById('correspondents-container');
+					const mergeBar = document.getElementById('merge-bar');
+					const mergeBtn = document.getElementById('merge-mode-btn');
+					const targetSelect = document.getElementById('merge-target');
+
+					container.classList.remove('merge-mode');
+					mergeBar.classList.add('hidden');
+					if (mergeBtn) {
+						mergeBtn.textContent = 'Merge Mode';
+						mergeBtn.classList.remove('bg-muted');
+					}
+
+					// Hide all checkboxes and uncheck them
+					document.querySelectorAll('.merge-checkbox').forEach(cb => {
+						cb.classList.add('hidden');
+						cb.querySelector('input').checked = false;
+					});
+
+					// Reset target select
+					if (targetSelect) {
+						targetSelect.value = '';
+					}
+
+					updateMergeCount();
+				}
+
+				function updateMergeCount() {
+					const checked = document.querySelectorAll('.merge-checkbox input:checked');
+					const countSpan = document.getElementById('merge-count');
+					if (countSpan) {
+						countSpan.textContent = checked.length;
+					}
+					updateMergeButton();
+				}
+
+				function updateMergeButton() {
+					const mergeBtn = document.getElementById('merge-btn');
+					const targetSelect = document.getElementById('merge-target');
+					const checked = document.querySelectorAll('.merge-checkbox input:checked');
+
+					if (!mergeBtn || !targetSelect) return;
+
+					const targetId = targetSelect.value;
+					const hasTarget = targetId !== '';
+					const hasSelections = checked.length >= 1;
+
+					// Check if target is in selected items
+					let targetInSelection = false;
+					checked.forEach(cb => {
+						if (cb.value === targetId) {
+							targetInSelection = true;
+						}
+					});
+
+					// Enable only if: has target AND has selections AND target not in selection
+					mergeBtn.disabled = !hasTarget || !hasSelections || targetInSelection;
+
+					// Update button text
+					if (targetInSelection && hasTarget) {
+						mergeBtn.textContent = 'Target cannot be merged';
+					} else if (checked.length === 0) {
+						mergeBtn.textContent = 'Select items to merge';
+					} else {
+						mergeBtn.textContent = `Merge ${checked.length} into Target`;
+					}
+				}
+
+				function executeMerge() {
+					const targetSelect = document.getElementById('merge-target');
+					const checked = document.querySelectorAll('.merge-checkbox input:checked');
+					const targetId = targetSelect.value;
+
+					if (!targetId || checked.length === 0) return;
+
+					// Find target name for confirmation
+					const targetName = targetSelect.options[targetSelect.selectedIndex].text;
+
+					const confirmed = confirm(
+						`Merge ${checked.length} correspondent(s) into "${targetName}"?\n\n` +
+						`All documents will be reassigned to "${targetName}" and the selected correspondents will be deleted.\n\n` +
+						`This cannot be undone.`
+					);
+
+					if (!confirmed) return;
+
+					// Populate hidden form
+					const form = document.getElementById('merge-form');
+					const targetInput = document.getElementById('merge-target-input');
+					targetInput.value = targetId;
+
+					// Remove any existing merge_ids inputs
+					form.querySelectorAll('input[name="merge_ids"]').forEach(el => el.remove());
+
+					// Add merge_ids inputs
+					checked.forEach(cb => {
+						const input = document.createElement('input');
+						input.type = 'hidden';
+						input.name = 'merge_ids';
+						input.value = cb.value;
+						form.appendChild(input);
+					});
+
+					// Submit form via HTMX
+					htmx.trigger(form, 'submit');
+				}
+
+				// Handle checkbox changes
+				document.addEventListener('change', function(event) {
+					if (event.target.closest('.merge-checkbox')) {
+						updateMergeCount();
+					}
+				});
+			</script>
+		</div>
 	}
 }
 
@@ -192,26 +406,36 @@ templ CorrespondentCard(correspondent sqlc.ListCorrespondentsWithCountsRow) {
 		class="border border-border rounded-lg p-4"
 	>
 		<div class="flex items-start justify-between">
-			<div class="flex-1 min-w-0">
-				<div class="flex items-center gap-3 mb-1">
-					<!-- Person icon -->
-					<svg class="w-5 h-5 text-muted-foreground flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-					</svg>
-					<h3 class="font-semibold truncate">{ correspondent.Name }</h3>
-					<!-- Document count badge -->
-					<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground">
-						{ fmt.Sprintf("%d", correspondent.DocumentCount) }
-						if correspondent.DocumentCount == 1 {
-							document
-						} else {
-							documents
-						}
-					</span>
+			<div class="flex items-start gap-3 flex-1 min-w-0">
+				<!-- Merge checkbox (hidden by default) -->
+				<label class="merge-checkbox hidden flex-shrink-0 mt-0.5">
+					<input
+						type="checkbox"
+						value={ correspondent.ID.String() }
+						class="w-4 h-4 rounded border-input text-primary focus:ring-ring"
+					/>
+				</label>
+				<div class="flex-1 min-w-0">
+					<div class="flex items-center gap-3 mb-1">
+						<!-- Person icon -->
+						<svg class="w-5 h-5 text-muted-foreground flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+						</svg>
+						<h3 class="font-semibold truncate">{ correspondent.Name }</h3>
+						<!-- Document count badge -->
+						<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground">
+							{ fmt.Sprintf("%d", correspondent.DocumentCount) }
+							if correspondent.DocumentCount == 1 {
+								document
+							} else {
+								documents
+							}
+						</span>
+					</div>
+					if correspondent.Notes != nil && *correspondent.Notes != "" {
+						<p class="text-sm text-muted-foreground ml-8 line-clamp-2">{ *correspondent.Notes }</p>
+					}
 				</div>
-				if correspondent.Notes != nil && *correspondent.Notes != "" {
-					<p class="text-sm text-muted-foreground ml-8 line-clamp-2">{ *correspondent.Notes }</p>
-				}
 			</div>
 			<div class="flex items-center gap-2 ml-4 flex-shrink-0">
 				<!-- Edit button -->
