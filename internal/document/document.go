@@ -207,7 +207,7 @@ func (s *Service) OriginalPath(doc *sqlc.Document) string {
 
 // ThumbnailPath returns the file path for a document's thumbnail
 func (s *Service) ThumbnailPath(doc *sqlc.Document) string {
-	return s.storage.PathForUUID(storage.CategoryThumbnails, doc.ID, ".png")
+	return s.storage.PathForUUID(storage.CategoryThumbnails, doc.ID, ".webp")
 }
 
 // TextPath returns the file path for a document's extracted text
