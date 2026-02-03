@@ -9,6 +9,7 @@ import (
 	"docko/components/tabs"
 	"docko/components/breadcrumb"
 	"docko/components/badge"
+	"docko/components/button"
 )
 
 // DocumentDetail renders the document detail page with thumbnail and metadata
@@ -50,29 +51,29 @@ templ DocumentDetail(doc sqlc.Document, tags []sqlc.Tag, correspondent *sqlc.Cor
 				</div>
 				<div class="flex items-center gap-2">
 					// View PDF button (primary) - opens modal via HTMX
-					<button
-						type="button"
-						class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-						hx-get={ "/documents/" + doc.ID.String() + "/viewer" }
-						hx-target="body"
-						hx-swap="beforeend"
-					>
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{
+							"hx-get":    "/documents/" + doc.ID.String() + "/viewer",
+							"hx-target": "body",
+							"hx-swap":   "beforeend",
+						},
+					}) {
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
 						</svg>
 						View PDF
-					</button>
+					}
 					// Download button (secondary)
-					<a
-						href={ templ.SafeURL(fmt.Sprintf("/documents/%s/download", doc.ID.String())) }
-						class="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-md hover:bg-muted/50"
-					>
+					@button.Button(button.Props{
+						Variant: button.VariantOutline,
+						Href:    fmt.Sprintf("/documents/%s/download", doc.ID.String()),
+					}) {
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
 						</svg>
 						Download
-					</a>
+					}
 				</div>
 			</div>
 		</div>
@@ -102,27 +103,33 @@ templ DocumentDetail(doc sqlc.Document, tags []sqlc.Tag, correspondent *sqlc.Cor
 					</div>
 					// Quick action buttons below thumbnail
 					<div class="p-3 border-t border-border flex justify-center gap-2">
-						<a
-							href={ templ.SafeURL(fmt.Sprintf("/documents/%s/view", doc.ID.String())) }
-							target="_blank"
-							class="inline-flex items-center gap-1 px-3 py-1.5 text-sm border border-border rounded-md hover:bg-muted/50"
-							title="Open in new tab"
-						>
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+							Size:    button.SizeSm,
+							Href:    fmt.Sprintf("/documents/%s/view", doc.ID.String()),
+							Attributes: templ.Attributes{
+								"target": "_blank",
+								"title":  "Open in new tab",
+							},
+						}) {
 							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
 							</svg>
 							Open
-						</a>
-						<a
-							href={ templ.SafeURL(fmt.Sprintf("/documents/%s/download", doc.ID.String())) }
-							class="inline-flex items-center gap-1 px-3 py-1.5 text-sm border border-border rounded-md hover:bg-muted/50"
-							title="Download file"
-						>
+						}
+						@button.Button(button.Props{
+							Variant: button.VariantOutline,
+							Size:    button.SizeSm,
+							Href:    fmt.Sprintf("/documents/%s/download", doc.ID.String()),
+							Attributes: templ.Attributes{
+								"title": "Download file",
+							},
+						}) {
 							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
 							</svg>
 							Download
-						</a>
+						}
 					</div>
 				</div>
 			</div>
