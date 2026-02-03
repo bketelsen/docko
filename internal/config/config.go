@@ -31,6 +31,10 @@ type InboxConfig struct {
 	ScanIntervalMs int    // Interval between directory scans in ms (default: 1000)
 }
 
+type NetworkConfig struct {
+	CredentialKey string // Key for encrypting network source credentials (required for network sources)
+}
+
 type Config struct {
 	DatabaseURL string
 	Port        string
@@ -39,6 +43,7 @@ type Config struct {
 	Auth        AuthConfig
 	Storage     StorageConfig
 	Inbox       InboxConfig
+	Network     NetworkConfig
 }
 
 func Load() *Config {
@@ -64,6 +69,9 @@ func Load() *Config {
 			ErrorSubdir:    getEnvOrDefault("INBOX_ERROR_SUBDIR", "errors"),
 			MaxFileSizeMB:  getEnvIntOrDefault("INBOX_MAX_FILE_SIZE_MB", 100),
 			ScanIntervalMs: getEnvIntOrDefault("INBOX_SCAN_INTERVAL_MS", 1000),
+		},
+		Network: NetworkConfig{
+			CredentialKey: os.Getenv("CREDENTIAL_ENCRYPTION_KEY"),
 		},
 	}
 

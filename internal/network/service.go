@@ -50,11 +50,18 @@ type Service struct {
 
 // New creates a new network Service.
 func New(db *database.DB, docSvc *document.Service, cfg *config.Config) *Service {
+	credentialKey := cfg.Network.CredentialKey
+	if credentialKey == "" {
+		slog.Warn("CREDENTIAL_ENCRYPTION_KEY not set - network source credentials will not be secure")
+		// Use a fallback for development, but warn loudly
+		credentialKey = "insecure-dev-key-do-not-use-in-production"
+	}
+
 	return &Service{
 		db:     db,
 		docSvc: docSvc,
 		cfg:    cfg,
-		crypto: NewCredentialCrypto(cfg.Auth.SessionSecret),
+		crypto: NewCredentialCrypto(credentialKey),
 	}
 }
 
