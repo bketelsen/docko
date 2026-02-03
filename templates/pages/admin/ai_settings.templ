@@ -128,6 +128,23 @@ templ AISettings(settings sqlc.AiSetting, providers []string, stats *ai.UsageSta
 					<p class="text-sm text-gray-500 dark:text-gray-400 -mt-4 ml-6">
 						When enabled, documents are automatically analyzed after text extraction.
 					</p>
+					<!-- Minimum Word Count -->
+					<div>
+						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							Minimum Word Count
+						</label>
+						<input
+							type="number"
+							name="min_word_count"
+							min="0"
+							max="10000"
+							value={ strconv.Itoa(int(settings.MinWordCount)) }
+							class="w-32 rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+						/>
+						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+							Documents with fewer words are rejected during processing. Set to 0 to disable.
+						</p>
+					</div>
 					<div class="pt-4">
 						<button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
 							Save Settings
