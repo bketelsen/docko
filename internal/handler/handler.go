@@ -73,6 +73,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	// Correspondent management routes (protected)
 	e.GET("/correspondents", h.CorrespondentsPage, middleware.RequireAuth(h.auth))
 	e.POST("/correspondents", h.CreateCorrespondent, middleware.RequireAuth(h.auth))
+	e.POST("/correspondents/merge", h.MergeCorrespondents, middleware.RequireAuth(h.auth))
 	e.POST("/correspondents/:id", h.UpdateCorrespondent, middleware.RequireAuth(h.auth))
 	e.DELETE("/correspondents/:id", h.DeleteCorrespondent, middleware.RequireAuth(h.auth))
 
