@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 4 - Viewing (Complete)
+**Current focus:** Phase 5 - Organization (In Progress)
 
 ## Current Position
 
-Phase: 4 of 8 (Viewing)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-03 - Completed 04-03-PLAN.md
+Phase: 5 of 8 (Organization)
+Plan: 2 of 5 in current phase
+Status: In progress
+Last activity: 2026-02-03 - Completed 05-02-PLAN.md
 
-Progress: [################----] 80%
+Progress: [##################--] 90%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 16
-- Average duration: 5.3 min
-- Total execution time: 1.5 hours
+- Total plans completed: 18
+- Average duration: 5.4 min
+- Total execution time: 1.6 hours
 
 **By Phase:**
 
@@ -31,11 +31,12 @@ Progress: [################----] 80%
 | 02-ingestion | 5 | 39 min | 7.8 min |
 | 03-processing | 5 | 28 min | 5.6 min |
 | 04-viewing | 3 | 10 min | 3.3 min |
+| 05-organization | 2 | 12 min | 6.0 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 03-05 (15 min), 04-01 (2 min), 04-02 (5 min), 04-03 (3 min)
-- Trend: Phase 4 completed efficiently
+- Last 5 plans: 04-02 (5 min), 04-03 (3 min), 05-01 (4 min), 05-02 (8 min)
+- Trend: Steady pace in Phase 5
 
 *Updated after each plan completion*
 
@@ -82,6 +83,9 @@ Recent decisions affecting current work:
 - PDF.js 4.x legacy build for non-module script compatibility
 - HTMX beforeend swap to append modal to body
 - Canvas-based rendering with devicePixelRatio support for high-DPI
+- Notes column nullable TEXT for optional correspondent info
+- Modal dialog pattern with JavaScript open/close and HTMX form submission
+- Document count badge shows association impact before delete
 
 ### Pending Todos
 
@@ -93,9 +97,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T14:16:37Z
-Stopped at: Completed 04-03-PLAN.md (Phase 04 complete)
+Last session: 2026-02-03T10:08:00Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
 
 ---
-*Next action: Begin Phase 05 - Organization*
+*Next action: Continue with Phase 05 Plan 03 - Tag/Correspondent merge*
