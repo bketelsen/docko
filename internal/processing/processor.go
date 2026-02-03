@@ -178,6 +178,26 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 		Status:     "completed",
 	})
 
+	// Check if AI auto-processing is enabled
+	settings, err := p.db.Queries.GetAISettings(ctx)
+	if err == nil && settings.AutoProcess {
+		// Enqueue AI analysis job
+		aiPayload := AIPayload{DocumentID: docID}
+		payloadJSON, err := json.Marshal(aiPayload)
+		if err == nil {
+			_, err = p.db.Queries.EnqueueJob(ctx, sqlc.EnqueueJobParams{
+				QueueName: QueueAI,
+				JobType:   JobTypeAI,
+				Payload:   payloadJSON,
+			})
+			if err != nil {
+				slog.Warn("failed to enqueue ai analysis", "doc_id", docID, "error", err)
+			} else {
+				slog.Info("ai analysis queued", "doc_id", docID)
+			}
+		}
+	}
+
 	return nil
 }
 
