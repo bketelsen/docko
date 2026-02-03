@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -100,6 +101,20 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 		"length", len(text),
 		"duration_ms", textDuration.Milliseconds())
 
+	// Check minimum word count threshold
+	settings, err := p.db.Queries.GetAISettings(ctx)
+	if err != nil {
+		slog.Warn("failed to get ai settings for word count check", "error", err)
+		// Continue processing - don't block on settings fetch failure
+	} else if settings.MinWordCount > 0 {
+		wordCount := len(strings.Fields(text))
+		if wordCount < int(settings.MinWordCount) {
+			reason := fmt.Sprintf("document has %d words (minimum required: %d)",
+				wordCount, settings.MinWordCount)
+			return p.quarantine(ctx, docID, reason)
+		}
+	}
+
 	// Generate thumbnail
 	thumbStart := time.Now()
 	thumbPath, err := p.thumbGen.Generate(ctx, pdfPath, docID)
@@ -179,7 +194,7 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 	})
 
 	// Check if AI auto-processing is enabled
-	settings, err := p.db.Queries.GetAISettings(ctx)
+	settings, err = p.db.Queries.GetAISettings(ctx)
 	if err == nil && settings.AutoProcess {
 		// Enqueue AI analysis job
 		aiPayload := AIPayload{DocumentID: docID}
