@@ -16,5 +16,32 @@ services:
       timeout: 3s
       retries: 5
 
+  ocrmypdf:
+    image: jbarlow83/ocrmypdf:latest
+    container_name: docko-ocrmypdf
+    # Run as a persistent service that watches for input files
+    # Uses inotifywait to watch /input directory and process PDFs
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        apt-get update && apt-get install -y inotify-tools &&
+        mkdir -p /input /output &&
+        echo 'OCRmyPDF service ready, watching /input...' &&
+        while true; do
+          inotifywait -q -e close_write /input/ 2>/dev/null
+          for f in /input/*.pdf; do
+            [ -f "$$f" ] || continue
+            base=$$(basename "$$f" .pdf)
+            /app/.venv/bin/ocrmypdf --skip-text --sidecar "/output/$$base.txt" -l eng "$$f" "/output/$$base.pdf" 2>&1 || true
+            rm "$$f"
+          done
+        done
+    volumes:
+      - ocr-input:/input
+      - ocr-output:/output
+    restart: unless-stopped
+
 volumes:
   docko-postgres-data:
+  ocr-input:
+  ocr-output:
