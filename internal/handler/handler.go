@@ -72,6 +72,7 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 
 	// Correspondent management routes (protected)
 	e.GET("/correspondents", h.CorrespondentsPage, middleware.RequireAuth(h.auth))
+	e.GET("/correspondents/search", h.SearchCorrespondentsForDocument, middleware.RequireAuth(h.auth))
 	e.POST("/correspondents", h.CreateCorrespondent, middleware.RequireAuth(h.auth))
 	e.POST("/correspondents/merge", h.MergeCorrespondents, middleware.RequireAuth(h.auth))
 	e.POST("/correspondents/:id", h.UpdateCorrespondent, middleware.RequireAuth(h.auth))
@@ -91,6 +92,11 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.GET("/documents/:id/tags/picker", h.GetDocumentTagsPicker, middleware.RequireAuth(h.auth))
 	e.POST("/documents/:id/tags", h.AddDocumentTag, middleware.RequireAuth(h.auth))
 	e.DELETE("/documents/:id/tags/:tag_id", h.RemoveDocumentTag, middleware.RequireAuth(h.auth))
+
+	// Document correspondent assignment routes (protected)
+	e.GET("/documents/:id/correspondent", h.GetDocumentCorrespondent, middleware.RequireAuth(h.auth))
+	e.POST("/documents/:id/correspondent", h.SetDocumentCorrespondent, middleware.RequireAuth(h.auth))
+	e.DELETE("/documents/:id/correspondent", h.RemoveDocumentCorrespondent, middleware.RequireAuth(h.auth))
 
 	// SSE endpoint for processing status (protected)
 	e.GET("/api/processing/status", h.ProcessingStatus, middleware.RequireAuth(h.auth))

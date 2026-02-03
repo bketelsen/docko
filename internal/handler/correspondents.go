@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -9,8 +10,10 @@ import (
 
 	"docko/internal/database/sqlc"
 	"docko/templates/pages/admin"
+	"docko/templates/partials"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )
 
@@ -249,4 +252,142 @@ func (h *Handler) executeMerge(ctx context.Context, targetID uuid.UUID, mergeIDs
 	}
 
 	return nil
+}
+
+// SearchCorrespondentsForDocument searches correspondents for the picker dropdown
+// GET /correspondents/search?q=query
+func (h *Handler) SearchCorrespondentsForDocument(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	query := strings.TrimSpace(c.QueryParam("q"))
+	documentID := c.QueryParam("document_id")
+
+	// Search correspondents matching the query
+	searchPattern := "%" + query + "%"
+	correspondents, err := h.db.Queries.SearchCorrespondentsWithLimit(ctx, searchPattern)
+	if err != nil {
+		slog.Error("failed to search correspondents", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to search correspondents")
+	}
+
+	// Check if we should offer to create a new correspondent
+	showCreate := query != "" && !hasExactCorrespondentMatch(correspondents, query)
+
+	return partials.CorrespondentSearchResults(documentID, correspondents, query, showCreate).Render(ctx, c.Response().Writer)
+}
+
+// hasExactCorrespondentMatch checks if any correspondent has the exact name (case-insensitive)
+func hasExactCorrespondentMatch(correspondents []sqlc.Correspondent, query string) bool {
+	queryLower := strings.ToLower(query)
+	for _, c := range correspondents {
+		if strings.ToLower(c.Name) == queryLower {
+			return true
+		}
+	}
+	return false
+}
+
+// SetDocumentCorrespondent assigns or replaces the correspondent for a document
+// POST /documents/:id/correspondent
+func (h *Handler) SetDocumentCorrespondent(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid document ID")
+	}
+
+	correspondentIDStr := c.FormValue("correspondent_id")
+	correspondentName := strings.TrimSpace(c.FormValue("name"))
+
+	var correspondentID uuid.UUID
+
+	// If correspondent_id is "new", create the correspondent first
+	if correspondentIDStr == "new" {
+		if correspondentName == "" {
+			return c.String(http.StatusBadRequest, "Correspondent name is required")
+		}
+		correspondent, err := h.db.Queries.CreateCorrespondent(ctx, sqlc.CreateCorrespondentParams{
+			Name:  correspondentName,
+			Notes: nil,
+		})
+		if err != nil {
+			slog.Error("failed to create correspondent", "error", err)
+			return c.String(http.StatusInternalServerError, "Failed to create correspondent")
+		}
+		correspondentID = correspondent.ID
+	} else {
+		correspondentID, err = uuid.Parse(correspondentIDStr)
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Invalid correspondent ID")
+		}
+	}
+
+	// Set the correspondent for the document
+	err = h.db.Queries.SetDocumentCorrespondent(ctx, sqlc.SetDocumentCorrespondentParams{
+		DocumentID:      docID,
+		CorrespondentID: correspondentID,
+	})
+	if err != nil {
+		slog.Error("failed to set document correspondent", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to assign correspondent")
+	}
+
+	// Fetch the correspondent for response
+	row, err := h.db.Queries.GetCorrespondent(ctx, correspondentID)
+	if err != nil {
+		slog.Error("failed to get correspondent", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to get correspondent")
+	}
+
+	correspondent := &sqlc.Correspondent{
+		ID:        row.ID,
+		Name:      row.Name,
+		CreatedAt: row.CreatedAt,
+		Notes:     row.Notes,
+	}
+
+	return partials.CorrespondentDisplay(docID.String(), correspondent).Render(ctx, c.Response().Writer)
+}
+
+// RemoveDocumentCorrespondent removes the correspondent from a document
+// DELETE /documents/:id/correspondent
+func (h *Handler) RemoveDocumentCorrespondent(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid document ID")
+	}
+
+	// Remove the correspondent assignment
+	err = h.db.Queries.RemoveDocumentCorrespondent(ctx, docID)
+	if err != nil {
+		slog.Error("failed to remove document correspondent", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to remove correspondent")
+	}
+
+	return partials.CorrespondentEmptyState(docID.String()).Render(ctx, c.Response().Writer)
+}
+
+// GetDocumentCorrespondent returns the current correspondent for a document
+// GET /documents/:id/correspondent
+func (h *Handler) GetDocumentCorrespondent(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	docID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.String(http.StatusBadRequest, "Invalid document ID")
+	}
+
+	correspondent, err := h.db.Queries.GetDocumentCorrespondent(ctx, docID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return partials.CorrespondentEmptyState(docID.String()).Render(ctx, c.Response().Writer)
+		}
+		slog.Error("failed to get document correspondent", "error", err)
+		return c.String(http.StatusInternalServerError, "Failed to get correspondent")
+	}
+
+	return partials.CorrespondentDisplay(docID.String(), &correspondent).Render(ctx, c.Response().Writer)
 }
