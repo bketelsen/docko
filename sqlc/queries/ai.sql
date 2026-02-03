@@ -10,6 +10,7 @@ UPDATE ai_settings SET
     auto_process = $3,
     auto_apply_threshold = $4,
     review_threshold = $5,
+    min_word_count = $6,
     updated_at = NOW()
 WHERE id = 1
 RETURNING *;

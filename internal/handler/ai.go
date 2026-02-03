@@ -55,6 +55,7 @@ func (h *Handler) UpdateAISettings(c echo.Context) error {
 	autoProcess := c.FormValue("auto_process") == "on"
 	autoApplyThresholdStr := c.FormValue("auto_apply_threshold")
 	reviewThresholdStr := c.FormValue("review_threshold")
+	minWordCountStr := c.FormValue("min_word_count")
 
 	// Parse numeric values
 	maxPages, err := strconv.Atoi(maxPagesStr)
@@ -72,6 +73,11 @@ func (h *Handler) UpdateAISettings(c echo.Context) error {
 		reviewThreshold = 0.50
 	}
 
+	minWordCount, err := strconv.Atoi(minWordCountStr)
+	if err != nil || minWordCount < 0 {
+		minWordCount = 0
+	}
+
 	// Prepare preferred provider
 	var preferred *string
 	if preferredProvider != "" && preferredProvider != "auto" {
@@ -85,6 +91,7 @@ func (h *Handler) UpdateAISettings(c echo.Context) error {
 		AutoProcess:        autoProcess,
 		AutoApplyThreshold: numericFromFloat(autoApplyThreshold),
 		ReviewThreshold:    numericFromFloat(reviewThreshold),
+		MinWordCount:       int32(minWordCount),
 	})
 	if err != nil {
 		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to update settings", "type": "error"}}`)
