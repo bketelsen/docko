@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"docko/components/alert"
 	"docko/components/button"
 	"docko/components/card"
 	"docko/components/input"
@@ -24,9 +25,11 @@ templ Login(errorMsg string) {
 					}
 					@card.Content() {
 						if errorMsg != "" {
-							<div class="mb-4 p-3 rounded-md bg-destructive/15 text-destructive text-sm">
-								{ errorMsg }
-							</div>
+							@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "mb-4"}) {
+								@alert.Description() {
+									{ errorMsg }
+								}
+							}
 						}
 						<form method="POST" action="/login" class="space-y-4">
 							<div class="space-y-2">
