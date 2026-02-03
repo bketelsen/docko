@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 7 of 8 (Network Sources)
-Plan: 2 of 6 in current phase
+Plan: 3 of 6 in current phase
 Status: In progress
-Last activity: 2026-02-03 - Completed 07-02-PLAN.md
+Last activity: 2026-02-03 - Completed 07-03-PLAN.md
 
-Progress: [######################---] 26/30 plans (87%)
+Progress: [#######################--] 27/30 plans (90%)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 26
-- Average duration: 4.7 min
-- Total execution time: 2.0 hours
+- Total plans completed: 27
+- Average duration: 4.6 min
+- Total execution time: 2.1 hours
 
 **By Phase:**
 
@@ -33,11 +33,11 @@ Progress: [######################---] 26/30 plans (87%)
 | 04-viewing | 3 | 10 min | 3.3 min |
 | 05-organization | 5 | 29 min | 5.8 min |
 | 06-search | 3 | 11 min | 3.7 min |
-| 07-network-sources | 2 | 3 min | 1.5 min |
+| 07-network-sources | 3 | 5 min | 1.7 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 06-01 (3 min), 06-02 (4 min), 06-03 (4 min), 07-01 (2 min), 07-02 (1 min)
+- Last 5 plans: 06-02 (4 min), 06-03 (4 min), 07-01 (2 min), 07-02 (1 min), 07-03 (2 min)
 - Trend: Continued efficient execution, very fast plans in Phase 7
 
 *Updated after each plan completion*
@@ -112,6 +112,9 @@ Recent decisions affecting current work:
 - Connect per operation for SMB (connections go stale after 10-15 min idle)
 - 30-second connection timeout for SMB dial
 - fs.WalkDir with io/fs interface for SMB directory walking
+- NFS uses copy-then-delete for MoveFile (go-nfs-client lacks Rename)
+- AUTH_UNIX with uid/gid 0 for NFS authentication (host-based)
+- NewSourceFromConfig factory creates protocol-specific NetworkSource
 
 ### Pending Todos
 
@@ -123,9 +126,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T18:10:52Z
-Stopped at: Completed 07-02-PLAN.md
+Last session: 2026-02-03T18:12:50Z
+Stopped at: Completed 07-03-PLAN.md
 Resume file: None
 
 ---
-*Next action: Continue with 07-03-PLAN.md*
+*Next action: Continue with 07-04-PLAN.md*
