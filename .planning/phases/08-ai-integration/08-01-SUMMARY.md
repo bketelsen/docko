@@ -2,28 +2,28 @@
 phase: 08-ai-integration
 plan: 01
 subsystem: database
-tags: [ai, postgresql, sqlc, suggestions, usage-tracking]
+tags: [postgres, sqlc, enums, ai-settings, ai-suggestions, ai-usage]
 
 # Dependency graph
 requires:
   - phase: 03-processing
-    provides: jobs table for job_id foreign key
+    provides: jobs table for queue integration
   - phase: 02-ingestion
-    provides: documents table for document_id foreign key
+    provides: documents table for foreign key references
 provides:
-  - AI settings singleton table for global configuration
-  - AI suggestions table with confidence scores and status workflow
-  - AI usage tracking table for cost monitoring
-  - CRUD queries for AI configuration and suggestions
-affects: [08-02-ai-service, 08-03-ai-ui]
+  - ai_settings table for global AI configuration
+  - ai_suggestions table for per-document suggestions with confidence scores
+  - ai_usage table for token tracking and cost monitoring
+  - sqlc queries for all AI CRUD operations
+affects: [08-02, 08-03, 08-04, 08-05, 08-06]
 
 # Tech tracking
 tech-stack:
   added: []
   patterns:
-    - Singleton table pattern with CHECK constraint for global settings
-    - Enum types for suggestion status and type
-    - Foreign key to jobs table for tracing suggestions to processing jobs
+    - Singleton table pattern (id=1 CHECK constraint)
+    - Enum types for suggestion_status and suggestion_type
+    - Partial index for pending suggestions
 
 key-files:
   created:
@@ -32,40 +32,37 @@ key-files:
   modified: []
 
 key-decisions:
-  - "Singleton pattern with CHECK(id=1) for ai_settings table"
-  - "Separate suggestion_status enum (pending/accepted/rejected/auto_applied)"
-  - "Separate suggestion_type enum (tag/correspondent)"
-  - "DECIMAL(3,2) for confidence scores (0.00-1.00 range)"
-  - "Nullable job_id with ON DELETE SET NULL for suggestion tracing"
-  - "Partial index on status='pending' for efficient pending suggestion queries"
+  - "Singleton pattern for ai_settings with CHECK (id = 1)"
+  - "Dual threshold system: auto_apply (0.85) and review (0.50)"
+  - "Partial index on pending status for efficient review queue queries"
+  - "DECIMAL(3,2) for confidence scores (0.00 to 1.00)"
 
 patterns-established:
-  - "AI suggestion workflow: pending -> accepted/rejected/auto_applied"
-  - "Token tracking per AI request for cost monitoring"
+  - "Suggestion workflow: pending -> accepted/rejected/auto_applied"
+  - "Usage tracking per AI request for cost monitoring"
 
 # Metrics
-duration: 4min
+duration: 2min
 completed: 2026-02-03
 ---
 
-# Phase 8 Plan 1: AI Integration Database Schema Summary
+# Phase 8 Plan 1: AI Database Schema Summary
 
-**Database schema for AI settings, suggestions, and usage tracking with singleton settings pattern and status workflow**
+**AI integration database layer with settings singleton, suggestion workflow tables, and usage tracking for cost monitoring**
 
 ## Performance
 
-- **Duration:** 4 min
-- **Started:** 2026-02-03T19:38:34Z
-- **Completed:** 2026-02-03T19:41:53Z
+- **Duration:** 2 min
+- **Started:** 2026-02-03T19:40:36Z
+- **Completed:** 2026-02-03T19:42:00Z
 - **Tasks:** 2
 - **Files modified:** 2
 
 ## Accomplishments
-
-- Created migration 009 with ai_settings, ai_suggestions, and ai_usage tables
-- Implemented singleton pattern for global AI settings with CHECK constraint
-- Added suggestion status and type enums for workflow management
-- Created comprehensive sqlc queries for all CRUD operations
+- Created ai_settings singleton table for global AI configuration (provider, max pages, thresholds)
+- Created ai_suggestions table with confidence scores, status workflow, and document links
+- Created ai_usage table for tracking tokens per request for cost monitoring
+- Generated all sqlc queries including settings CRUD, suggestion workflow, and usage stats
 
 ## Task Commits
 
@@ -75,37 +72,32 @@ Each task was committed atomically:
 2. **Task 2: Create sqlc queries for AI integration** - `9f7d2df` (feat)
 
 ## Files Created/Modified
-
-- `internal/database/migrations/009_ai_integration.sql` - AI tables and enums
-- `sqlc/queries/ai.sql` - CRUD queries for AI integration
-- `internal/database/sqlc/ai.sql.go` - Generated Go code (auto-generated)
-- `internal/database/sqlc/models.go` - AiSetting, AiSuggestion, AiUsage structs (auto-generated)
+- `internal/database/migrations/009_ai_integration.sql` - AI schema with settings, suggestions, and usage tables
+- `sqlc/queries/ai.sql` - 15 queries for settings, suggestions, and usage operations
+- `internal/database/sqlc/ai.sql.go` - Generated Go code (14KB)
+- `internal/database/sqlc/models.go` - Generated model structs and enum types
 
 ## Decisions Made
-
-- Used singleton pattern with `CHECK (id = 1)` for ai_settings to enforce single row
-- Chose `DECIMAL(3,2)` for confidence scores to store values like 0.85 (85% confidence)
-- Added `is_new` flag to track if suggestion is for a new tag/correspondent not in taxonomy
-- Used `resolved_by` VARCHAR(50) to distinguish 'auto' vs 'user' resolution
-- Created partial index on `status = 'pending'` for efficient pending suggestions queries
+- Used singleton pattern with CHECK (id = 1) for ai_settings to enforce single row
+- Dual confidence thresholds: auto_apply (0.85) for automatic application, review (0.50) for showing in UI
+- Partial index on status WHERE pending for efficient review queue queries
+- DECIMAL(3,2) type for confidence scores (0.00 to 1.00 range)
+- Optional job_id with ON DELETE SET NULL to preserve suggestions when jobs are cleaned up
+- resolved_at and resolved_by fields for audit trail on suggestion workflow
 
 ## Deviations from Plan
-
 None - plan executed exactly as written.
 
 ## Issues Encountered
-
-None.
+None
 
 ## User Setup Required
-
 None - no external service configuration required.
 
 ## Next Phase Readiness
-
-- Database schema ready for AI service implementation
-- Queries available for settings management, suggestion creation, and usage tracking
-- No blockers for 08-02 (AI Service Implementation)
+- Database schema complete and ready for AI service layer (08-02)
+- sqlc queries available for settings management, suggestion CRUD, and usage tracking
+- Enums (SuggestionStatus, SuggestionType) generated for type-safe Go code
 
 ---
 *Phase: 08-ai-integration*
