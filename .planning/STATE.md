@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 3 - Processing (COMPLETE)
+**Current focus:** Phase 4 - Viewing
 
 ## Current Position
 
-Phase: 3 of 8 (Processing) - COMPLETE
-Plan: 5 of 5 in current phase (all complete)
-Status: Phase complete
-Last activity: 2026-02-03 - Completed 03-05-PLAN.md
+Phase: 4 of 8 (Viewing)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-03 - Completed 04-01-PLAN.md
 
-Progress: [#########-] 93%
+Progress: [##############------] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13
-- Average duration: 5.9 min
-- Total execution time: 1.32 hours
+- Total plans completed: 14
+- Average duration: 5.6 min
+- Total execution time: 1.35 hours
 
 **By Phase:**
 
@@ -30,11 +30,12 @@ Progress: [#########-] 93%
 | 01-foundation | 3 | 10 min | 3.3 min |
 | 02-ingestion | 5 | 39 min | 7.8 min |
 | 03-processing | 5 | 28 min | 5.6 min |
+| 04-viewing | 1 | 2 min | 2.0 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 03-03 (2 min), 03-02 (3 min), 03-04 (4 min), 03-05 (15 min)
-- Trend: 03-05 took longer due to SSE/UI complexity and checkpoint verification
+- Last 5 plans: 03-02 (3 min), 03-04 (4 min), 03-05 (15 min), 04-01 (2 min)
+- Trend: 04-01 fast execution (simple file serving + component install)
 
 *Updated after each plan completion*
 
@@ -74,6 +75,8 @@ Recent decisions affecting current work:
 - SSE sends HTML partials (not JSON) for HTMX sse-swap compatibility
 - 30-second heartbeat keeps SSE connections alive
 - 100 subscriber limit for StatusBroadcaster
+- docSvc.FileExists helper wraps storage.FileExists for handler access
+- ServeThumbnail checks ThumbnailGenerated flag before attempting to serve
 
 ### Pending Todos
 
@@ -85,9 +88,9 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-03T02:23:37Z
-Stopped at: Completed 03-05-PLAN.md (Phase 3 complete)
+Last session: 2026-02-03T14:05:01Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
 
 ---
-*Next action: Begin Phase 04 - Search (full-text search with PostgreSQL)*
+*Next action: Continue Phase 04 - Viewing with 04-02-PLAN.md (Document Detail Page)*
