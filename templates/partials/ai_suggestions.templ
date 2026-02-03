@@ -1,0 +1,127 @@
+package partials
+
+import (
+	"strconv"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+
+	"docko/internal/database/sqlc"
+)
+
+// AISuggestions renders the AI suggestions section for a document
+templ AISuggestions(docID uuid.UUID, suggestions []sqlc.AiSuggestion, aiEnabled bool) {
+	<div id="ai-suggestions" class="bg-white dark:bg-gray-800 rounded-lg shadow">
+		<div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+			<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">AI Suggestions</h3>
+			<button hx-post={ "/documents/" + docID.String() + "/analyze" }
+					hx-target="#ai-suggestions"
+					hx-swap="outerHTML"
+					hx-indicator="#analyze-spinner"
+					class="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded transition-colors">
+				<svg id="analyze-spinner" class="htmx-indicator animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+					<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+					<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+				</svg>
+				Re-analyze
+			</button>
+		</div>
+
+		if !aiEnabled {
+			<div class="p-6 text-center">
+				<p class="text-gray-500 dark:text-gray-400 mb-4">AI processing is disabled</p>
+				<a href="/ai" class="text-blue-600 hover:text-blue-700 dark:text-blue-400">
+					Enable in AI Settings
+				</a>
+			</div>
+		} else if len(suggestions) == 0 {
+			<div class="p-6 text-center text-gray-500 dark:text-gray-400">
+				<p class="mb-2">No pending suggestions</p>
+				<p class="text-sm">Click "Re-analyze" to generate new suggestions</p>
+			</div>
+		} else {
+			<div class="divide-y divide-gray-200 dark:divide-gray-700">
+				for _, s := range suggestions {
+					@suggestionItem(docID, s)
+				}
+			</div>
+		}
+	</div>
+}
+
+templ suggestionItem(docID uuid.UUID, s sqlc.AiSuggestion) {
+	<div id={ "doc-suggestion-" + s.ID.String() } class="p-4 flex items-start justify-between">
+		<div class="flex-1 min-w-0">
+			<div class="flex items-center gap-2 mb-1">
+				@suggestionTypeBadge(s.SuggestionType)
+				@suggestionConfidenceBadge(s.Confidence)
+				if s.IsNew {
+					<span class="text-xs text-orange-600 dark:text-orange-400">(new)</span>
+				}
+			</div>
+			<p class="font-medium text-gray-900 dark:text-gray-100">{ s.Value }</p>
+			if s.Reasoning != nil && *s.Reasoning != "" {
+				<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{ *s.Reasoning }</p>
+			}
+		</div>
+		<div class="flex items-center gap-2 ml-4">
+			<button hx-post={ "/ai/suggestions/" + s.ID.String() + "/accept" }
+					hx-target={ "#doc-suggestion-" + s.ID.String() }
+					hx-swap="outerHTML"
+					class="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded"
+					title="Accept">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+				</svg>
+			</button>
+			<button hx-post={ "/ai/suggestions/" + s.ID.String() + "/reject" }
+					hx-target={ "#doc-suggestion-" + s.ID.String() }
+					hx-swap="outerHTML"
+					class="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+					title="Reject">
+				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+				</svg>
+			</button>
+		</div>
+	</div>
+}
+
+templ suggestionTypeBadge(t sqlc.SuggestionType) {
+	if t == sqlc.SuggestionTypeTag {
+		<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+			Tag
+		</span>
+	} else {
+		<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+			Correspondent
+		</span>
+	}
+}
+
+templ suggestionConfidenceBadge(confidence pgtype.Numeric) {
+	{{ confFloat, _ := confidence.Float64Value() }}
+	{{ confPercent := int(confFloat.Float64 * 100) }}
+	<span class={ "inline-flex items-center px-2 py-0.5 text-xs font-medium rounded", suggestionConfidenceClass(confFloat.Float64) }>
+		{ strconv.Itoa(confPercent) }%
+	</span>
+}
+
+func suggestionConfidenceClass(conf float64) string {
+	if conf >= 0.8 {
+		return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+	} else if conf >= 0.6 {
+		return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+	}
+	return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+}
+
+// SuggestionAccepted returns empty div after accepting (removes the item)
+templ SuggestionAccepted() {
+	<!-- Suggestion accepted and applied -->
+}
+
+// SuggestionRejected returns empty div after rejecting (removes the item)
+templ SuggestionRejected() {
+	<!-- Suggestion rejected -->
+}
