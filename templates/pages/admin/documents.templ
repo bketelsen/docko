@@ -15,7 +15,7 @@ type DocumentTagsMap map[uuid.UUID][]sqlc.Tag
 // DocumentCorrespondentMap maps document ID to correspondent name
 type DocumentCorrespondentMap map[uuid.UUID]string
 
-// Documents renders the document list page with real-time status updates
+// Documents renders the document list page with real-time status updates (legacy)
 templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents DocumentCorrespondentMap) {
 	@layouts.Admin(meta.New("Documents", "View and manage uploaded documents")) {
 		<div class="mb-8">
@@ -167,13 +167,13 @@ func derefStr(s *string) string {
 }
 
 // DocumentsWithSearch renders the document list page with search support
-templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.DocumentTagsMap, docCorrespondents partials.DocumentCorrespondentMap, params partials.SearchParams, totalCount int, activeFilters []partials.ActiveFilter) {
-	@layouts.Admin(meta.New("Documents", "View and manage uploaded documents")) {
-		<div class="mb-8">
-			<div class="flex items-center justify-between">
+templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.DocumentTagsMap, docCorrespondents partials.DocumentCorrespondentMap, params partials.SearchParams, totalCount int, activeFilters []partials.ActiveFilter, allTags []sqlc.Tag, allCorrespondents []sqlc.Correspondent) {
+	@layouts.Admin(meta.New("Documents", "Search and manage your documents")) {
+		<div class="mb-6">
+			<div class="flex items-center justify-between mb-4">
 				<div>
 					<h1 class="text-2xl font-bold">Documents</h1>
-					<p class="text-muted-foreground">Search and manage your documents.</p>
+					<p class="text-muted-foreground">Search and filter your document library.</p>
 				</div>
 				<a href="/upload" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
 					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,35 +182,115 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 					Upload
 				</a>
 			</div>
-		</div>
 
-		// Search form
-		<div class="mb-6">
-			<form class="flex gap-2" hx-get="/documents" hx-target="#document-results" hx-push-url="true">
-				<div class="relative flex-1">
-					<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-					</svg>
-					<input
-						type="search"
-						name="q"
-						value={ params.Query }
-						placeholder="Search documents..."
-						class="w-full pl-10 pr-4 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
-					/>
+			// Search form with HTMX
+			<form id="search-form"
+				  hx-get="/documents"
+				  hx-trigger="input changed delay:500ms from:find input[name='q'], change from:find select, change from:find input[type='checkbox'], submit"
+				  hx-target="#document-results"
+				  hx-push-url="true"
+				  hx-indicator="#search-indicator"
+				  class="space-y-4">
+
+				// Search input row with filters
+				<div class="flex gap-4">
+					// Search input with loading indicator
+					<div class="relative flex-1">
+						<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+						</svg>
+						<input
+							type="search"
+							name="q"
+							value={ params.Query }
+							placeholder="Search documents..."
+							class="w-full pl-10 pr-10 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+						/>
+						// Loading indicator
+						<span id="search-indicator" class="htmx-indicator absolute right-3 top-1/2 -translate-y-1/2">
+							<svg class="animate-spin w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							</svg>
+						</span>
+					</div>
+
+					// Correspondent filter dropdown
+					<select
+						name="correspondent"
+						class="px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring min-w-[180px]"
+					>
+						<option value="">All correspondents</option>
+						for _, corr := range allCorrespondents {
+							<option value={ corr.ID.String() } selected?={ params.CorrespondentID == corr.ID.String() }>
+								{ corr.Name }
+							</option>
+						}
+					</select>
+
+					// Date range filter dropdown
+					<select
+						name="date"
+						class="px-3 py-2 border border-input rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring min-w-[140px]"
+					>
+						<option value="">Any time</option>
+						<option value="today" selected?={ params.DateRange == "today" }>Today</option>
+						<option value="7d" selected?={ params.DateRange == "7d" }>Last 7 days</option>
+						<option value="30d" selected?={ params.DateRange == "30d" }>Last 30 days</option>
+						<option value="1y" selected?={ params.DateRange == "1y" }>Last year</option>
+					</select>
 				</div>
-				<button type="submit" class="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
-					Search
-				</button>
+
+				// Tag filter row (multi-select checkboxes)
+				if len(allTags) > 0 {
+					<div class="flex flex-wrap items-center gap-2">
+						<span class="text-sm text-muted-foreground">Tags:</span>
+						for _, tag := range allTags {
+							@tagFilterCheckbox(tag, params.TagIDs)
+						}
+					</div>
+				}
 			</form>
 		</div>
 
-		// SSE connection for real-time status updates
-		<div hx-ext="sse" sse-connect="/api/processing/status" sse-close="close">
-			// Results container - swapped by HTMX
-			<div id="document-results">
-				@partials.SearchResults(results, docTags, docCorrespondents, params, totalCount, activeFilters)
-			</div>
+		// Results area (swapped by HTMX) with SSE for processing status
+		<div id="document-results" hx-ext="sse" sse-connect="/api/processing/status" sse-close="close">
+			@partials.SearchResults(results, docTags, docCorrespondents, params, totalCount, activeFilters)
 		</div>
+
+		// CSS for htmx-indicator (hidden by default, shown during request)
+		<style>
+			.htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
+			.htmx-request .htmx-indicator { opacity: 1; }
+			.htmx-request.htmx-indicator { opacity: 1; }
+		</style>
 	}
+}
+
+// tagFilterCheckbox renders a single tag filter toggle
+templ tagFilterCheckbox(tag sqlc.Tag, selectedTagIDs []string) {
+	{{
+		isSelected := false
+		for _, selectedID := range selectedTagIDs {
+			if selectedID == tag.ID.String() {
+				isSelected = true
+				break
+			}
+		}
+	}}
+	<label class={ "inline-flex items-center gap-1 px-2 py-1 rounded-full text-sm cursor-pointer transition-colors",
+				   templ.KV("bg-primary text-primary-foreground", isSelected),
+				   templ.KV("bg-muted hover:bg-muted/80", !isSelected) }>
+		<input
+			type="checkbox"
+			name="tag"
+			value={ tag.ID.String() }
+			checked?={ isSelected }
+			class="sr-only"
+		/>
+		if tag.Color != nil {
+			<span class="w-2 h-2 rounded-full" style={ fmt.Sprintf("background-color: %s", *tag.Color) }></span>
+		}
+		{ tag.Name }
+	</label>
 }
