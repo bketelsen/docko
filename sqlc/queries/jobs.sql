@@ -56,3 +56,56 @@ SELECT COUNT(*) FROM jobs WHERE queue_name = $1 AND status = 'pending';
 
 -- name: GetFailedJobs :many
 SELECT * FROM jobs WHERE queue_name = $1 AND status = 'failed' ORDER BY updated_at DESC LIMIT $2;
+
+-- name: GetQueueStats :many
+SELECT
+    queue_name,
+    status,
+    COUNT(*) as count
+FROM jobs
+GROUP BY queue_name, status
+ORDER BY queue_name, status;
+
+-- name: ListFailedJobs :many
+SELECT * FROM jobs
+WHERE status = 'failed'
+ORDER BY updated_at DESC
+LIMIT $1 OFFSET $2;
+
+-- name: CountFailedJobs :one
+SELECT COUNT(*) FROM jobs WHERE status = 'failed';
+
+-- name: ListJobsByQueue :many
+SELECT * FROM jobs
+WHERE queue_name = $1
+ORDER BY created_at DESC
+LIMIT $2 OFFSET $3;
+
+-- name: GetJobByID :one
+SELECT * FROM jobs WHERE id = $1;
+
+-- name: ResetJobForRetry :one
+UPDATE jobs SET
+    status = 'pending',
+    attempt = 0,
+    scheduled_at = NOW(),
+    visible_until = NULL,
+    last_error = NULL,
+    updated_at = NOW()
+WHERE id = $1
+RETURNING *;
+
+-- name: ResetAllFailedJobs :exec
+UPDATE jobs SET
+    status = 'pending',
+    attempt = 0,
+    scheduled_at = NOW(),
+    visible_until = NULL,
+    last_error = NULL,
+    updated_at = NOW()
+WHERE status = 'failed';
+
+-- name: GetRecentJobs :many
+SELECT * FROM jobs
+ORDER BY created_at DESC
+LIMIT $1;
