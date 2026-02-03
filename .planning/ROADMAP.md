@@ -136,11 +136,15 @@ Plans:
   2. System imports PDFs from configured NFS network shares
   3. Admin can configure document sources (local, SMB, NFS paths)
   4. Admin can enable/disable individual document sources
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md — Database schema and credential encryption
+- [ ] 07-02-PLAN.md — SMB client implementation
+- [ ] 07-03-PLAN.md — NFS client implementation
+- [ ] 07-04-PLAN.md — Polling service and sync logic
+- [ ] 07-05-PLAN.md — Handler endpoints and UI templates
+- [ ] 07-06-PLAN.md — Integration wiring and navigation
 
 ### Phase 8: AI Integration
 **Goal**: AI automates tagging and correspondent detection
@@ -174,7 +178,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 4. Viewing | 3/3 | Complete | 2026-02-03 |
 | 5. Organization | 5/5 | Complete | 2026-02-03 |
 | 6. Search | 3/3 | Complete | 2026-02-03 |
-| 7. Network Sources | 0/2 | Not started | - |
+| 7. Network Sources | 0/6 | Not started | - |
 | 8. AI Integration | 0/3 | Not started | - |
 
 ---
