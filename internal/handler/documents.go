@@ -361,7 +361,16 @@ func (h *Handler) DocumentDetail(c echo.Context) error {
 	}
 	// If error (including no rows), correspondent stays nil - that's fine
 
-	return admin.DocumentDetail(doc, tags, correspondent).Render(ctx, c.Response().Writer)
+	// Get AI suggestions for this document
+	aiSuggestions, err := h.db.Queries.ListPendingSuggestionsForDocument(ctx, docID)
+	if err != nil {
+		aiSuggestions = []sqlc.AiSuggestion{}
+	}
+
+	// Check if AI is enabled (has available providers)
+	aiEnabled := len(h.aiSvc.AvailableProviders()) > 0
+
+	return admin.DocumentDetail(doc, tags, correspondent, aiSuggestions, aiEnabled).Render(ctx, c.Response().Writer)
 }
 
 // ViewPDF serves a PDF file inline for browser viewing

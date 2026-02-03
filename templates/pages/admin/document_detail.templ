@@ -11,7 +11,7 @@ import (
 )
 
 // DocumentDetail renders the document detail page with thumbnail and metadata
-templ DocumentDetail(doc sqlc.Document, tags []sqlc.Tag, correspondent *sqlc.Correspondent) {
+templ DocumentDetail(doc sqlc.Document, tags []sqlc.Tag, correspondent *sqlc.Correspondent, aiSuggestions []sqlc.AiSuggestion, aiEnabled bool) {
 	@layouts.Admin(meta.New(doc.OriginalFilename, "Document details")) {
 		// Breadcrumb navigation
 		<div class="mb-6">
@@ -163,6 +163,10 @@ templ DocumentDetail(doc sqlc.Document, tags []sqlc.Tag, correspondent *sqlc.Cor
 								<span class="text-muted-foreground block mb-2">Correspondent</span>
 								@partials.CorrespondentPicker(doc.ID.String(), correspondent)
 							</div>
+						</div>
+						// AI Suggestions section (below Overview content)
+						<div class="mt-6">
+							@partials.AISuggestions(doc.ID, aiSuggestions, aiEnabled)
 						</div>
 					}
 
