@@ -67,11 +67,14 @@ Plans:
   1. Text is extracted from PDFs and indexed in database for search
   2. Thumbnail (first page preview) is generated for each document
   3. Processing happens asynchronously via queue (does not block upload)
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md — Database schema and Docker setup for processing
+- [ ] 03-02-PLAN.md — Text extraction with embedded + OCR fallback
+- [ ] 03-03-PLAN.md — Thumbnail generation with WebP output
+- [ ] 03-04-PLAN.md — Processing job handler and queue wiring
+- [ ] 03-05-PLAN.md — Status UI with SSE live updates
 
 ### Phase 4: Viewing
 **Goal**: Users can view and download documents
@@ -161,7 +164,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete | 2026-02-02 |
 | 2. Ingestion | 5/5 | Complete | 2026-02-02 |
-| 3. Processing | 0/2 | Not started | - |
+| 3. Processing | 0/5 | Not started | - |
 | 4. Viewing | 0/1 | Not started | - |
 | 5. Organization | 0/2 | Not started | - |
 | 6. Search | 0/2 | Not started | - |
