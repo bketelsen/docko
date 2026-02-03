@@ -25,3 +25,24 @@ SELECT id, name, notes, created_at FROM correspondents
 WHERE name ILIKE $1
 ORDER BY name
 LIMIT 10;
+
+-- name: MergeCorrespondentsUpdateDocs :exec
+UPDATE document_correspondents
+SET correspondent_id = $1
+WHERE correspondent_id = ANY($2::uuid[]);
+
+-- name: GetCorrespondentsNotes :many
+SELECT id, name, notes FROM correspondents
+WHERE id = ANY($1::uuid[]) AND notes IS NOT NULL AND notes != '';
+
+-- name: AppendCorrespondentNotes :one
+UPDATE correspondents
+SET notes = CASE
+    WHEN notes IS NULL OR notes = '' THEN $2
+    ELSE notes || E'\n---\n' || $2
+END
+WHERE id = $1
+RETURNING *;
+
+-- name: DeleteCorrespondentsByIds :exec
+DELETE FROM correspondents WHERE id = ANY($1::uuid[]);
