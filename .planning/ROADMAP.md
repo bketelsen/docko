@@ -120,11 +120,12 @@ Plans:
   3. User can filter search results by correspondent
   4. User can filter search results by date range
   5. Search results display document previews with relevant snippets
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md — Database search infrastructure (search_vector column, GIN index, SearchDocuments query)
+- [ ] 06-02-PLAN.md — Search handler and results partial
+- [ ] 06-03-PLAN.md — Search UI with filters and HTMX live search
 
 ### Phase 7: Network Sources
 **Goal**: Documents auto-import from SMB and NFS network shares
@@ -172,7 +173,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 3. Processing | 5/5 | Complete | 2026-02-03 |
 | 4. Viewing | 3/3 | Complete | 2026-02-03 |
 | 5. Organization | 5/5 | Complete | 2026-02-03 |
-| 6. Search | 0/2 | Not started | - |
+| 6. Search | 0/3 | Not started | - |
 | 7. Network Sources | 0/2 | Not started | - |
 | 8. AI Integration | 0/3 | Not started | - |
 
