@@ -28,3 +28,10 @@ Thumbs.db
 
 # Tailwind output (generated)
 static/css/output.css
+
+# pdf documents
+*.pdf
+/storage/*
+
+# the binary
+/server
