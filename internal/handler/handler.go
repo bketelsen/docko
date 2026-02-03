@@ -7,25 +7,31 @@ import (
 	"docko/internal/document"
 	"docko/internal/inbox"
 	"docko/internal/middleware"
+	"docko/internal/processing"
+	"docko/internal/queue"
 
 	"github.com/labstack/echo/v4"
 )
 
 type Handler struct {
-	cfg      *config.Config
-	db       *database.DB
-	auth     *auth.Service
-	docSvc   *document.Service
-	inboxSvc *inbox.Service
+	cfg         *config.Config
+	db          *database.DB
+	auth        *auth.Service
+	docSvc      *document.Service
+	inboxSvc    *inbox.Service
+	queue       *queue.Queue
+	broadcaster *processing.StatusBroadcaster
 }
 
-func New(cfg *config.Config, db *database.DB, authService *auth.Service, docSvc *document.Service, inboxSvc *inbox.Service) *Handler {
+func New(cfg *config.Config, db *database.DB, authService *auth.Service, docSvc *document.Service, inboxSvc *inbox.Service, q *queue.Queue, broadcaster *processing.StatusBroadcaster) *Handler {
 	return &Handler{
-		cfg:      cfg,
-		db:       db,
-		auth:     authService,
-		docSvc:   docSvc,
-		inboxSvc: inboxSvc,
+		cfg:         cfg,
+		db:          db,
+		auth:        authService,
+		docSvc:      docSvc,
+		inboxSvc:    inboxSvc,
+		queue:       q,
+		broadcaster: broadcaster,
 	}
 }
 
@@ -57,4 +63,11 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.DELETE("/inboxes/:id", h.DeleteInbox, middleware.RequireAuth(h.auth))
 	e.POST("/inboxes/:id/toggle", h.ToggleInbox, middleware.RequireAuth(h.auth))
 	e.GET("/inboxes/:id/events", h.InboxEvents, middleware.RequireAuth(h.auth))
+
+	// Document routes (protected)
+	e.GET("/documents", h.DocumentsPage, middleware.RequireAuth(h.auth))
+	e.POST("/api/documents/:id/retry", h.RetryDocument, middleware.RequireAuth(h.auth))
+
+	// SSE endpoint for processing status (protected)
+	e.GET("/api/processing/status", h.ProcessingStatus, middleware.RequireAuth(h.auth))
 }

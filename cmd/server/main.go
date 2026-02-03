@@ -63,8 +63,11 @@ func main() {
 		// Don't fatal - app can run, just processing will fail
 	}
 
+	// Initialize status broadcaster for SSE updates
+	broadcaster := processing.NewStatusBroadcaster()
+
 	// Initialize processor and register with queue
-	processor := processing.New(db, docService, store, "static/images/placeholder.webp")
+	processor := processing.New(db, docService, store, "static/images/placeholder.webp", broadcaster)
 	q.RegisterHandler(document.JobTypeProcess, processor.HandleJob)
 
 	// Start queue workers
@@ -88,7 +91,7 @@ func main() {
 
 	middleware.Setup(e, cfg)
 
-	h := handler.New(cfg, db, authService, docService, inboxSvc)
+	h := handler.New(cfg, db, authService, docService, inboxSvc, q, broadcaster)
 	h.RegisterRoutes(e)
 
 	// Start inbox watcher in background

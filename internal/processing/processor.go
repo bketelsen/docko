@@ -18,24 +18,26 @@ import (
 
 // Processor orchestrates document processing (text extraction + thumbnail generation)
 type Processor struct {
-	db       *database.DB
-	docSvc   *document.Service
-	textExt  *TextExtractor
-	thumbGen *ThumbnailGenerator
+	db          *database.DB
+	docSvc      *document.Service
+	textExt     *TextExtractor
+	thumbGen    *ThumbnailGenerator
+	broadcaster *StatusBroadcaster
 }
 
 // New creates a new Processor
-func New(db *database.DB, docSvc *document.Service, store *storage.Storage, placeholderPath string) *Processor {
+func New(db *database.DB, docSvc *document.Service, store *storage.Storage, placeholderPath string, broadcaster *StatusBroadcaster) *Processor {
 	// Get storage path for OCR volumes
 	storagePath := store.BasePath()
 	ocrInputPath := storagePath + "/ocr-input"
 	ocrOutputPath := storagePath + "/ocr-output"
 
 	return &Processor{
-		db:       db,
-		docSvc:   docSvc,
-		textExt:  NewTextExtractor(ocrInputPath, ocrOutputPath),
-		thumbGen: NewThumbnailGenerator(store, placeholderPath),
+		db:          db,
+		docSvc:      docSvc,
+		textExt:     NewTextExtractor(ocrInputPath, ocrOutputPath),
+		thumbGen:    NewThumbnailGenerator(store, placeholderPath),
+		broadcaster: broadcaster,
 	}
 }
 
@@ -70,6 +72,12 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 	if err != nil {
 		return fmt.Errorf("set processing status: %w", err)
 	}
+
+	// Broadcast processing status
+	p.broadcast(StatusUpdate{
+		DocumentID: docID,
+		Status:     "processing",
+	})
 
 	// Get PDF path
 	pdfPath := p.docSvc.OriginalPath(doc)
@@ -164,6 +172,12 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 		"text_method", method,
 		"duration_ms", time.Since(start).Milliseconds())
 
+	// Broadcast completed status
+	p.broadcast(StatusUpdate{
+		DocumentID: docID,
+		Status:     "completed",
+	})
+
 	return nil
 }
 
@@ -204,10 +218,24 @@ func (p *Processor) quarantine(ctx context.Context, docID uuid.UUID, reason stri
 		slog.Error("failed to log quarantine event", "doc_id", docID, "error", err)
 	}
 
+	// Broadcast failed status
+	p.broadcast(StatusUpdate{
+		DocumentID: docID,
+		Status:     "failed",
+		Error:      reason,
+	})
+
 	// Return nil so the job is marked as completed (we've handled the failure)
 	return nil
 }
 
 func intPtr(i int32) *int32 {
 	return &i
+}
+
+// broadcast sends a status update to all SSE subscribers
+func (p *Processor) broadcast(update StatusUpdate) {
+	if p.broadcaster != nil {
+		p.broadcaster.Broadcast(update)
+	}
 }
