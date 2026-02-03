@@ -158,12 +158,16 @@ Plans:
   5. Dashboard shows pending/completed counts per queue
   6. User can retry failed document processing
   7. Admin can view system status and queue health
-**Plans**: TBD
+**Plans**: 6 plans
 
 Plans:
-- [ ] 08-01: TBD
-- [ ] 08-02: TBD
-- [ ] 08-03: TBD
+
+- [ ] 08-01-PLAN.md — Database schema and sqlc queries
+- [ ] 08-02-PLAN.md — Provider interface and implementations
+- [ ] 08-03-PLAN.md — AI service and job handler
+- [ ] 08-04-PLAN.md — Settings UI and provider configuration
+- [ ] 08-05-PLAN.md — Review queue and queue dashboard
+- [ ] 08-06-PLAN.md — Document detail integration
 
 ## Progress
 
@@ -179,7 +183,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8
 | 5. Organization | 5/5 | Complete | 2026-02-03 |
 | 6. Search | 3/3 | Complete | 2026-02-03 |
 | 7. Network Sources | 6/6 | Complete | 2026-02-03 |
-| 8. AI Integration | 0/3 | Not started | - |
+| 8. AI Integration | 0/6 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-02*
