@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"docko/internal/ai"
 	"docko/internal/auth"
 	"docko/internal/config"
 	"docko/internal/database"
@@ -21,11 +22,12 @@ type Handler struct {
 	docSvc      *document.Service
 	inboxSvc    *inbox.Service
 	networkSvc  *network.Service
+	aiSvc       *ai.Service
 	queue       *queue.Queue
 	broadcaster *processing.StatusBroadcaster
 }
 
-func New(cfg *config.Config, db *database.DB, authService *auth.Service, docSvc *document.Service, inboxSvc *inbox.Service, networkSvc *network.Service, q *queue.Queue, broadcaster *processing.StatusBroadcaster) *Handler {
+func New(cfg *config.Config, db *database.DB, authService *auth.Service, docSvc *document.Service, inboxSvc *inbox.Service, networkSvc *network.Service, aiSvc *ai.Service, q *queue.Queue, broadcaster *processing.StatusBroadcaster) *Handler {
 	return &Handler{
 		cfg:         cfg,
 		db:          db,
@@ -33,6 +35,7 @@ func New(cfg *config.Config, db *database.DB, authService *auth.Service, docSvc 
 		docSvc:      docSvc,
 		inboxSvc:    inboxSvc,
 		networkSvc:  networkSvc,
+		aiSvc:       aiSvc,
 		queue:       q,
 		broadcaster: broadcaster,
 	}

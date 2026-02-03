@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"docko/internal/ai"
 	"docko/internal/auth"
 	"docko/internal/config"
 	"docko/internal/database"
@@ -74,9 +75,15 @@ func main() {
 	processor := processing.New(db, docService, store, "static/images/placeholder.webp", broadcaster)
 	q.RegisterHandler(document.JobTypeProcess, processor.HandleJob)
 
+	// Initialize AI service and processor
+	aiSvc := ai.NewService(db)
+	aiProcessor := processing.NewAIProcessor(aiSvc, broadcaster)
+	q.RegisterHandler(processing.JobTypeAI, aiProcessor.HandleJob)
+
 	// Start queue workers
 	queueCtx, queueCancel := context.WithCancel(context.Background())
 	q.Start(queueCtx, document.QueueDefault)
+	go q.Start(queueCtx, processing.QueueAI)
 
 	// Start background cleanup of expired sessions
 	go func() {
@@ -95,7 +102,7 @@ func main() {
 
 	middleware.Setup(e, cfg)
 
-	h := handler.New(cfg, db, authService, docService, inboxSvc, networkSvc, q, broadcaster)
+	h := handler.New(cfg, db, authService, docService, inboxSvc, networkSvc, aiSvc, q, broadcaster)
 	h.RegisterRoutes(e)
 
 	// Start inbox watcher in background
