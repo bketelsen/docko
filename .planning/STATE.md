@@ -5,7 +5,7 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 9 - Minimum Number of Words Import Block (COMPLETE)
+**Current focus:** Phase 10 - Refactor to Use More templUI Components (not planned yet)
 
 ## Current Position
 

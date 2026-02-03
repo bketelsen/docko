@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 6: Search** - Full-text search with filtering
 - [x] **Phase 7: Network Sources** - SMB and NFS share integration
 - [x] **Phase 8: AI Integration** - Auto-tagging and correspondent detection
-- [ ] **Phase 9: Minimum Number of Words Import Block** - Block document import if text content below threshold
+- [x] **Phase 9: Minimum Number of Words Import Block** - Block document import if text content below threshold
 - [ ] **Phase 10: Refactor to Use More templUI Components** - Replace custom UI with templUI components
 - [ ] **Phase 11: Dashboard** - Real dashboard at root with stats, counts, and navigation links
 - [ ] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
@@ -187,8 +187,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Database migration and sqlc queries for min_word_count
-- [ ] 09-02-PLAN.md — Processor validation and UI configuration
+- [x] 09-01-PLAN.md — Database migration and sqlc queries for min_word_count
+- [x] 09-02-PLAN.md — Processor validation and UI configuration
 
 ### Phase 10: Refactor to Use More templUI Components
 
@@ -262,7 +262,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 6. Search | 3/3 | Complete | 2026-02-03 |
 | 7. Network Sources | 6/6 | Complete | 2026-02-03 |
 | 8. AI Integration | 6/6 | Complete | 2026-02-03 |
-| 9. Minimum Word Block | 0/2 | Not Started | - |
+| 9. Minimum Word Block | 2/2 | Complete | 2026-02-03 |
 | 10. templUI Refactor | 0/? | Not Started | - |
 | 11. Dashboard | 0/? | Not Started | - |
 | 12. Queues Detail | 0/? | Not Started | - |
