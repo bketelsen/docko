@@ -109,3 +109,57 @@ WHERE status = 'failed';
 SELECT * FROM jobs
 ORDER BY created_at DESC
 LIMIT $1;
+
+-- name: GetFailedJobsForQueue :many
+SELECT
+    j.*,
+    d.id as document_id,
+    d.original_filename as document_name
+FROM jobs j
+LEFT JOIN LATERAL (
+    SELECT id, original_filename
+    FROM documents
+    WHERE id = (j.payload->>'document_id')::uuid
+) d ON true
+WHERE j.queue_name = $1 AND j.status = 'failed'
+ORDER BY j.updated_at DESC
+LIMIT $2 OFFSET $3;
+
+-- name: GetRecentCompletedJobsForQueue :many
+SELECT
+    j.*,
+    d.id as document_id,
+    d.original_filename as document_name
+FROM jobs j
+LEFT JOIN LATERAL (
+    SELECT id, original_filename
+    FROM documents
+    WHERE id = (j.payload->>'document_id')::uuid
+) d ON true
+WHERE j.queue_name = $1
+    AND j.status = 'completed'
+    AND j.completed_at > NOW() - INTERVAL '24 hours'
+ORDER BY j.completed_at DESC
+LIMIT $2 OFFSET $3;
+
+-- name: DismissFailedJobsForQueue :execrows
+UPDATE jobs SET status = 'dismissed', updated_at = NOW()
+WHERE queue_name = $1 AND status = 'failed';
+
+-- name: DismissJob :one
+UPDATE jobs SET status = 'dismissed', updated_at = NOW()
+WHERE id = $1 AND status = 'failed'
+RETURNING *;
+
+-- name: ResetFailedJobsForQueue :execrows
+UPDATE jobs SET
+    status = 'pending',
+    attempt = 0,
+    scheduled_at = NOW(),
+    visible_until = NULL,
+    last_error = NULL,
+    updated_at = NOW()
+WHERE queue_name = $1 AND status = 'failed';
+
+-- name: GetQueueNames :many
+SELECT DISTINCT queue_name FROM jobs ORDER BY queue_name;
