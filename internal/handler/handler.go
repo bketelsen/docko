@@ -131,4 +131,10 @@ func (h *Handler) RegisterRoutes(e *echo.Echo) {
 	e.GET("/queues", h.QueueDashboardPage, middleware.RequireAuth(h.auth))
 	e.POST("/queues/jobs/:id/retry", h.RetryJob, middleware.RequireAuth(h.auth))
 	e.POST("/queues/retry-all", h.RetryAllFailedJobs, middleware.RequireAuth(h.auth))
+
+	// Queue detail routes (protected)
+	e.GET("/queues/:name/details", h.QueueDetails, middleware.RequireAuth(h.auth))
+	e.POST("/queues/:name/retry-all", h.RetryQueueJobs, middleware.RequireAuth(h.auth))
+	e.POST("/queues/:name/clear-all", h.ClearQueueJobs, middleware.RequireAuth(h.auth))
+	e.POST("/queues/jobs/:id/dismiss", h.DismissJob, middleware.RequireAuth(h.auth))
 }
