@@ -314,7 +314,7 @@ Plans:
 
 Plans:
 
-- [ ] 15-01-PLAN.md — Fix tags and correspondents edit buttons (templ.JSFuncCall)
+- [x] 15-01-PLAN.md — Fix tags and correspondents edit buttons (templ.JSFuncCall)
 - [ ] 15-02-PLAN.md — Add error count badges to inbox cards
 - [ ] 15-03-PLAN.md — Processing progress visibility with current step tracking
 
@@ -339,7 +339,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 12. Queues Detail | 5/5 | Complete | 2026-02-04 |
 | 13. Envrc Verification | 1/1 | Complete | 2026-02-04 |
 | 14. Production Readiness | 3/3 | Complete | 2026-02-04 |
-| 15. Pending Fixes | 0/3 | Not Started | - |
+| 15. Pending Fixes | 1/3 | In Progress | - |
 
 ---
 *Roadmap created: 2026-02-02*

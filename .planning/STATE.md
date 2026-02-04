@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 14 - Production Readiness
+**Current focus:** Phase 15 - Pending Fixes
 
 ## Current Position
 
-Phase: 14 of 14 (Production Readiness)
-Plan: 3 of 3 in current phase
-Status: PHASE COMPLETE / PROJECT COMPLETE
-Last activity: 2026-02-04 - Completed 14-03-PLAN.md (README documentation)
+Phase: 15 of 15 (Pending Fixes)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-04 - Completed 15-01-PLAN.md (Edit Button Fix)
 
-Progress: [##################################################] 58/58 plans complete
+Progress: [##################################################..] 59/61 plans complete
 
 ## Performance Metrics
 
@@ -192,13 +192,12 @@ Recent decisions affecting current work:
 - SSE queue events use afterbegin swap to prepend new activity rows (Phase 12)
 - Collapsible Script() required for templUI collapsible click handling (Phase 12)
 - BusyBox wget sufficient for health checks - Alpine 3.21 includes wget with --spider (Phase 14)
+- Use templ.JSFuncCall instead of script blocks for onclick handlers with Go data (Phase 15)
 
 ### Pending Todos
 
 1. **Add filebrowser links for inbox error directories** (ui) - Show error count and link to errors subdirectory
 2. **Add processing progress visibility** (queue) - Show current step, detect stuck jobs
-3. **Fix tags page edit button not working** (ui) - Edit button does nothing when clicked
-4. **Fix correspondents page edit button not working** (ui) - Same issue as tags
 
 ### Quick Tasks Completed
 
@@ -212,8 +211,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-04T14:43:46Z
-Stopped at: Completed 14-03-PLAN.md (README documentation) - PROJECT COMPLETE
+Last session: 2026-02-04T15:07:00Z
+Stopped at: Completed 15-01-PLAN.md (Edit Button Fix)
 Resume file: None
 
 ### Roadmap Evolution
@@ -224,6 +223,7 @@ Resume file: None
 - Phase 12 added: Queues route with expanders for failed jobs and recent activity
 - Phase 13 added: Verify all settings are reflected in .envrc and .envrc.example
 - Phase 14 added: Production Readiness (README, Docker Compose, secrets audit, gitignore audit)
+- Phase 15 added: Pending Fixes (edit buttons, inbox error links, processing progress)
 
 ---
-*58 plans executed across 14 phases - PROJECT COMPLETE*
+*58 plans executed across 15 phases*
