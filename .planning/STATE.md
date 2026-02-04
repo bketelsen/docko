@@ -193,6 +193,8 @@ Recent decisions affecting current work:
 ### Pending Todos
 
 1. **Add filebrowser links for inbox error directories** (ui) - Show error count and link to errors subdirectory
+2. **Add processing progress visibility** (queue) - Show current step, detect stuck jobs
+3. **Fix tags page edit button not working** (ui) - Edit button does nothing when clicked
 
 ### Quick Tasks Completed
 
