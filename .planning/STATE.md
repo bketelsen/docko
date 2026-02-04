@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 15 of 15 (Pending Fixes)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-04 - Completed 15-01-PLAN.md (Edit Button Fix)
+Last activity: 2026-02-04 - Completed 15-02-PLAN.md (Inbox Error Count Badges)
 
-Progress: [##################################################..] 59/61 plans complete
+Progress: [###################################################.] 60/61 plans complete
 
 ## Performance Metrics
 
@@ -44,8 +44,8 @@ Progress: [##################################################..] 59/61 plans com
 
 **Recent Trend:**
 
-- Last 5 plans: 12-05 (5 min), 13-01 (1 min), 14-01 (2 min), 14-02 (2 min), 14-03 (5 min)
-- Trend: Phase 14 COMPLETE - Production readiness achieved
+- Last 5 plans: 14-01 (2 min), 14-02 (2 min), 14-03 (5 min), 15-01 (2 min), 15-02 (3 min)
+- Trend: Phase 15 in progress - 2/3 fixes complete
 
 *Updated after each plan completion*
 
@@ -193,11 +193,12 @@ Recent decisions affecting current work:
 - Collapsible Script() required for templUI collapsible click handling (Phase 12)
 - BusyBox wget sufficient for health checks - Alpine 3.21 includes wget with --spider (Phase 14)
 - Use templ.JSFuncCall instead of script blocks for onclick handlers with Go data (Phase 15)
+- InboxWithErrorCount type defined in template package to avoid import cycle (Phase 15)
+- countPDFsInDir returns 0 if directory doesn't exist (graceful handling) (Phase 15)
 
 ### Pending Todos
 
-1. **Add filebrowser links for inbox error directories** (ui) - Show error count and link to errors subdirectory
-2. **Add processing progress visibility** (queue) - Show current step, detect stuck jobs
+1. **Add processing progress visibility** (queue) - Show current step, detect stuck jobs
 
 ### Quick Tasks Completed
 
@@ -211,8 +212,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-04T15:07:00Z
-Stopped at: Completed 15-01-PLAN.md (Edit Button Fix)
+Last session: 2026-02-04T15:08:39Z
+Stopped at: Completed 15-02-PLAN.md (Inbox Error Count Badges)
 Resume file: None
 
 ### Roadmap Evolution
@@ -226,4 +227,4 @@ Resume file: None
 - Phase 15 added: Pending Fixes (edit buttons, inbox error links, processing progress)
 
 ---
-*58 plans executed across 15 phases*
+*60 plans executed across 15 phases*
