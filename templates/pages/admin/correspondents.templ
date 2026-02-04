@@ -458,7 +458,7 @@ templ CorrespondentCard(correspondent sqlc.ListCorrespondentsWithCountsRow) {
 					Variant: button.VariantGhost,
 					Size:    button.SizeIcon,
 					Attributes: templ.Attributes{
-						"onclick": templ.JSFuncCall("openEditMode", correspondent.ID.String(), correspondent.Name, safeNotes(correspondent.Notes)),
+						"onclick": templ.JSFuncCall("openEditMode", correspondent.ID.String(), correspondent.Name, safeNotes(correspondent.Notes)).Call,
 						"title":   "Edit correspondent",
 					},
 				}) {
