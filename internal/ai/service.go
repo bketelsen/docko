@@ -120,6 +120,9 @@ func (s *Service) AnalyzeDocument(ctx context.Context, docID uuid.UUID, jobID *u
 	// Call AI provider
 	resp, err := provider.Analyze(ctx, req)
 	if err != nil {
+		slog.Warn("primary AI provider failed, trying fallbacks",
+			"provider", provider.Name(),
+			"error", err)
 		// Try fallback providers
 		resp, provider, err = s.tryFallbackProviders(ctx, req, provider.Name())
 		if err != nil {
