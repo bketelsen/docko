@@ -56,6 +56,7 @@ func (p *AIProcessor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 	p.broadcast(StatusUpdate{
 		DocumentID: docID,
 		Status:     "ai_processing",
+		QueueName:  QueueAI,
 	})
 
 	// Run AI analysis
@@ -72,6 +73,7 @@ func (p *AIProcessor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 			DocumentID: docID,
 			Status:     "ai_failed",
 			Error:      err.Error(),
+			QueueName:  QueueAI,
 		})
 
 		return fmt.Errorf("analyze document: %w", err)
@@ -90,6 +92,7 @@ func (p *AIProcessor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 	p.broadcast(StatusUpdate{
 		DocumentID: docID,
 		Status:     "ai_complete",
+		QueueName:  QueueAI,
 	})
 
 	return nil

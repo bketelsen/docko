@@ -16,6 +16,7 @@ type StatusUpdate struct {
 	DocumentID uuid.UUID
 	Status     string // pending, processing, completed, failed
 	Error      string // error message if failed
+	QueueName  string // queue name for queue-level SSE events
 }
 
 // BulkProgressUpdate represents aggregate progress for bulk uploads
