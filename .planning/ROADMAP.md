@@ -205,19 +205,19 @@ Plans:
 **Plans**: 7 plans
 
 Plans:
-- [ ] 10-01-PLAN.md — Admin layout with templUI sidebar and header buttons
-- [ ] 10-02-PLAN.md — Form components in Inboxes, Network Sources, AI Settings
-- [ ] 10-03-PLAN.md — Tags dialog, Correspondents forms, Documents search
-- [ ] 10-04-PLAN.md — Document tables and status badges
-- [ ] 10-05-PLAN.md — Alerts, switches, and card action buttons
-- [ ] 10-06-PLAN.md — Dashboard, Upload, Queue Dashboard, AI Review pages
-- [ ] 10-07-PLAN.md — Final verification and cleanup
+- [x] 10-01-PLAN.md — Admin layout with templUI sidebar and header buttons
+- [x] 10-02-PLAN.md — Form components in Inboxes, Network Sources, AI Settings
+- [x] 10-03-PLAN.md — Tags dialog, Correspondents forms, Documents search
+- [x] 10-04-PLAN.md — Document tables and status badges
+- [x] 10-05-PLAN.md — Alerts, switches, and card action buttons
+- [x] 10-06-PLAN.md — Dashboard, Upload, Queue Dashboard, AI Review pages
+- [x] 10-07-PLAN.md — Final verification and cleanup
 
 ### Phase 11: Dashboard
 
-**Goal**: Real dashboard at root route with stats, counts, and links to detail pages
+**Goal**: Operations dashboard at root route with document, processing, and source stats
 **Depends on**: Phase 10
-**Requirements**: TBD
+**Requirements**: None (enhancement feature)
 **Success Criteria** (what must be TRUE):
 
   1. Dashboard shows document count and recent uploads
@@ -227,11 +227,12 @@ Plans:
   5. Dashboard shows AI processing stats
   6. Quick navigation links to all management pages
 
-**Plans**: 0 plans
+**Plans**: 3 plans
 
 Plans:
-
-- [ ] TBD (run /gsd:plan-phase 11 to break down)
+- [ ] 11-01-PLAN.md — Dashboard aggregation queries
+- [ ] 11-02-PLAN.md — Handler data aggregation and types
+- [ ] 11-03-PLAN.md — Three-section dashboard template with verification
 
 ### Phase 12: Queues Detail
 
@@ -269,7 +270,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 8. AI Integration | 6/6 | Complete | 2026-02-03 |
 | 9. Minimum Word Block | 2/2 | Complete | 2026-02-03 |
 | 10. templUI Refactor | 7/7 | Complete | 2026-02-03 |
-| 11. Dashboard | 0/? | Not Started | - |
+| 11. Dashboard | 0/3 | Not Started | - |
 | 12. Queues Detail | 0/? | Not Started | - |
 
 ---
