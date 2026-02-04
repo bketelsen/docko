@@ -4,48 +4,10 @@ import (
 	"context"
 	"net/http"
 
-	"docko/internal/database/sqlc"
 	"docko/templates/pages/admin"
 
 	"github.com/labstack/echo/v4"
 )
-
-// DashboardData holds all stats for the main dashboard
-type DashboardData struct {
-	// Documents section
-	Documents struct {
-		Total     int32
-		Processed int32
-		Pending   int32
-		Failed    int32
-		Today     int32
-	}
-	TagCount           int32
-	CorrespondentCount int32
-
-	// Processing section
-	Processing struct {
-		Pending    int32
-		Processing int32
-		Completed  int32
-		Failed     int32
-		Health     string // "healthy", "warning", "issues"
-	}
-	PendingSuggestions int32
-	RecentJobs         []sqlc.Job
-	ActiveProvider     string
-	JobsToday          int32
-
-	// Sources section
-	Inboxes struct {
-		Total   int32
-		Enabled int32
-	}
-	NetworkSources struct {
-		Total   int32
-		Enabled int32
-	}
-}
 
 // calculateQueueHealth returns health status based on queue state
 func calculateQueueHealth(pending, failed int32) string {
@@ -72,7 +34,7 @@ func (h *Handler) getActiveProvider(ctx context.Context) string {
 
 func (h *Handler) AdminDashboard(c echo.Context) error {
 	ctx := c.Request().Context()
-	data := DashboardData{}
+	data := admin.DashboardData{}
 
 	// Documents section
 	if docStats, err := h.db.Queries.GetDashboardDocumentStats(ctx); err == nil {
@@ -122,9 +84,7 @@ func (h *Handler) AdminDashboard(c echo.Context) error {
 		data.NetworkSources.Enabled = sourceStats.NetworkEnabled
 	}
 
-	// TODO: Plan 03 will update template to accept DashboardData
-	_ = data // data ready for Plan 03
-	return admin.Dashboard().Render(ctx, c.Response().Writer)
+	return admin.Dashboard(data).Render(ctx, c.Response().Writer)
 }
 
 func (h *Handler) Health(c echo.Context) error {

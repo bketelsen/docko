@@ -1,124 +1,400 @@
 package admin
 
 import (
+	"strconv"
+
+	"docko/components/badge"
 	"docko/components/button"
 	"docko/components/card"
+	"docko/components/table"
+	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
 )
 
-templ Dashboard() {
-	@layouts.Admin(meta.New("Dashboard", "Admin dashboard overview")) {
-		<div class="mb-8">
-			<h1 class="text-2xl font-bold">Dashboard</h1>
-			<p class="text-muted-foreground">Welcome to your admin dashboard.</p>
-		</div>
-		<div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-			@StatCard("Total Users", "1,234", "+12%", "users")
-			@StatCard("Revenue", "$12,345", "+8%", "revenue")
-			@StatCard("Orders", "456", "+23%", "orders")
-			@StatCard("Conversion", "3.2%", "-2%", "conversion")
-		</div>
-		<div class="grid lg:grid-cols-2 gap-6">
-			@card.Card() {
-				@card.Header() {
-					@card.Title() {
-						Recent Activity
-					}
-				}
-				@card.Content() {
-					<div class="space-y-4">
-						@ActivityItem("New user registered", "2 minutes ago")
-						@ActivityItem("Order #1234 completed", "15 minutes ago")
-						@ActivityItem("Payment received", "1 hour ago")
-						@ActivityItem("New comment on post", "2 hours ago")
-					</div>
-				}
-			}
-			@card.Card() {
-				@card.Header() {
-					@card.Title() {
-						Quick Actions
-					}
-				}
-				@card.Content() {
-					<div class="grid grid-cols-2 gap-4">
-						@button.Button(button.Props{
-							Variant: button.VariantOutline,
-							Class:   "h-auto p-4 flex flex-col items-start",
-						}) {
-							<div class="font-medium">Add User</div>
-							<div class="text-sm text-muted-foreground">Create new account</div>
-						}
-						@button.Button(button.Props{
-							Variant: button.VariantOutline,
-							Class:   "h-auto p-4 flex flex-col items-start",
-						}) {
-							<div class="font-medium">View Reports</div>
-							<div class="text-sm text-muted-foreground">Analytics & stats</div>
-						}
-						@button.Button(button.Props{
-							Variant: button.VariantOutline,
-							Class:   "h-auto p-4 flex flex-col items-start",
-						}) {
-							<div class="font-medium">Settings</div>
-							<div class="text-sm text-muted-foreground">Configure app</div>
-						}
-						@button.Button(button.Props{
-							Variant: button.VariantOutline,
-							Class:   "h-auto p-4 flex flex-col items-start",
-						}) {
-							<div class="font-medium">Help</div>
-							<div class="text-sm text-muted-foreground">Documentation</div>
-						}
-					</div>
-				}
-			}
+// DashboardData holds all stats for the main dashboard (mirrors handler.DashboardData)
+type DashboardData struct {
+	// Documents section
+	Documents struct {
+		Total     int32
+		Processed int32
+		Pending   int32
+		Failed    int32
+		Today     int32
+	}
+	TagCount           int32
+	CorrespondentCount int32
+
+	// Processing section
+	Processing struct {
+		Pending    int32
+		Processing int32
+		Completed  int32
+		Failed     int32
+		Health     string // "healthy", "warning", "issues"
+	}
+	PendingSuggestions int32
+	RecentJobs         []sqlc.Job
+	ActiveProvider     string
+	JobsToday          int32
+
+	// Sources section
+	Inboxes struct {
+		Total   int32
+		Enabled int32
+	}
+	NetworkSources struct {
+		Total   int32
+		Enabled int32
+	}
+}
+
+templ Dashboard(data DashboardData) {
+	@layouts.Admin(meta.New("Dashboard", "System overview and status")) {
+		<div class="space-y-8">
+			<div class="mb-4">
+				<h1 class="text-2xl font-bold">Dashboard</h1>
+				<p class="text-muted-foreground">System overview and status</p>
+			</div>
+			@documentsSection(data)
+			@processingSection(data)
+			@sourcesSection(data)
 		</div>
 	}
 }
 
-templ StatCard(title, value, change, cardType string) {
-	@card.Card() {
-		@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
-			@card.Title(card.TitleProps{Class: "text-sm font-medium text-muted-foreground"}) {
-				{ title }
+// Documents Section
+templ documentsSection(data DashboardData) {
+	<section class="space-y-4">
+		@sectionHeader("Documents", "/documents", "/documents")
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+			@clickableStatCard("Total Documents", strconv.Itoa(int(data.Documents.Total)), "/documents", StatIcon("documents"))
+			@clickableStatCard("Processed", strconv.Itoa(int(data.Documents.Processed)), "/documents?status=completed", StatIcon("processed"), "text-green-600 dark:text-green-400")
+			@clickableStatCard("Pending", strconv.Itoa(int(data.Documents.Pending)), "/documents?status=pending", StatIcon("pending"))
+			@clickableStatCardDestructive("Failed", strconv.Itoa(int(data.Documents.Failed)), "/documents?status=failed", StatIcon("failed"), data.Documents.Failed > 0)
+			@clickableStatCard("Uploaded Today", strconv.Itoa(int(data.Documents.Today)), "/documents", StatIcon("today"))
+			@clickableStatCard("Tags", strconv.Itoa(int(data.TagCount)), "/tags", StatIcon("tags"))
+			@clickableStatCard("Correspondents", strconv.Itoa(int(data.CorrespondentCount)), "/correspondents", StatIcon("correspondents"))
+		</div>
+		<div class="flex gap-2">
+			@button.Button(button.Props{Href: "/upload"}) {
+				@uploadIcon()
+				Upload Document
 			}
-			@StatIcon(cardType)
+		</div>
+	</section>
+}
+
+// Processing Section
+templ processingSection(data DashboardData) {
+	<section class="space-y-4">
+		<div class="flex items-center justify-between">
+			<div class="flex items-center gap-3">
+				<a href="/queues" class="text-xl font-semibold hover:text-primary transition-colors">Processing</a>
+				@healthBadge(data.Processing.Health)
+			</div>
+			<a href="/queues" class="text-sm text-muted-foreground hover:text-primary transition-colors">View all</a>
+		</div>
+		<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+			@clickableStatCard("Queue Pending", strconv.Itoa(int(data.Processing.Pending)), "/queues", StatIcon("pending"))
+			@clickableStatCard("Queue Processing", strconv.Itoa(int(data.Processing.Processing)), "/queues", StatIcon("processing"))
+			@clickableStatCard("Queue Completed", strconv.Itoa(int(data.Processing.Completed)), "/queues", StatIcon("processed"), "text-green-600 dark:text-green-400")
+			@clickableStatCardDestructive("Queue Failed", strconv.Itoa(int(data.Processing.Failed)), "/queues", StatIcon("failed"), data.Processing.Failed > 0)
+			@clickableStatCardHighlight("AI Pending", strconv.Itoa(int(data.PendingSuggestions)), "/ai/review", StatIcon("ai"), data.PendingSuggestions > 0)
+			@clickableStatCard("Jobs Today", strconv.Itoa(int(data.JobsToday)), "/queues", StatIcon("today"))
+		</div>
+		<!-- Recent Activity -->
+		@card.Card() {
+			@card.Header() {
+				@card.Title() {
+					Recent Activity
+				}
+			}
+			@card.Content(card.ContentProps{Class: "p-0"}) {
+				if len(data.RecentJobs) == 0 {
+					<div class="py-6 text-center text-muted-foreground">
+						No recent jobs
+					</div>
+				} else {
+					@table.Table() {
+						@table.Header() {
+							@table.Row() {
+								@table.Head() {
+									Queue
+								}
+								@table.Head() {
+									Type
+								}
+								@table.Head() {
+									Status
+								}
+								@table.Head() {
+									Created
+								}
+							}
+						}
+						@table.Body() {
+							for _, job := range data.RecentJobs {
+								@table.Row() {
+									@table.Cell() {
+										{ job.QueueName }
+									}
+									@table.Cell() {
+										{ job.JobType }
+									}
+									@table.Cell() {
+										@jobStatusBadge(job.Status)
+									}
+									@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
+										{ job.CreatedAt.Format("Jan 2 15:04") }
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
-		@card.Content(card.ContentProps{Class: "pt-0"}) {
-			<div class="text-2xl font-bold">{ value }</div>
-			<p class={ "text-xs", templ.KV("text-green-500", change[0] == '+'), templ.KV("text-red-500", change[0] == '-') }>
-				{ change } from last month
-			</p>
+		<p class="text-sm text-muted-foreground">
+			AI Provider: <span class="font-medium text-foreground">{ data.ActiveProvider }</span>
+		</p>
+	</section>
+}
+
+// Sources Section
+templ sourcesSection(data DashboardData) {
+	<section class="space-y-4">
+		@sectionHeader("Sources", "/inboxes", "/inboxes")
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<!-- Inbox Card -->
+			<a href="/inboxes" class="block">
+				@card.Card(card.Props{Class: "hover:border-primary/50 transition-colors"}) {
+					@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+						@card.Title(card.TitleProps{Class: "text-base font-medium"}) {
+							Inboxes
+						}
+						@inboxIcon()
+					}
+					@card.Content(card.ContentProps{Class: "pt-0"}) {
+						<div class="flex items-center gap-2">
+							<span class="text-2xl font-bold">{ strconv.Itoa(int(data.Inboxes.Total)) }</span>
+							<span class="text-muted-foreground">total</span>
+							@statusDot(data.Inboxes.Enabled > 0)
+							<span class="text-sm text-muted-foreground">{ strconv.Itoa(int(data.Inboxes.Enabled)) } enabled</span>
+						</div>
+					}
+				}
+			</a>
+			<!-- Network Sources Card -->
+			<a href="/network-sources" class="block">
+				@card.Card(card.Props{Class: "hover:border-primary/50 transition-colors"}) {
+					@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+						@card.Title(card.TitleProps{Class: "text-base font-medium"}) {
+							Network Sources
+						}
+						@networkIcon()
+					}
+					@card.Content(card.ContentProps{Class: "pt-0"}) {
+						<div class="flex items-center gap-2">
+							<span class="text-2xl font-bold">{ strconv.Itoa(int(data.NetworkSources.Total)) }</span>
+							<span class="text-muted-foreground">total</span>
+							@statusDot(data.NetworkSources.Enabled > 0)
+							<span class="text-sm text-muted-foreground">{ strconv.Itoa(int(data.NetworkSources.Enabled)) } enabled</span>
+						</div>
+					}
+				}
+			</a>
+		</div>
+		<div class="flex gap-2">
+			@button.Button(button.Props{Href: "/inboxes/new"}) {
+				@plusIcon()
+				Add Inbox
+			}
+			if data.NetworkSources.Enabled > 0 {
+				@button.Button(button.Props{
+					Variant: button.VariantOutline,
+					Attributes: templ.Attributes{
+						"hx-post": "/network-sources/sync-all",
+						"hx-swap": "none",
+					},
+				}) {
+					@syncIcon()
+					Sync Now
+				}
+			}
+		</div>
+	</section>
+}
+
+// Helper Components
+
+templ sectionHeader(title, href, viewAllHref string) {
+	<div class="flex items-center justify-between">
+		<a href={ templ.SafeURL(href) } class="text-xl font-semibold hover:text-primary transition-colors">{ title }</a>
+		<a href={ templ.SafeURL(viewAllHref) } class="text-sm text-muted-foreground hover:text-primary transition-colors">View all</a>
+	</div>
+}
+
+templ clickableStatCard(title, value, href string, icon templ.Component, valueClass ...string) {
+	<a href={ templ.SafeURL(href) } class="block">
+		@card.Card(card.Props{Class: "hover:border-primary/50 transition-colors"}) {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				@card.Title(card.TitleProps{Class: "text-sm font-medium text-muted-foreground"}) {
+					{ title }
+				}
+				@icon
+			}
+			@card.Content(card.ContentProps{Class: "pt-0"}) {
+				<div class={ "text-2xl font-bold", getValueClass(valueClass) }>{ value }</div>
+			}
 		}
+	</a>
+}
+
+templ clickableStatCardDestructive(title, value, href string, icon templ.Component, isDestructive bool) {
+	<a href={ templ.SafeURL(href) } class="block">
+		@card.Card(card.Props{Class: "hover:border-primary/50 transition-colors"}) {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				@card.Title(card.TitleProps{Class: "text-sm font-medium text-muted-foreground"}) {
+					{ title }
+				}
+				@icon
+			}
+			@card.Content(card.ContentProps{Class: "pt-0"}) {
+				<div class={ "text-2xl font-bold", templ.KV("text-destructive", isDestructive) }>{ value }</div>
+			}
+		}
+	</a>
+}
+
+templ clickableStatCardHighlight(title, value, href string, icon templ.Component, isHighlighted bool) {
+	<a href={ templ.SafeURL(href) } class="block">
+		@card.Card(card.Props{Class: highlightCardClass(isHighlighted)}) {
+			@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between space-y-0 pb-2"}) {
+				@card.Title(card.TitleProps{Class: "text-sm font-medium text-muted-foreground"}) {
+					{ title }
+				}
+				@icon
+			}
+			@card.Content(card.ContentProps{Class: "pt-0"}) {
+				<div class={ "text-2xl font-bold", templ.KV("text-primary", isHighlighted) }>{ value }</div>
+			}
+		}
+	</a>
+}
+
+templ healthBadge(health string) {
+	switch health {
+		case "healthy":
+			@badge.Badge(badge.Props{Class: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-transparent"}) {
+				Healthy
+			}
+		case "warning":
+			@badge.Badge(badge.Props{Class: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 border-transparent"}) {
+				Warning
+			}
+		case "issues":
+			@badge.Badge(badge.Props{Variant: badge.VariantDestructive}) {
+				Issues
+			}
 	}
 }
+
+templ statusDot(enabled bool) {
+	if enabled {
+		<span class="w-2 h-2 rounded-full bg-green-500"></span>
+	} else {
+		<span class="w-2 h-2 rounded-full bg-muted-foreground/50"></span>
+	}
+}
+
+func getValueClass(classes []string) string {
+	if len(classes) > 0 {
+		return classes[0]
+	}
+	return ""
+}
+
+func highlightCardClass(isHighlighted bool) string {
+	if isHighlighted {
+		return "hover:border-primary/50 transition-colors border-primary/50 bg-primary/5"
+	}
+	return "hover:border-primary/50 transition-colors"
+}
+
+// Icons
 
 templ StatIcon(iconType string) {
 	switch iconType {
-		case "users":
+		case "documents":
 			<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
 			</svg>
-		case "revenue":
-			<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+		case "processed":
+			<svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 			</svg>
-		case "orders":
+		case "pending":
 			<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+			</svg>
+		case "failed":
+			<svg class="w-5 h-5 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+			</svg>
+		case "today":
+			<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+			</svg>
+		case "tags":
+			<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+			</svg>
+		case "correspondents":
+			<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+			</svg>
+		case "processing":
+			<svg class="w-5 h-5 text-muted-foreground animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+			</svg>
+		case "ai":
+			<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
 			</svg>
 		default:
 			<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 			</svg>
 	}
 }
 
-templ ActivityItem(title, time string) {
-	<div class="flex items-center justify-between py-2 border-b border-border last:border-0">
-		<span class="text-sm text-foreground">{ title }</span>
-		<span class="text-xs text-muted-foreground">{ time }</span>
-	</div>
+templ uploadIcon() {
+	<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+	</svg>
+}
+
+templ plusIcon() {
+	<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+	</svg>
+}
+
+templ syncIcon() {
+	<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+	</svg>
+}
+
+templ inboxIcon() {
+	<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+	</svg>
+}
+
+templ networkIcon() {
+	<svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+		<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+	</svg>
 }
