@@ -163,3 +163,8 @@ WHERE queue_name = $1 AND status = 'failed';
 
 -- name: GetQueueNames :many
 SELECT DISTINCT queue_name FROM jobs ORDER BY queue_name;
+
+-- name: UpdateJobStep :exec
+UPDATE jobs
+SET current_step = $2, updated_at = NOW()
+WHERE id = $1;
