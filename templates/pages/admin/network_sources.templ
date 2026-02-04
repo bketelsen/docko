@@ -36,7 +36,6 @@ templ NetworkSources(sources []sqlc.NetworkSource) {
 				}
 			</div>
 		</div>
-
 		<!-- Add Network Source Form -->
 		<div class="border border-border rounded-lg p-6 mb-6 bg-card">
 			<h2 class="text-lg font-semibold mb-4 text-card-foreground">Add Network Source</h2>
@@ -186,7 +185,6 @@ templ NetworkSources(sources []sqlc.NetworkSource) {
 			</form>
 			@input.Script()
 		</div>
-
 		<!-- Source List -->
 		<div id="source-list" class="space-y-4">
 			if len(sources) == 0 {
@@ -203,10 +201,8 @@ templ NetworkSources(sources []sqlc.NetworkSource) {
 				}
 			}
 		</div>
-
 		<!-- Toast container -->
 		<div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
-
 		<script>
 		function toggleCredentials(select) {
 			const isSmb = select.value === 'smb';
@@ -351,7 +347,6 @@ templ NetworkSourceCard(source sqlc.NetworkSource) {
 				}
 			</div>
 		</div>
-
 		<!-- Info row -->
 		<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
 			<div>
@@ -389,7 +384,6 @@ templ NetworkSourceCard(source sqlc.NetworkSource) {
 				</span>
 			</div>
 		</div>
-
 		<!-- Error message if present -->
 		if source.LastError != nil && *source.LastError != "" {
 			@alert.Alert(alert.Props{Variant: alert.VariantDestructive, Class: "mb-4"}) {
@@ -404,7 +398,6 @@ templ NetworkSourceCard(source sqlc.NetworkSource) {
 				}
 			}
 		}
-
 		<!-- Recent events section (expandable) -->
 		<details class="group">
 			<summary class="cursor-pointer text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
@@ -461,7 +454,7 @@ templ networkSourceEventIcon(action string) {
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 			</svg>
 		default:
-			<svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 			</svg>
 	}
