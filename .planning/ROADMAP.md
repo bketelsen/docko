@@ -26,7 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
 - [x] **Phase 13: Environment Configuration Verification** - Verify all settings are reflected in .envrc and .envrc.example
 - [x] **Phase 14: Production Readiness** - Comprehensive README, production Docker Compose, secrets audit, gitignore audit
-- [ ] **Phase 15: Pending Fixes** - Fix edit buttons, inbox error links, processing progress visibility
+- [x] **Phase 15: Pending Fixes** - Fix edit buttons, inbox error links, processing progress visibility
 
 ## Phase Details
 
@@ -317,8 +317,8 @@ Plans:
 - [x] 15-01-PLAN.md — Fix tags and correspondents edit buttons (templ.JSFuncCall)
 - [x] 15-02-PLAN.md — Add error count badges to inbox cards
 - [x] 15-03-PLAN.md — Processing progress visibility with current step tracking
-- [ ] 15-04-PLAN.md — Fix templ.JSFuncCall .Call property for edit buttons (gap closure)
-- [ ] 15-05-PLAN.md — Processing step visibility on upload page (gap closure)
+- [x] 15-04-PLAN.md — Fix templ.JSFuncCall .Call property for edit buttons (gap closure)
+- [x] 15-05-PLAN.md — Processing step visibility on upload page (gap closure)
 
 ## Progress
 
@@ -341,7 +341,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 12. Queues Detail | 5/5 | Complete | 2026-02-04 |
 | 13. Envrc Verification | 1/1 | Complete | 2026-02-04 |
 | 14. Production Readiness | 3/3 | Complete | 2026-02-04 |
-| 15. Pending Fixes | 3/5 | In Progress | - |
+| 15. Pending Fixes | 5/5 | Complete | 2026-02-04 |
 
 ---
 *Roadmap created: 2026-02-02*
