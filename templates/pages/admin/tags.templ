@@ -155,45 +155,6 @@ templ Tags(tags []sqlc.ListTagsWithCountsRow) {
 				htmx.process(form);
 			}
 
-			// Setup edit mode when opening dialog for existing tag
-			function openEditMode(id, name, color) {
-				const form = document.getElementById('tag-form');
-				const title = document.getElementById('modal-title');
-				const submitBtn = document.getElementById('modal-submit');
-				const nameInput = document.getElementById('tag-name');
-
-				title.textContent = 'Edit Tag';
-				submitBtn.textContent = 'Save';
-				form.setAttribute('hx-post', '/tags/' + id);
-				form.setAttribute('hx-target', '#tag-' + id);
-				form.setAttribute('hx-swap', 'outerHTML');
-				nameInput.value = name || '';
-
-				// Select the color
-				const colorRadio = form.querySelector('input[name="color"][value="' + (color || 'blue') + '"]');
-				if (colorRadio) colorRadio.checked = true;
-
-				// Re-process HTMX attributes
-				htmx.process(form);
-
-				// Open the dialog
-				const dialogEl = document.querySelector('[data-dialog-instance="tag-modal"]');
-				if (dialogEl) {
-					const backdrop = document.querySelector('[data-tui-dialog-backdrop][data-dialog-instance="tag-modal"]');
-					const content = document.querySelector('[data-tui-dialog-content][data-dialog-instance="tag-modal"]');
-					if (backdrop) {
-						backdrop.removeAttribute('data-tui-dialog-hidden');
-						backdrop.setAttribute('data-tui-dialog-open', 'true');
-					}
-					if (content) {
-						content.removeAttribute('data-tui-dialog-hidden');
-						content.setAttribute('data-tui-dialog-open', 'true');
-					}
-				}
-
-				nameInput.focus();
-			}
-
 			// Close modal on successful form submission
 			document.body.addEventListener('htmx:afterRequest', function(event) {
 				if (event.detail.elt.id === 'tag-form' && event.detail.successful) {
@@ -236,18 +197,16 @@ templ TagCard(tag sqlc.ListTagsWithCountsRow) {
 		</div>
 		<div class="flex items-center gap-1">
 			<!-- Edit button -->
-			@button.Button(button.Props{
-				Variant: button.VariantGhost,
-				Size:    button.SizeIcon,
-				Attributes: templ.Attributes{
-					"onclick": templ.JSFuncCall("openEditMode", tag.ID.String(), tag.Name, safeColor(tag.Color)).Call,
-					"title":   "Edit tag",
-				},
-			}) {
+			<button
+				type="button"
+				class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] cursor-pointer hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 size-9"
+				onclick={ openTagEditMode(tag.ID.String(), tag.Name, safeColor(tag.Color)) }
+				title="Edit tag"
+			>
 				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
 				</svg>
-			}
+			</button>
 			<!-- Delete button -->
 			@button.Button(button.Props{
 				Variant: button.VariantGhost,
@@ -267,6 +226,38 @@ templ TagCard(tag sqlc.ListTagsWithCountsRow) {
 			}
 		</div>
 	</div>
+}
+
+script openTagEditMode(id string, name string, color string) {
+	const form = document.getElementById('tag-form');
+	const title = document.getElementById('modal-title');
+	const submitBtn = document.getElementById('modal-submit');
+	const nameInput = document.getElementById('tag-name');
+
+	title.textContent = 'Edit Tag';
+	submitBtn.textContent = 'Save';
+	form.setAttribute('hx-post', '/tags/' + id);
+	form.setAttribute('hx-target', '#tag-' + id);
+	form.setAttribute('hx-swap', 'outerHTML');
+	nameInput.value = name || '';
+
+	const colorRadio = form.querySelector('input[name="color"][value="' + (color || 'blue') + '"]');
+	if (colorRadio) colorRadio.checked = true;
+
+	htmx.process(form);
+
+	const backdrop = document.querySelector('[data-tui-dialog-backdrop][data-dialog-instance="tag-modal"]');
+	const content = document.querySelector('[data-tui-dialog-content][data-dialog-instance="tag-modal"]');
+	if (backdrop) {
+		backdrop.removeAttribute('data-tui-dialog-hidden');
+		backdrop.setAttribute('data-tui-dialog-open', 'true');
+	}
+	if (content) {
+		content.removeAttribute('data-tui-dialog-hidden');
+		content.setAttribute('data-tui-dialog-open', 'true');
+	}
+
+	nameInput.focus();
 }
 
 func tagColorClass(color *string) string {
@@ -308,20 +299,5 @@ func safeColor(color *string) string {
 		return "blue"
 	}
 	return *color
-}
-
-func escapeJS(s string) string {
-	// Simple escape for single quotes in JS strings
-	result := ""
-	for _, c := range s {
-		if c == '\'' {
-			result += "\\'"
-		} else if c == '\\' {
-			result += "\\\\"
-		} else {
-			result += string(c)
-		}
-	}
-	return result
 }
 
