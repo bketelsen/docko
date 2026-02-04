@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 10 Complete - Ready for Phase 11 (Dashboard)
+**Current focus:** Phase 11 (Dashboard) - In Progress
 
 ## Current Position
 
-Phase: 10 of 12 (templUI Refactor) - COMPLETE
-Plan: 7 of 7 in current phase
-Status: Phase complete
-Last activity: 2026-02-03 - Completed 10-07-PLAN.md (Final Verification)
+Phase: 11 of 12 (Dashboard)
+Plan: 1 of 3 in current phase
+Status: In progress
+Last activity: 2026-02-04 - Completed 11-01-PLAN.md (Dashboard Queries)
 
-Progress: [##########################################] 46/46 plans complete
+Progress: [##########################################--] 47/49 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 46
+- Total plans completed: 47
 - Average duration: 4.1 min
-- Total execution time: 3.3 hours
+- Total execution time: 3.4 hours
 
 **By Phase:**
 
@@ -37,11 +37,12 @@ Progress: [##########################################] 46/46 plans complete
 | 08-ai-integration | 6 | 33 min | 5.5 min |
 | 09-minimum-words | 2 | 7 min | 3.5 min |
 | 10-templui-refactor | 7 | 39 min | 5.6 min |
+| 11-dashboard | 1 | 2 min | 2.0 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 10-03 (4 min), 10-04 (4 min), 10-05 (4 min), 10-06 (3 min), 10-07 (8 min)
-- Trend: Phase 10 complete - templUI refactor finished
+- Last 5 plans: 10-05 (4 min), 10-06 (3 min), 10-07 (8 min), 11-01 (2 min)
+- Trend: Phase 11 dashboard started
 
 *Updated after each plan completion*
 
@@ -169,6 +170,8 @@ Recent decisions affecting current work:
 - Use templUI button Href prop for pagination links (Phase 10)
 - Card stat pattern: Header with row flex, Content with pt-0 (Phase 10)
 - Table in card: Content with p-0 for edge-to-edge table (Phase 10)
+- PostgreSQL FILTER clause for efficient conditional aggregation (Phase 11)
+- Cast all COUNT results to int for consistent int32 Go types (Phase 11)
 
 ### Pending Todos
 
@@ -180,8 +183,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04T00:27:00Z
-Stopped at: Completed 10-07-PLAN.md (Final Verification) - Phase 10 Complete
+Last session: 2026-02-04T01:19:34Z
+Stopped at: Completed 11-01-PLAN.md (Dashboard Queries)
 Resume file: None
 
 ### Roadmap Evolution
@@ -192,4 +195,4 @@ Resume file: None
 - Phase 12 added: Queues route with expanders for failed jobs and recent activity
 
 ---
-*46 plans executed across 10 phases, Phase 10 complete (7/7)*
+*47 plans executed across 11 phases, Phase 11 in progress (1/3)*
