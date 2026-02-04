@@ -24,6 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: Refactor to Use More templUI Components** - Replace custom UI with templUI components
 - [x] **Phase 11: Dashboard** - Real dashboard at root with stats, counts, and navigation links
 - [x] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
+- [ ] **Phase 13: Environment Configuration Verification** - Verify all settings are reflected in .envrc and .envrc.example
 
 ## Phase Details
 
@@ -257,10 +258,28 @@ Plans:
 - [x] 12-04-PLAN.md — Queue dashboard template with collapsible sections
 - [x] 12-05-PLAN.md — SSE integration for live activity updates and verification
 
+### Phase 13: Environment Configuration Verification
+
+**Goal**: Verify all application settings are documented in .envrc and .envrc.example
+**Depends on**: Phase 12
+**Requirements**: None (maintenance task)
+**Success Criteria** (what must be TRUE):
+
+  1. All environment variables used by the app are listed in .envrc.example
+  2. .envrc.example includes descriptions/comments for each variable
+  3. No undocumented environment variables in codebase
+  4. Default values match between .envrc and .envrc.example where appropriate
+
+**Plans**: 1 plan
+
+Plans:
+
+- [ ] 13-01-PLAN.md — Complete environment variable documentation
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -276,6 +295,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 10. templUI Refactor | 7/7 | Complete | 2026-02-03 |
 | 11. Dashboard | 3/3 | Complete | 2026-02-04 |
 | 12. Queues Detail | 5/5 | Complete | 2026-02-04 |
+| 13. Envrc Verification | 0/1 | Not Started | — |
 
 ---
 *Roadmap created: 2026-02-02*
