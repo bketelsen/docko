@@ -26,6 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
 - [x] **Phase 13: Environment Configuration Verification** - Verify all settings are reflected in .envrc and .envrc.example
 - [x] **Phase 14: Production Readiness** - Comprehensive README, production Docker Compose, secrets audit, gitignore audit
+- [ ] **Phase 15: Pending Fixes** - Fix edit buttons, inbox error links, processing progress visibility
 
 ## Phase Details
 
@@ -297,10 +298,30 @@ Plans:
 - [x] 14-02-PLAN.md — Expand .gitignore and create production Docker Compose
 - [x] 14-03-PLAN.md — Comprehensive README documentation
 
+### Phase 15: Pending Fixes
+
+**Goal**: Address accumulated UI bugs and improvements from pending todos
+**Depends on**: Phase 14
+**Requirements**: None (bug fixes and enhancements)
+**Success Criteria** (what must be TRUE):
+
+  1. Tags page edit button works correctly
+  2. Correspondents page edit button works correctly
+  3. Inbox error directories have filebrowser links with error counts
+  4. Processing progress is visible with current step indication
+
+**Plans**: 3 plans
+
+Plans:
+
+- [ ] 15-01-PLAN.md — Fix tags and correspondents edit buttons (templ.JSFuncCall)
+- [ ] 15-02-PLAN.md — Add error count badges to inbox cards
+- [ ] 15-03-PLAN.md — Processing progress visibility with current step tracking
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14 -> 15
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -318,6 +339,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 12. Queues Detail | 5/5 | Complete | 2026-02-04 |
 | 13. Envrc Verification | 1/1 | Complete | 2026-02-04 |
 | 14. Production Readiness | 3/3 | Complete | 2026-02-04 |
+| 15. Pending Fixes | 0/3 | Not Started | - |
 
 ---
 *Roadmap created: 2026-02-02*
