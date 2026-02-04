@@ -133,6 +133,36 @@
     }
 
     /**
+     * Add a processing status tracker for a document
+     * @param {string} docId - Document ID
+     * @param {string} filename - Original filename
+     */
+    function addProcessingTracker(docId, filename) {
+        const statusContainer = document.getElementById('processing-status');
+        if (!statusContainer) return;
+
+        // Check if entry already exists for this document
+        if (document.querySelector(`[data-doc-id="${docId}"]`)) return;
+
+        // Create status entry that receives SSE updates
+        const entry = document.createElement('div');
+        entry.className = 'border border-border rounded-lg p-4 flex items-center justify-between';
+        entry.setAttribute('data-doc-id', docId);
+        entry.innerHTML = `
+            <span class="font-medium truncate mr-4">${escapeHtml(filename)}</span>
+            <div sse-swap="doc-${docId}" hx-swap="innerHTML">
+                <span class="text-sm text-muted-foreground animate-pulse">Queued for processing...</span>
+            </div>
+        `;
+        statusContainer.appendChild(entry);
+
+        // Process HTMX attributes for the new element
+        if (window.htmx) {
+            htmx.process(entry);
+        }
+    }
+
+    /**
      * Upload a single file with progress tracking
      * @param {File} file - File to upload
      * @param {number} index - Index for progress tracking
@@ -166,6 +196,10 @@
 
                         if (success && !isDuplicate) {
                             uploadResults.success++;
+                            // Add processing tracker for this document
+                            if (result.document_id) {
+                                addProcessingTracker(result.document_id, file.name);
+                            }
                         } else if (isDuplicate) {
                             uploadResults.duplicate++;
                         } else {

@@ -43,6 +43,10 @@ templ Upload() {
 		}
 		<!-- Upload Progress Container -->
 		<div id="upload-progress" class="space-y-3 mt-6"></div>
+		<!-- Processing Status Container (for SSE updates after upload) -->
+		<div id="processing-status" class="space-y-3 mt-6" hx-ext="sse" sse-connect="/api/processing/status" sse-close="close">
+			<!-- Document status updates will be swapped here via SSE -->
+		</div>
 		<!-- Upload Results Container (filled by HTMX responses) -->
 		<div id="upload-results" class="space-y-3"></div>
 		<!-- Full-page Drop Overlay (hidden by default) -->
