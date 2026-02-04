@@ -149,6 +149,33 @@ templ Home() {
 }
 ```
 
+### Templ onclick Handlers
+
+Use templ `script` functions with inline `onclick={ }` syntax. Do NOT pass onclick as a string through `templ.Attributes` - it bypasses templ's proper script handling.
+
+```templ
+// CORRECT: templ script + inline onclick
+script openEditMode(id string, name string) {
+    document.getElementById('name').value = name;
+    // ... JS code
+}
+
+<button onclick={ openEditMode(item.ID.String(), item.Name) }>Edit</button>
+```
+
+```templ
+// WRONG: string in Attributes - will silently fail
+@button.Button(button.Props{
+    Attributes: templ.Attributes{
+        "onclick": templ.JSFuncCall("openEditMode", id, name).Call,  // Don't do this
+    },
+})
+```
+
+The inline syntax triggers `templ.RenderScriptItems` (defines function once) and `templ.SafeScript` (proper escaping).
+
+See working examples in `templates/partials/tag_picker.templ` and `templates/partials/correspondent_picker.templ`.
+
 ### Admin Dashboard
 
 Uses custom layouts with dark mode support. Theme toggle persists to localStorage.
