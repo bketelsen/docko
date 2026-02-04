@@ -89,6 +89,39 @@ func (h *Handler) ProcessingStatus(c echo.Context) error {
 				update.DocumentID.String(),
 				htmlContent,
 			)
+
+			// Send queue activity event if queue name is set and job completed/failed
+			if update.QueueName != "" && (update.Status == "completed" || update.Status == "failed" || update.Status == "ai_complete" || update.Status == "ai_failed") {
+				// Fetch document name for activity row
+				docName := "Unknown"
+				if doc, err := h.db.Queries.GetDocument(ctx, update.DocumentID); err == nil {
+					docName = doc.OriginalFilename
+				}
+
+				// Determine job type from status
+				jobType := "processing"
+				if update.Status == "ai_complete" || update.Status == "ai_failed" {
+					jobType = "ai_analyze"
+				}
+
+				var queueBuf bytes.Buffer
+				if err := partials.QueueActivityRow(
+					update.DocumentID.String(),
+					docName,
+					jobType,
+					update.Status,
+				).Render(ctx, &queueBuf); err == nil {
+					fmt.Fprintf(w, "event: queue-%s\ndata: %s\n\n",
+						update.QueueName,
+						queueBuf.String(),
+					)
+					slog.Debug("SSE queue activity sent",
+						"queue", update.QueueName,
+						"doc_id", update.DocumentID,
+						"status", update.Status)
+				}
+			}
+
 			flusher.Flush()
 
 			slog.Debug("SSE status update sent",

@@ -1,0 +1,27 @@
+package partials
+
+import (
+	"docko/components/table"
+)
+
+// QueueActivityRow renders a new activity row for SSE updates
+// Used when a job completes and we want to update the recent activity section
+templ QueueActivityRow(docID string, docName string, jobType string, status string) {
+	@table.Row() {
+		@table.Cell() {
+			if docID != "" {
+				<a href={ templ.SafeURL("/documents/" + docID) } class="text-primary hover:underline">
+					{ docName }
+				</a>
+			} else {
+				<span class="text-muted-foreground">N/A</span>
+			}
+		}
+		@table.Cell() {
+			{ jobType }
+		}
+		@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
+			just now
+		}
+	}
+}
