@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 9: Minimum Number of Words Import Block** - Block document import if text content below threshold
 - [x] **Phase 10: Refactor to Use More templUI Components** - Replace custom UI with templUI components
 - [x] **Phase 11: Dashboard** - Real dashboard at root with stats, counts, and navigation links
-- [ ] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
+- [x] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
 
 ## Phase Details
 
@@ -251,11 +251,11 @@ Plans:
 
 Plans:
 
-- [ ] 12-01-PLAN.md — Database migration for dismissed status and queue-specific queries
-- [ ] 12-02-PLAN.md — Install templUI collapsible component
-- [ ] 12-03-PLAN.md — Handler endpoints for queue details and job actions
-- [ ] 12-04-PLAN.md — Queue dashboard template with collapsible sections
-- [ ] 12-05-PLAN.md — SSE integration for live activity updates and verification
+- [x] 12-01-PLAN.md — Database migration for dismissed status and queue-specific queries
+- [x] 12-02-PLAN.md — Install templUI collapsible component
+- [x] 12-03-PLAN.md — Handler endpoints for queue details and job actions
+- [x] 12-04-PLAN.md — Queue dashboard template with collapsible sections
+- [x] 12-05-PLAN.md — SSE integration for live activity updates and verification
 
 ## Progress
 
@@ -275,7 +275,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 9. Minimum Word Block | 2/2 | Complete | 2026-02-03 |
 | 10. templUI Refactor | 7/7 | Complete | 2026-02-03 |
 | 11. Dashboard | 3/3 | Complete | 2026-02-04 |
-| 12. Queues Detail | 0/? | Not Started | - |
+| 12. Queues Detail | 5/5 | Complete | 2026-02-04 |
 
 ---
 *Roadmap created: 2026-02-02*
