@@ -63,6 +63,7 @@ secrets.json
 *.bak
 *.backup
 *.sql
+!internal/database/migrations/*.sql
 *.dump
 backup/
 backups/
