@@ -212,6 +212,7 @@ None - all planned features complete.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 001 | Fix AI queue workers + magic strings | 2026-02-04 | b222f88 | [001-fix-pending-bugs](./quick/001-fix-pending-bugs/) |
+| 002 | Add Docker build/push to GHCR in CI | 2026-02-04 | d992de9 | [002-add-github-actions-workflow-for-testing](./quick/002-add-github-actions-workflow-for-testing/) |
 
 ### Blockers/Concerns
 
