@@ -1,158 +1,53 @@
 package admin
 
 import (
+	"fmt"
 	"strconv"
 
 	"docko/components/badge"
 	"docko/components/button"
 	"docko/components/card"
-	"docko/components/table"
+	"docko/components/collapsible"
+	"docko/components/skeleton"
 	"docko/internal/database/sqlc"
 	"docko/internal/meta"
 	"docko/templates/layouts"
 )
 
-templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sqlc.Job) {
+templ QueueDashboard(stats []sqlc.GetQueueStatsRow) {
 	@layouts.Admin(meta.New("Queue Dashboard", "Monitor job queues")) {
 		<div class="space-y-6">
-			<h1 class="text-2xl font-bold">Queue Dashboard</h1>
-			<!-- Queue Stats -->
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				@queueStatCards(stats)
+			<div class="flex items-center justify-between">
+				<h1 class="text-2xl font-bold">Queue Dashboard</h1>
+				if hasAnyFailed(stats) {
+					@button.Button(button.Props{
+						Attributes: templ.Attributes{
+							"hx-post": "/queues/retry-all",
+							"hx-swap": "none",
+						},
+					}) {
+						Retry All Failed
+					}
+				}
 			</div>
-			<!-- Failed Jobs -->
-			@card.Card() {
-				@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between"}) {
-					@card.Title() {
-						Failed Jobs
-					}
-					if len(failedJobs) > 0 {
-						@button.Button(button.Props{
-							Size: button.SizeSm,
-							Attributes: templ.Attributes{
-								"hx-post": "/queues/retry-all",
-								"hx-swap": "none",
-							},
-						}) {
-							Retry All Failed
+			// Queue sections with collapsible detail
+			<div class="space-y-4">
+				{{ queueMap := aggregateQueueStats(stats) }}
+				for queueName, counts := range queueMap {
+					@queueSection(queueName, counts)
+				}
+				if len(queueMap) == 0 {
+					@card.Card() {
+						@card.Content() {
+							<div class="py-8 text-center text-muted-foreground">
+								No queues found. Jobs will appear here when documents are processed.
+							</div>
 						}
 					}
 				}
-				@card.Content(card.ContentProps{Class: "pt-0"}) {
-					if len(failedJobs) == 0 {
-						<div class="py-6 text-center text-muted-foreground">
-							No failed jobs
-						</div>
-					} else {
-						@table.Table() {
-							@table.Header() {
-								@table.Row() {
-									@table.Head() {
-										Queue 
-									}
-									@table.Head() {
-										Type 
-									}
-									@table.Head() {
-										Attempts 
-									}
-									@table.Head() {
-										Last Error 
-									}
-									@table.Head() {
-										Actions 
-									}
-								}
-							}
-							@table.Body() {
-								for _, job := range failedJobs {
-									@table.Row() {
-										@table.Cell() {
-											{ job.QueueName }
-										}
-										@table.Cell() {
-											{ job.JobType }
-										}
-										@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
-											{ strconv.Itoa(int(job.Attempt)) }/{ strconv.Itoa(int(job.MaxAttempts)) }
-										}
-										@table.Cell(table.CellProps{Class: "max-w-xs truncate"}) {
-											<span class="text-destructive" title={ safeString(job.LastError) }>
-												{ safeString(job.LastError) }
-											</span>
-										}
-										@table.Cell() {
-											@button.Button(button.Props{
-												Size: button.SizeSm,
-												Attributes: templ.Attributes{
-													"hx-post": "/queues/jobs/" + job.ID.String() + "/retry",
-													"hx-swap": "none",
-												},
-											}) {
-												Retry
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			<!-- Recent Jobs -->
-			@card.Card() {
-				@card.Header() {
-					@card.Title() {
-						Recent Activity
-					}
-				}
-				@card.Content(card.ContentProps{Class: "pt-0"}) {
-					if len(recentJobs) == 0 {
-						<div class="py-6 text-center text-muted-foreground">
-							No recent jobs
-						</div>
-					} else {
-						@table.Table() {
-							@table.Header() {
-								@table.Row() {
-									@table.Head() {
-										Queue 
-									}
-									@table.Head() {
-										Type 
-									}
-									@table.Head() {
-										Status 
-									}
-									@table.Head() {
-										Created 
-									}
-								}
-							}
-							@table.Body() {
-								for _, job := range recentJobs {
-									@table.Row() {
-										@table.Cell() {
-											{ job.QueueName }
-										}
-										@table.Cell() {
-											{ job.JobType }
-										}
-										@table.Cell() {
-											@jobStatusBadge(job.Status)
-										}
-										@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
-											{ job.CreatedAt.Format("Jan 2 15:04") }
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			</div>
 		</div>
-		<!-- Toast container -->
+		// Toast container
 		<div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
 		<script>
 		function showToast(message, isError) {
@@ -177,60 +72,98 @@ templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sql
 			showToast(detail.message, detail.type === 'error');
 		});
 		</script>
+		<style>
+		[data-tui-collapsible-state="open"] .collapsible-chevron {
+			transform: rotate(90deg);
+		}
+		</style>
 	}
 }
 
-templ queueStatCards(stats []sqlc.GetQueueStatsRow) {
-	{{ queueMap := aggregateQueueStats(stats) }}
-	for queueName, counts := range queueMap {
-		@card.Card() {
-			@card.Header(card.HeaderProps{Class: "pb-2"}) {
-				@card.Title(card.TitleProps{Class: "text-base"}) {
-					{ queueName }
-				}
+templ queueSection(queueName string, counts map[string]int64) {
+	@card.Card() {
+		@collapsible.Collapsible() {
+			@collapsible.Trigger(collapsible.TriggerProps{Class: "w-full cursor-pointer"}) {
+				<div class="flex items-center justify-between p-4">
+					<div class="flex items-center gap-3">
+						// Chevron icon for expand/collapse indicator
+						<svg class="h-4 w-4 shrink-0 transition-transform duration-200 collapsible-chevron"
+						     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+						     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<polyline points="9 18 15 12 9 6"></polyline>
+						</svg>
+						<span class="text-lg font-medium">{ queueName }</span>
+						@queueHealthBadge(counts)
+					</div>
+					<div class="flex items-center gap-4">
+						@queueCountBadges(counts)
+						if counts["failed"] > 0 {
+							<div class="flex gap-2" onclick="event.stopPropagation()">
+								@button.Button(button.Props{
+									Size: button.SizeSm,
+									Attributes: templ.Attributes{
+										"hx-post": fmt.Sprintf("/queues/%s/retry-all", queueName),
+										"hx-swap": "none",
+									},
+								}) {
+									Retry All
+								}
+							</div>
+						}
+					</div>
+				</div>
 			}
-			@card.Content(card.ContentProps{Class: "pt-0"}) {
-				<div class="grid grid-cols-2 gap-4 text-sm">
-					<div>
-						<span class="text-muted-foreground">Pending:</span>
-						<span class="ml-2 font-medium">{ strconv.FormatInt(counts["pending"], 10) }</span>
-					</div>
-					<div>
-						<span class="text-muted-foreground">Processing:</span>
-						<span class="ml-2 font-medium">{ strconv.FormatInt(counts["processing"], 10) }</span>
-					</div>
-					<div>
-						<span class="text-muted-foreground">Completed:</span>
-						<span class="ml-2 font-medium text-green-600 dark:text-green-400">{ strconv.FormatInt(counts["completed"], 10) }</span>
-					</div>
-					<div>
-						<span class="text-muted-foreground">Failed:</span>
-						<span class="ml-2 font-medium text-destructive">{ strconv.FormatInt(counts["failed"], 10) }</span>
-					</div>
+			@collapsible.Content() {
+				// Lazy load content on first expand
+				<div
+					hx-get={ fmt.Sprintf("/queues/%s/details", queueName) }
+					hx-trigger="intersect once"
+					hx-swap="innerHTML"
+				>
+					@skeleton.Skeleton(skeleton.Props{Class: "h-40 w-full m-4"})
 				</div>
 			}
 		}
 	}
 }
 
-templ jobStatusBadge(status sqlc.JobStatus) {
-	switch status {
-		case sqlc.JobStatusPending:
+templ queueCountBadges(counts map[string]int64) {
+	<div class="flex gap-2">
+		if counts["pending"] > 0 {
 			@badge.Badge(badge.Props{Variant: badge.VariantSecondary}) {
-				Pending
+				{ strconv.FormatInt(counts["pending"], 10) } pending
 			}
-		case sqlc.JobStatusProcessing:
+		}
+		if counts["processing"] > 0 {
 			@badge.Badge(badge.Props{Class: "animate-pulse"}) {
-				Processing
+				{ strconv.FormatInt(counts["processing"], 10) } processing
 			}
-		case sqlc.JobStatusCompleted:
-			@badge.Badge(badge.Props{Class: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-transparent"}) {
-				Completed
-			}
-		case sqlc.JobStatusFailed:
+		}
+		@badge.Badge(badge.Props{Class: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-transparent"}) {
+			{ strconv.FormatInt(counts["completed"], 10) } completed
+		}
+		if counts["failed"] > 0 {
 			@badge.Badge(badge.Props{Variant: badge.VariantDestructive}) {
-				Failed
+				{ strconv.FormatInt(counts["failed"], 10) } failed
 			}
+		}
+	</div>
+}
+
+templ queueHealthBadge(counts map[string]int64) {
+	// Health status: issues if failed>0, warning if pending>=10, healthy otherwise
+	if counts["failed"] > 0 {
+		@badge.Badge(badge.Props{Variant: badge.VariantDestructive}) {
+			Issues
+		}
+	} else if counts["pending"] >= 10 {
+		@badge.Badge(badge.Props{Class: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 border-transparent"}) {
+			Warning
+		}
+	} else {
+		@badge.Badge(badge.Props{Class: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-transparent"}) {
+			Healthy
+		}
 	}
 }
 
@@ -243,6 +176,15 @@ func aggregateQueueStats(stats []sqlc.GetQueueStatsRow) map[string]map[string]in
 		result[s.QueueName][string(s.Status)] = s.Count
 	}
 	return result
+}
+
+func hasAnyFailed(stats []sqlc.GetQueueStatsRow) bool {
+	for _, s := range stats {
+		if s.Status == sqlc.JobStatusFailed && s.Count > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func safeString(s *string) string {
