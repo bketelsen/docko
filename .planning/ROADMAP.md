@@ -24,7 +24,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 10: Refactor to Use More templUI Components** - Replace custom UI with templUI components
 - [x] **Phase 11: Dashboard** - Real dashboard at root with stats, counts, and navigation links
 - [x] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
-- [ ] **Phase 13: Environment Configuration Verification** - Verify all settings are reflected in .envrc and .envrc.example
+- [x] **Phase 13: Environment Configuration Verification** - Verify all settings are reflected in .envrc and .envrc.example
 
 ## Phase Details
 
@@ -274,7 +274,7 @@ Plans:
 
 Plans:
 
-- [ ] 13-01-PLAN.md — Complete environment variable documentation
+- [x] 13-01-PLAN.md — Complete environment variable documentation
 
 ## Progress
 
@@ -295,7 +295,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 10. templUI Refactor | 7/7 | Complete | 2026-02-03 |
 | 11. Dashboard | 3/3 | Complete | 2026-02-04 |
 | 12. Queues Detail | 5/5 | Complete | 2026-02-04 |
-| 13. Envrc Verification | 0/1 | Not Started | — |
+| 13. Envrc Verification | 1/1 | Complete | 2026-02-04 |
 
 ---
 *Roadmap created: 2026-02-02*
