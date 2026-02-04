@@ -13,7 +13,7 @@ require (
 	github.com/jackc/pgx/v5 v5.8.0
 	github.com/labstack/echo/v4 v4.15.0
 	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
-	github.com/lmittmann/tint v1.1.2
+	github.com/lmittmann/tint v1.1.3
 	github.com/ollama/ollama v0.15.4
 	github.com/openai/openai-go v1.12.0
 	github.com/pressly/goose/v3 v3.26.0
