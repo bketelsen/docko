@@ -5,9 +5,25 @@ import (
 	"docko/components/button"
 )
 
+// formatStep formats step names for user-friendly display
+func formatStep(step string) string {
+	switch step {
+	case "starting":
+		return "Starting..."
+	case "extracting_text":
+		return "Extracting text..."
+	case "generating_thumbnail":
+		return "Generating thumbnail..."
+	case "finalizing":
+		return "Finalizing..."
+	default:
+		return "Processing..."
+	}
+}
+
 // DocumentStatus renders status badge for a document
 // Used both for initial page render and SSE updates
-templ DocumentStatus(docID string, status string, errorMsg string) {
+templ DocumentStatus(docID string, status string, errorMsg string, currentStep string) {
 	<div id={ "status-" + docID } class="inline-flex items-center gap-1">
 		if status == "pending" {
 			@badge.Badge(badge.Props{Variant: badge.VariantSecondary}) {
@@ -15,7 +31,11 @@ templ DocumentStatus(docID string, status string, errorMsg string) {
 			}
 		} else if status == "processing" {
 			@badge.Badge(badge.Props{Variant: badge.VariantDefault, Class: "animate-pulse"}) {
-				Processing...
+				if currentStep != "" {
+					{ formatStep(currentStep) }
+				} else {
+					Processing...
+				}
 			}
 		} else if status == "completed" {
 			@badge.Badge(badge.Props{Variant: badge.VariantDefault, Class: "bg-green-600 hover:bg-green-600"}) {

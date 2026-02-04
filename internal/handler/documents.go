@@ -516,6 +516,6 @@ func (h *Handler) RetryDocument(c echo.Context) error {
 	}
 
 	// Return updated status partial
-	return partials.DocumentStatus(docID.String(), "pending", "").
+	return partials.DocumentStatus(docID.String(), "pending", "", "").
 		Render(ctx, c.Response().Writer)
 }

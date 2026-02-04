@@ -116,7 +116,7 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents
 									@table.Cell() {
 										// Status badge - swapped by SSE event "doc-{id}"
 										<div sse-swap={ "doc-" + doc.ID.String() } hx-swap="innerHTML">
-											@partials.DocumentStatus(doc.ID.String(), string(doc.ProcessingStatus), derefStr(doc.ProcessingError))
+											@partials.DocumentStatus(doc.ID.String(), string(doc.ProcessingStatus), derefStr(doc.ProcessingError), "")
 										</div>
 									}
 								}
