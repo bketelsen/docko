@@ -4,7 +4,7 @@
 
 services:
   app:
-    image: docko:latest
+    image: ghcr.io/bketelsen/docko:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -33,7 +33,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 512M
     logging:
       driver: json-file
@@ -59,14 +59,18 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB:-docko}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-docko} -d ${POSTGRES_DB:-docko}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-docko} -d ${POSTGRES_DB:-docko}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 256M
     logging:
       driver: json-file
@@ -100,7 +104,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1.0'
+          cpus: "1.0"
           memory: 512M
     logging:
       driver: json-file
