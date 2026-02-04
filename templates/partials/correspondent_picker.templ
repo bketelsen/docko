@@ -1,8 +1,6 @@
 package partials
 
-import (
-	"docko/internal/database/sqlc"
-)
+import "docko/internal/database/sqlc"
 
 // CorrespondentPicker renders the full correspondent picker with current correspondent and search
 templ CorrespondentPicker(documentID string, currentCorrespondent *sqlc.Correspondent) {

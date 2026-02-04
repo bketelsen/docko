@@ -16,12 +16,10 @@ templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sql
 	@layouts.Admin(meta.New("Queue Dashboard", "Monitor job queues")) {
 		<div class="space-y-6">
 			<h1 class="text-2xl font-bold">Queue Dashboard</h1>
-
 			<!-- Queue Stats -->
 			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 				@queueStatCards(stats)
 			</div>
-
 			<!-- Failed Jobs -->
 			@card.Card() {
 				@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between"}) {
@@ -49,18 +47,32 @@ templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sql
 						@table.Table() {
 							@table.Header() {
 								@table.Row() {
-									@table.Head() { Queue }
-									@table.Head() { Type }
-									@table.Head() { Attempts }
-									@table.Head() { Last Error }
-									@table.Head() { Actions }
+									@table.Head() {
+										Queue 
+									}
+									@table.Head() {
+										Type 
+									}
+									@table.Head() {
+										Attempts 
+									}
+									@table.Head() {
+										Last Error 
+									}
+									@table.Head() {
+										Actions 
+									}
 								}
 							}
 							@table.Body() {
 								for _, job := range failedJobs {
 									@table.Row() {
-										@table.Cell() { { job.QueueName } }
-										@table.Cell() { { job.JobType } }
+										@table.Cell() {
+											{ job.QueueName }
+										}
+										@table.Cell() {
+											{ job.JobType }
+										}
 										@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
 											{ strconv.Itoa(int(job.Attempt)) }/{ strconv.Itoa(int(job.MaxAttempts)) }
 										}
@@ -87,7 +99,6 @@ templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sql
 					}
 				}
 			}
-
 			<!-- Recent Jobs -->
 			@card.Card() {
 				@card.Header() {
@@ -104,17 +115,29 @@ templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sql
 						@table.Table() {
 							@table.Header() {
 								@table.Row() {
-									@table.Head() { Queue }
-									@table.Head() { Type }
-									@table.Head() { Status }
-									@table.Head() { Created }
+									@table.Head() {
+										Queue 
+									}
+									@table.Head() {
+										Type 
+									}
+									@table.Head() {
+										Status 
+									}
+									@table.Head() {
+										Created 
+									}
 								}
 							}
 							@table.Body() {
 								for _, job := range recentJobs {
 									@table.Row() {
-										@table.Cell() { { job.QueueName } }
-										@table.Cell() { { job.JobType } }
+										@table.Cell() {
+											{ job.QueueName }
+										}
+										@table.Cell() {
+											{ job.JobType }
+										}
 										@table.Cell() {
 											@jobStatusBadge(job.Status)
 										}
@@ -129,10 +152,8 @@ templ QueueDashboard(stats []sqlc.GetQueueStatsRow, failedJobs, recentJobs []sql
 				}
 			}
 		</div>
-
 		<!-- Toast container -->
 		<div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
-
 		<script>
 		function showToast(message, isError) {
 			const container = document.getElementById('toast-container');

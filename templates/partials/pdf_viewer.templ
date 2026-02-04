@@ -1,8 +1,6 @@
 package partials
 
-import (
-	"docko/internal/database/sqlc"
-)
+import "docko/internal/database/sqlc"
 
 // PDFViewerModal renders a full-screen modal with PDF.js viewer
 templ PDFViewerModal(doc sqlc.Document) {
@@ -10,7 +8,6 @@ templ PDFViewerModal(doc sqlc.Document) {
 	<div id="pdf-viewer-modal" class="fixed inset-0 z-50 flex items-center justify-center">
 		// Backdrop - clicking closes modal
 		<div id="pdf-viewer-backdrop" class="absolute inset-0 bg-black/80"></div>
-
 		// Modal content
 		<div id="pdf-viewer-container" class="relative z-10 w-full max-w-5xl max-h-[90vh] mx-4 bg-background rounded-lg shadow-xl flex flex-col">
 			// Header with controls
@@ -18,7 +15,6 @@ templ PDFViewerModal(doc sqlc.Document) {
 				<h2 class="font-semibold truncate max-w-md" title={ doc.OriginalFilename }>
 					{ doc.OriginalFilename }
 				</h2>
-
 				// Controls
 				<div class="flex items-center gap-2">
 					// Page navigation
@@ -37,7 +33,6 @@ templ PDFViewerModal(doc sqlc.Document) {
 							</svg>
 						</button>
 					</div>
-
 					// Zoom controls
 					<button onclick="zoomOut()" class="p-2 rounded hover:bg-accent" title="Zoom out (-)">
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,14 +47,12 @@ templ PDFViewerModal(doc sqlc.Document) {
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
 						</svg>
 					</button>
-
 					// Fullscreen
 					<button onclick="toggleFullscreen()" class="p-2 rounded hover:bg-accent ml-2" title="Fullscreen">
 						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
 						</svg>
 					</button>
-
 					// Close
 					<button onclick="closePDFViewer()" class="p-2 rounded hover:bg-accent ml-2" title="Close (Esc)">
 						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +61,6 @@ templ PDFViewerModal(doc sqlc.Document) {
 					</button>
 				</div>
 			</div>
-
 			// PDF canvas container
 			<div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-muted/30 min-h-[400px]">
 				<div id="pdf-loading" class="text-muted-foreground flex flex-col items-center gap-2">
@@ -82,7 +74,6 @@ templ PDFViewerModal(doc sqlc.Document) {
 			</div>
 		</div>
 	</div>
-
 	// Initialize PDF.js with document URL
 	<script>
 		// Wait a tick to ensure DOM is ready

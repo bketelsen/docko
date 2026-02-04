@@ -19,7 +19,6 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 				<h1 class="text-2xl font-bold">Correspondent Management</h1>
 				<p class="text-muted-foreground">Manage people and organizations associated with your documents.</p>
 			</div>
-
 			<!-- Action Buttons -->
 			<div class="mb-6 flex items-center gap-3">
 				@dialog.Trigger(dialog.TriggerProps{For: "correspondent-modal"}) {
@@ -43,7 +42,6 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 					}
 				}
 			</div>
-
 			<!-- Merge Action Bar (hidden by default) -->
 			<div id="merge-bar" class="hidden mb-6 p-4 bg-muted/50 border border-border rounded-lg">
 				<div class="flex flex-wrap items-center gap-4">
@@ -84,7 +82,6 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 					}
 				</div>
 			</div>
-
 			<!-- Merge Form (hidden, used for HTMX submission) -->
 			<form
 				id="merge-form"
@@ -95,7 +92,6 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 			>
 				<input type="hidden" name="target_id" id="merge-target-input"/>
 			</form>
-
 			<!-- Correspondent List -->
 			<div id="correspondent-list" class="space-y-4">
 				if len(correspondents) == 0 {
@@ -112,7 +108,6 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 					}
 				}
 			</div>
-
 			<!-- templUI Dialog -->
 			@dialog.Dialog(dialog.Props{ID: "correspondent-modal"}) {
 				@dialog.Content(dialog.ContentProps{HideCloseButton: true}) {
@@ -162,10 +157,8 @@ templ Correspondents(correspondents []sqlc.ListCorrespondentsWithCountsRow) {
 					</form>
 				}
 			}
-
 			@dialog.Script()
 			@input.Script()
-
 			<!-- Scripts -->
 			<script>
 				// Setup create mode when opening dialog

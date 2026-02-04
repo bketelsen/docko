@@ -38,14 +38,12 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents
 				}
 			</div>
 		</div>
-
 		// SSE connection for real-time status updates
 		<div hx-ext="sse" sse-connect="/api/processing/status" sse-close="close">
 			// Bulk progress summary (updated via SSE event "bulk-progress")
 			<div id="bulk-progress-container" class="mb-4">
 				@partials.BulkProgress(countProcessed(docs), len(docs))
 			</div>
-
 			if len(docs) == 0 {
 				<div class="border border-border rounded-lg p-8 text-center">
 					<svg class="w-12 h-12 mx-auto text-muted-foreground mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,12 +62,24 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents
 					@table.Table() {
 						@table.Header(table.HeaderProps{Class: "bg-muted/50"}) {
 							@table.Row() {
-								@table.Head() { Filename }
-								@table.Head() { Tags }
-								@table.Head() { Correspondent }
-								@table.Head() { Size }
-								@table.Head() { Date }
-								@table.Head() { Status }
+								@table.Head() {
+									Filename 
+								}
+								@table.Head() {
+									Tags 
+								}
+								@table.Head() {
+									Correspondent 
+								}
+								@table.Head() {
+									Size 
+								}
+								@table.Head() {
+									Date 
+								}
+								@table.Head() {
+									Status 
+								}
 							}
 						}
 						@table.Body() {
@@ -82,9 +92,11 @@ templ Documents(docs []sqlc.Document, docTags DocumentTagsMap, docCorrespondents
 												<path fill="white" d="M14 2v6h6"></path>
 												<text x="7" y="17" fill="white" font-size="6" font-weight="bold">PDF</text>
 											</svg>
-											<a href={ templ.SafeURL("/documents/" + doc.ID.String()) }
-											   class="truncate max-w-xs hover:text-primary hover:underline"
-											   title={ doc.OriginalFilename }>
+											<a
+												href={ templ.SafeURL("/documents/" + doc.ID.String()) }
+												class="truncate max-w-xs hover:text-primary hover:underline"
+												title={ doc.OriginalFilename }
+											>
 												{ doc.OriginalFilename }
 											</a>
 										</div>
@@ -192,16 +204,16 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 					Upload
 				}
 			</div>
-
 			// Search form with HTMX
-			<form id="search-form"
-				  hx-get="/documents"
-				  hx-trigger="input changed delay:500ms from:find input[name='q'], change from:find select, change from:find input[type='checkbox'], submit"
-				  hx-target="#document-results"
-				  hx-push-url="true"
-				  hx-indicator="#search-indicator"
-				  class="space-y-4">
-
+			<form
+				id="search-form"
+				hx-get="/documents"
+				hx-trigger="input changed delay:500ms from:find input[name='q'], change from:find select, change from:find input[type='checkbox'], submit"
+				hx-target="#document-results"
+				hx-push-url="true"
+				hx-indicator="#search-indicator"
+				class="space-y-4"
+			>
 				// Search input row with filters
 				<div class="flex gap-4">
 					// Search input with icon and loading indicator
@@ -224,7 +236,6 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 							</svg>
 						</span>
 					</div>
-
 					// Correspondent filter dropdown (styled to match templUI)
 					<select
 						name="correspondent"
@@ -237,7 +248,6 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 							</option>
 						}
 					</select>
-
 					// Date range filter dropdown (styled to match templUI)
 					<select
 						name="date"
@@ -250,7 +260,6 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 						<option value="1y" selected?={ params.DateRange == "1y" }>Last year</option>
 					</select>
 				</div>
-
 				// Tag filter row (multi-select checkboxes)
 				if len(allTags) > 0 {
 					<div class="flex flex-wrap items-center gap-2">
@@ -262,14 +271,11 @@ templ DocumentsWithSearch(results []partials.SearchResult, docTags partials.Docu
 				}
 			</form>
 		</div>
-
 		// Results area (swapped by HTMX) with SSE for processing status
 		<div id="document-results" hx-ext="sse" sse-connect="/api/processing/status" sse-close="close">
 			@partials.SearchResults(results, docTags, docCorrespondents, params, totalCount, activeFilters)
 		</div>
-
 		@input.Script()
-
 		// CSS for htmx-indicator (hidden by default, shown during request)
 		<style>
 			.htmx-indicator { opacity: 0; transition: opacity 200ms ease-in; }
@@ -290,9 +296,11 @@ templ tagFilterCheckbox(tag sqlc.Tag, selectedTagIDs []string) {
 			}
 		}
 	}}
-	<label class={ "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm cursor-pointer transition-colors border",
+	<label
+		class={ "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-sm cursor-pointer transition-colors border",
 				   templ.KV("bg-primary text-primary-foreground border-primary", isSelected),
-				   templ.KV("bg-transparent hover:bg-muted border-input", !isSelected) }>
+				   templ.KV("bg-transparent hover:bg-muted border-input", !isSelected) }
+	>
 		<input
 			type="checkbox"
 			name="tag"

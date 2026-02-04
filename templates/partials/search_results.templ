@@ -73,7 +73,6 @@ templ SearchResults(results []SearchResult, docTags DocumentTagsMap, docCorrespo
 			}
 		</div>
 	}
-
 	// Results count
 	<div class="text-sm text-muted-foreground mb-4">
 		if totalCount == 0 {
@@ -87,7 +86,6 @@ templ SearchResults(results []SearchResult, docTags DocumentTagsMap, docCorrespo
 			{ fmt.Sprintf(" matching \"%s\"", params.Query) }
 		}
 	</div>
-
 	if len(results) == 0 {
 		@emptySearchResults(params, activeFilters)
 	} else {
@@ -95,11 +93,21 @@ templ SearchResults(results []SearchResult, docTags DocumentTagsMap, docCorrespo
 			@table.Table() {
 				@table.Header(table.HeaderProps{Class: "bg-muted/50"}) {
 					@table.Row() {
-						@table.Head() { Document }
-						@table.Head() { Tags }
-						@table.Head() { Correspondent }
-						@table.Head() { Date }
-						@table.Head() { Status }
+						@table.Head() {
+							Document 
+						}
+						@table.Head() {
+							Tags 
+						}
+						@table.Head() {
+							Correspondent 
+						}
+						@table.Head() {
+							Date 
+						}
+						@table.Head() {
+							Status 
+						}
 					}
 				}
 				@table.Body() {
@@ -113,9 +121,11 @@ templ SearchResults(results []SearchResult, docTags DocumentTagsMap, docCorrespo
 										<text x="7" y="17" fill="white" font-size="6" font-weight="bold">PDF</text>
 									</svg>
 									<div class="min-w-0">
-										<a href={ templ.SafeURL("/documents/" + result.ID.String()) }
-										   class="block truncate hover:text-primary hover:underline font-medium"
-										   title={ result.OriginalFilename }>
+										<a
+											href={ templ.SafeURL("/documents/" + result.ID.String()) }
+											class="block truncate hover:text-primary hover:underline font-medium"
+											title={ result.OriginalFilename }
+										>
 											{ result.OriginalFilename }
 										</a>
 										if result.Headline != "" {
@@ -146,7 +156,6 @@ templ SearchResults(results []SearchResult, docTags DocumentTagsMap, docCorrespo
 				}
 			}
 		</div>
-
 		// Pagination
 		if totalCount > params.PerPage {
 			@searchPagination(params, totalCount)
@@ -190,7 +199,7 @@ templ searchPagination(params SearchParams, totalCount int) {
 		if currentPage < 1 {
 			currentPage = 1
 		}
-		start := (currentPage - 1) * params.PerPage + 1
+		start := (currentPage-1)*params.PerPage + 1
 		end := currentPage * params.PerPage
 		if end > totalCount {
 			end = totalCount

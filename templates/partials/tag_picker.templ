@@ -1,15 +1,12 @@
 package partials
 
-import (
-	"docko/internal/database/sqlc"
-)
+import "docko/internal/database/sqlc"
 
 // TagPicker renders a full tag picker with current tags and search input
 templ TagPicker(documentID string, currentTags []sqlc.Tag) {
 	<div class="tag-picker">
 		// Display current tags as removable badges
 		@DocumentTagsList(documentID, currentTags)
-
 		// Search input
 		<div class="relative mt-2">
 			<input

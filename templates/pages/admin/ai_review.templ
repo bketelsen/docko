@@ -27,7 +27,6 @@ templ ReviewQueue(suggestions []sqlc.ListPendingSuggestionsRow, page, totalCount
 					Back to Settings
 				}
 			</div>
-
 			if len(suggestions) == 0 {
 				@card.Card() {
 					@card.Content(card.ContentProps{Class: "py-8 text-center"}) {
@@ -43,11 +42,21 @@ templ ReviewQueue(suggestions []sqlc.ListPendingSuggestionsRow, page, totalCount
 						@table.Table() {
 							@table.Header() {
 								@table.Row() {
-									@table.Head() { Document }
-									@table.Head() { Type }
-									@table.Head() { Suggestion }
-									@table.Head() { Confidence }
-									@table.Head() { Actions }
+									@table.Head() {
+										Document 
+									}
+									@table.Head() {
+										Type 
+									}
+									@table.Head() {
+										Suggestion 
+									}
+									@table.Head() {
+										Confidence 
+									}
+									@table.Head() {
+										Actions 
+									}
 								}
 							}
 							@table.Body() {
@@ -58,7 +67,6 @@ templ ReviewQueue(suggestions []sqlc.ListPendingSuggestionsRow, page, totalCount
 						}
 					}
 				}
-
 				<!-- Pagination -->
 				if totalCount > limit {
 					<div class="flex justify-between items-center">
@@ -89,10 +97,8 @@ templ ReviewQueue(suggestions []sqlc.ListPendingSuggestionsRow, page, totalCount
 				}
 			}
 		</div>
-
 		<!-- Toast container -->
 		<div id="toast-container" class="fixed bottom-4 right-4 z-50 space-y-2"></div>
-
 		<script>
 		function showToast(message, isError) {
 			const container = document.getElementById('toast-container');
@@ -123,9 +129,11 @@ templ ReviewQueue(suggestions []sqlc.ListPendingSuggestionsRow, page, totalCount
 templ suggestionRow(s sqlc.ListPendingSuggestionsRow) {
 	@table.Row(table.RowProps{ID: "suggestion-" + s.ID.String()}) {
 		@table.Cell() {
-			<a href={ templ.SafeURL("/documents/" + s.DocumentID.String()) }
-			   class="text-primary hover:underline truncate max-w-xs block"
-			   title={ s.OriginalFilename }>
+			<a
+				href={ templ.SafeURL("/documents/" + s.DocumentID.String()) }
+				class="text-primary hover:underline truncate max-w-xs block"
+				title={ s.OriginalFilename }
+			>
 				{ truncateFilename(s.OriginalFilename, 40) }
 			</a>
 		}
@@ -157,7 +165,7 @@ templ suggestionRow(s sqlc.ListPendingSuggestionsRow) {
 		@table.Cell() {
 			<div class="flex space-x-2">
 				@button.Button(button.Props{
-					Size: button.SizeSm,
+					Size:  button.SizeSm,
 					Class: "bg-green-600 hover:bg-green-700 text-white",
 					Attributes: templ.Attributes{
 						"hx-post":   "/ai/suggestions/" + s.ID.String() + "/accept",
@@ -188,7 +196,7 @@ templ confidenceBadge(confidence pgtype.Numeric) {
 	{{ confPercent := int(confFloat.Float64 * 100) }}
 	@badge.Badge(badge.Props{
 		Variant: badge.VariantOutline,
-		Class: confidenceClass(confFloat.Float64),
+		Class:   confidenceClass(confFloat.Float64),
 	}) {
 		{ strconv.Itoa(confPercent) }%
 	}
