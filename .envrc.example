@@ -1,17 +1,115 @@
 # Copy this file to .envrc and edit with your values
 # Then run: direnv allow
+#
+# Variables marked (REQUIRED) must be set for the app to function.
+# Variables marked (optional) have sensible defaults if not set.
+# Commented variables show example values but are disabled by default.
 
-# Database (PostgreSQL)
+# =============================================================================
+# Database
+# =============================================================================
+# PostgreSQL connection string (REQUIRED)
 # For docker-compose development (docker compose up -d):
 export DATABASE_URL="postgres://docko:docko@localhost:5432/docko?sslmode=disable"
-# For custom setup, use format: postgres://user:pass@localhost:5432/dbname?sslmode=disable
+# For custom setup, use format: postgres://user:pass@host:5432/dbname?sslmode=disable
 
+# =============================================================================
 # Server
+# =============================================================================
+# HTTP server port (optional, default: 3000)
 export PORT="3000"
+
+# Environment mode: development | production (optional, default: development)
 export ENV="development"
+
+# Log level: DEBUG | INFO | WARN | ERROR (optional, default: INFO)
 export LOG_LEVEL="DEBUG"
 
-# Site / SEO (used for meta tags, OG, etc.)
+# =============================================================================
+# Site / SEO
+# =============================================================================
+# Site name for meta tags and page titles (optional, default: docko)
 export SITE_NAME="docko"
+
+# Base URL for canonical links and OG tags (optional, default: http://localhost:3000)
 export SITE_URL="http://localhost:3000"
+
+# Default OpenGraph image path (optional, default: /static/images/og-default.png)
 export DEFAULT_OG_IMAGE="/static/images/og-default.png"
+
+# =============================================================================
+# Authentication
+# =============================================================================
+# Admin login password (REQUIRED for auth - CHANGE IN PRODUCTION!)
+export ADMIN_PASSWORD="changeme123"
+
+# Session HMAC secret (optional - auto-generated in development)
+# In production, set a stable 32+ character secret to persist sessions across restarts
+# Generate with: openssl rand -base64 32
+# export SESSION_SECRET="your-32-char-secret-here"
+
+# Session max age in hours (optional, default: 24)
+# export SESSION_MAX_AGE="24"
+
+# =============================================================================
+# Storage
+# =============================================================================
+# Root path for document storage (optional, default: ./storage)
+# Documents are stored in 2-level UUID-sharded directories: ab/c1/uuid.pdf
+# export STORAGE_PATH="./storage"
+
+# =============================================================================
+# Inbox (Document Ingestion)
+# =============================================================================
+# Default inbox path for auto-import (optional - disabled if not set)
+# The inbox watcher monitors this directory for new PDF files
+# export INBOX_PATH="/path/to/inbox"
+
+# Subdirectory for files that fail processing (optional, default: errors)
+# Files that fail validation or processing are moved here
+# export INBOX_ERROR_SUBDIR="errors"
+
+# Maximum file size in MB for inbox imports (optional, default: 100)
+# export INBOX_MAX_FILE_SIZE_MB="100"
+
+# Directory scan interval in milliseconds (optional, default: 1000)
+# How often the inbox watcher checks for new files
+# export INBOX_SCAN_INTERVAL_MS="1000"
+
+# =============================================================================
+# Network Sources (SMB/NFS)
+# =============================================================================
+# Encryption key for storing network source credentials (REQUIRED for network sources)
+# Credentials are encrypted with AES-256-GCM before storage
+# Generate with: openssl rand -base64 32
+# export CREDENTIAL_ENCRYPTION_KEY="your-32-char-key-here"
+
+# =============================================================================
+# AI Providers (all optional - enable one or more for document analysis)
+# =============================================================================
+# The AI system uses fallback ordering: OpenAI -> Anthropic -> Ollama
+# At least one provider must be configured to use AI features
+
+# OpenAI API key for document analysis (uses gpt-4o-mini model)
+# Get your key at: https://platform.openai.com/api-keys
+# export OPENAI_API_KEY="sk-your-openai-key-here"
+
+# Anthropic API key for document analysis (uses Claude Haiku 4.5 model)
+# Get your key at: https://console.anthropic.com/
+# export ANTHROPIC_API_KEY="sk-ant-your-anthropic-key-here"
+
+# Ollama host URL (optional, default: http://localhost:11434)
+# For local AI inference without API keys
+# export OLLAMA_HOST="http://localhost:11434"
+
+# Ollama model name (optional, default: llama3.2)
+# export OLLAMA_MODEL="llama3.2"
+
+# =============================================================================
+# Testing (not needed for normal development)
+# =============================================================================
+# Separate database URL for tests (optional, uses DATABASE_URL if not set)
+# export TEST_DATABASE_URL="postgres://docko:docko@localhost:5432/docko_test?sslmode=disable"
+
+# Path to PDF file with embedded text for PDF extraction tests
+# export TEST_PDF_WITH_TEXT="/path/to/test.pdf"
