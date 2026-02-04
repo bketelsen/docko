@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 11 Complete - Ready for Phase 12 (Queues Detail)
+**Current focus:** Phase 12 in progress - Queue Detail Views
 
 ## Current Position
 
 Phase: 12 of 12 (Queues Detail)
-Plan: 2 of 4 in current phase
+Plan: 2 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-04 - Completed 12-02-PLAN.md (Collapsible Component)
+Last activity: 2026-02-04 - Completed 12-01-PLAN.md (Job Dismissed Status)
 
-Progress: [#############################################] 50/52 plans complete
+Progress: [#############################################---] 51/54 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 50
+- Total plans completed: 51
 - Average duration: 3.9 min
-- Total execution time: 3.5 hours
+- Total execution time: 3.6 hours
 
 **By Phase:**
 
@@ -38,12 +38,12 @@ Progress: [#############################################] 50/52 plans complete
 | 09-minimum-words | 2 | 7 min | 3.5 min |
 | 10-templui-refactor | 7 | 39 min | 5.6 min |
 | 11-dashboard | 3 | 7 min | 2.3 min |
-| 12-queues-detail | 1 | 1 min | 1.0 min |
+| 12-queues-detail | 2 | 4 min | 2.0 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 11-01 (2 min), 11-02 (1 min), 11-03 (4 min), 12-02 (1 min)
-- Trend: Phase 12 in progress - collapsible component installed
+- Last 5 plans: 11-02 (1 min), 11-03 (4 min), 12-02 (1 min), 12-01 (3 min)
+- Trend: Phase 12 in progress - dismissed status and queue queries added
 
 *Updated after each plan completion*
 
@@ -181,6 +181,8 @@ Recent decisions affecting current work:
 - healthBadge component with healthy/warning/issues variants (Phase 11)
 - statusDot for enabled/disabled visual indicator (Phase 11)
 - Collapsible over accordion for multi-section open capability (Phase 12)
+- LEFT JOIN LATERAL for safe JSONB payload extraction in job queries (Phase 12)
+- dismissed status preserves audit trail while hiding from active lists (Phase 12)
 
 ### Pending Todos
 
@@ -192,8 +194,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04T02:10:00Z
-Stopped at: Completed 12-02-PLAN.md (Collapsible Component)
+Last session: 2026-02-04T02:12:00Z
+Stopped at: Completed 12-01-PLAN.md (Job Dismissed Status)
 Resume file: None
 
 ### Roadmap Evolution
@@ -204,4 +206,4 @@ Resume file: None
 - Phase 12 added: Queues route with expanders for failed jobs and recent activity
 
 ---
-*50 plans executed across 12 phases, Phase 12 in progress (1/4)*
+*51 plans executed across 12 phases, Phase 12 in progress (2/5)*
