@@ -458,7 +458,7 @@ templ CorrespondentCard(correspondent sqlc.ListCorrespondentsWithCountsRow) {
 					Variant: button.VariantGhost,
 					Size:    button.SizeIcon,
 					Attributes: templ.Attributes{
-						"onclick": editCorrespondentOnClick(correspondent),
+						"onclick": templ.JSFuncCall("openEditMode", correspondent.ID.String(), correspondent.Name, safeNotes(correspondent.Notes)),
 						"title":   "Edit correspondent",
 					},
 				}) {
@@ -488,8 +488,11 @@ templ CorrespondentCard(correspondent sqlc.ListCorrespondentsWithCountsRow) {
 	</div>
 }
 
-script editCorrespondentOnClick(correspondent sqlc.ListCorrespondentsWithCountsRow) {
-	openEditMode(correspondent.ID, correspondent.Name, correspondent.Notes || '');
+func safeNotes(notes *string) string {
+	if notes == nil {
+		return ""
+	}
+	return *notes
 }
 
 func deleteConfirmMessage(correspondent sqlc.ListCorrespondentsWithCountsRow) string {
