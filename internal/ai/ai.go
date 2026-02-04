@@ -48,23 +48,24 @@ type Usage struct {
 }
 
 // AIResponse is the JSON schema for AI responses (all providers)
+// Note: correspondent uses pointer with nullable tag for OpenAI structured output compatibility
 type AIResponse struct {
-	Tags          []TagSuggestion          `json:"tags"`
-	Correspondent *CorrespondentSuggestion `json:"correspondent"`
+	Tags          []TagSuggestion          `json:"tags" jsonschema_description:"Array of suggested tags for the document"`
+	Correspondent *CorrespondentSuggestion `json:"correspondent" jsonschema:"nullable" jsonschema_description:"Suggested correspondent (sender/organization), or null if unclear"`
 }
 
 // TagSuggestion is the JSON schema for a tag suggestion
 type TagSuggestion struct {
-	Name       string  `json:"name"`
-	Confidence float64 `json:"confidence"`
-	Reasoning  string  `json:"reasoning"`
+	Name       string  `json:"name" jsonschema_description:"The tag name"`
+	Confidence float64 `json:"confidence" jsonschema_description:"Confidence score from 0.0 to 1.0"`
+	Reasoning  string  `json:"reasoning" jsonschema_description:"Brief explanation for this suggestion"`
 }
 
 // CorrespondentSuggestion is the JSON schema for a correspondent suggestion
 type CorrespondentSuggestion struct {
-	Name       string  `json:"name"`
-	Confidence float64 `json:"confidence"`
-	Reasoning  string  `json:"reasoning"`
+	Name       string  `json:"name" jsonschema_description:"The correspondent name"`
+	Confidence float64 `json:"confidence" jsonschema_description:"Confidence score from 0.0 to 1.0"`
+	Reasoning  string  `json:"reasoning" jsonschema_description:"Brief explanation for this suggestion"`
 }
 
 // ConvertToSuggestions converts AIResponse to []Suggestion

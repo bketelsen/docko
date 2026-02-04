@@ -53,3 +53,13 @@ Each of these processing steps should be its own queue.
 ## Duplicate Document Handling
 
 Each Document Source should be configurable so that if a document is processed from that source and determined to be a duplicate of a document already existing in Docku, the system will either delete the duplicate or rename it with some pre-configured pattern ("my-document.duplicate-of-XXXX.pdf)
+
+## New
+
+- min number of words import setting to prevent importing image-only pdfs
+- dashboard at / with actual stats
+- refactor to use all/more the templui components
+- expander/accordian with details on /queues
+- sidebar: new admin section with inboxes, sources, queues
+- constants: instead of "magic strings" (like "ai_complete", or "processed") - replace with go const strings
+- deep integration tests: network sources, delete/rename testing, duplicates. Ensure that if configured properly, I end up with one copy of a PDF and others are clearly marked dups or deleted.

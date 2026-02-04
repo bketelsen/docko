@@ -2,6 +2,8 @@
 
 Go web application with Echo, Templ, HTMX, and Tailwind CSS.
 
+Always use Context7 MCP when I need library/API documentation, code generation, setup or configuration steps without me having to explicitly ask.
+
 ## Critical: Check Build Logs
 
 **ALWAYS check `./tmp/air-combined.log` after making code changes.**

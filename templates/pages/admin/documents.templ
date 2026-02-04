@@ -306,7 +306,12 @@ templ tagFilterCheckbox(tag sqlc.Tag, selectedTagIDs []string) {
 			name="tag"
 			value={ tag.ID.String() }
 			checked?={ isSelected }
-			class="sr-only"
+			class="sr-only peer"
+			hx-get="/documents"
+			hx-trigger="change"
+			hx-target="#document-results"
+			hx-push-url="true"
+			hx-include="#search-form"
 		/>
 		if tag.Color != nil {
 			<span class={ "w-2 h-2 rounded-full", tagColorClass(tag.Color) }></span>

@@ -25,6 +25,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 11: Dashboard** - Real dashboard at root with stats, counts, and navigation links
 - [x] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
 - [x] **Phase 13: Environment Configuration Verification** - Verify all settings are reflected in .envrc and .envrc.example
+- [ ] **Phase 14: Production Readiness** - Comprehensive README, production Docker Compose, secrets audit, gitignore audit
 
 ## Phase Details
 
@@ -276,10 +277,28 @@ Plans:
 
 - [x] 13-01-PLAN.md — Complete environment variable documentation
 
+### Phase 14: Production Readiness
+
+**Goal**: Prepare project for production deployment with comprehensive documentation and security audits
+**Depends on**: Phase 13
+**Requirements**: None (release preparation)
+**Success Criteria** (what must be TRUE):
+
+  1. README.md provides complete setup, configuration, and deployment instructions
+  2. Production Docker Compose file with proper networking, volumes, and health checks
+  3. Git history audited for accidentally committed secrets
+  4. .gitignore covers all sensitive files and build artifacts
+  5. No hardcoded credentials or secrets in codebase
+
+**Plans**: TBD
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 14 to break down)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13
+Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11 -> 12 -> 13 -> 14
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -296,6 +315,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 11. Dashboard | 3/3 | Complete | 2026-02-04 |
 | 12. Queues Detail | 5/5 | Complete | 2026-02-04 |
 | 13. Envrc Verification | 1/1 | Complete | 2026-02-04 |
+| 14. Production Readiness | 0/? | Not Started | - |
 
 ---
 *Roadmap created: 2026-02-02*
