@@ -44,7 +44,7 @@ Existing workflow at .github/workflows/ci.yml already has:
 - sqlc-vet job (validates SQL against live DB)
 
 Existing Dockerfile is multi-stage (builder + alpine production).
-Go version in go.mod is 1.25.0, but workflow uses 1.23 (keep workflow version as-is for compatibility).
+Go version in go.mod is 1.25.0, but workflow uses 1.25 (keep workflow version as-is for compatibility).
 </context>
 
 <tasks>
@@ -67,9 +67,10 @@ Add a new job `docker-build-push` to the existing CI workflow:
 4. Add permissions block at job level: packages: write, contents: read
 
 The existing Dockerfile works as-is (multi-stage, produces /app/docko binary).
-  </action>
-  <verify>
+</action>
+<verify>
 Read the updated .github/workflows/ci.yml and verify:
+
 - docker-build-push job exists
 - Has condition `if: github.ref == 'refs/heads/main'`
 - Has `needs: [lint, test]`
@@ -77,13 +78,13 @@ Read the updated .github/workflows/ci.yml and verify:
 - Image name is ghcr.io/bketelsen/docko
   </verify>
   <done>
-CI workflow updated with docker-build-push job that:
+  CI workflow updated with docker-build-push job that:
 - Only runs on main branch pushes (not PRs)
 - Runs after lint and test pass
 - Builds Docker image using existing Dockerfile
 - Pushes to ghcr.io/bketelsen/docko with sha and branch tags
   </done>
-</task>
+  </task>
 
 </tasks>
 
@@ -99,10 +100,11 @@ CI workflow updated with docker-build-push job that:
 
 <success_criteria>
 GitHub Actions workflow updated such that:
+
 1. On PRs: lint, test, build, sqlc-vet run (existing behavior preserved)
 2. On main push: lint, test run, then docker-build-push builds and pushes image to GHCR
 3. No manual secrets needed (uses built-in GITHUB_TOKEN)
-</success_criteria>
+   </success_criteria>
 
 <output>
 After completion, create `.planning/quick/002-add-github-actions-workflow-for-testing/002-SUMMARY.md`

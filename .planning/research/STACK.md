@@ -12,6 +12,7 @@
 Web search and fetch tools were unavailable during this research. All recommendations are based on training data (cutoff ~May 2025). **Verify versions before adding dependencies.**
 
 Command to check latest versions:
+
 ```bash
 go list -m -versions github.com/[org]/[repo]
 ```
@@ -24,10 +25,10 @@ go list -m -versions github.com/[org]/[repo]
 
 **Confidence:** MEDIUM (based on training data, verify versions)
 
-| Library | Purpose | License | Notes |
-|---------|---------|---------|-------|
-| `github.com/pdfcpu/pdfcpu` | PDF manipulation, validation, page count | Apache 2.0 | Most mature Go-native PDF library |
-| `github.com/ledongthuc/pdf` | Text extraction | MIT | Simple, focused on extraction |
+| Library                     | Purpose                                  | License    | Notes                             |
+| --------------------------- | ---------------------------------------- | ---------- | --------------------------------- |
+| `github.com/pdfcpu/pdfcpu`  | PDF manipulation, validation, page count | Apache 2.0 | Most mature Go-native PDF library |
+| `github.com/ledongthuc/pdf` | Text extraction                          | MIT        | Simple, focused on extraction     |
 
 **Why this combination:**
 
@@ -40,12 +41,14 @@ go list -m -versions github.com/[org]/[repo]
 2. **ledongthuc/pdf** is specifically designed for text extraction and does it well. It's simpler than trying to use pdfcpu's lower-level APIs for text.
 
 **Installation:**
+
 ```bash
 go get github.com/pdfcpu/pdfcpu/pkg/api
 go get github.com/ledongthuc/pdf
 ```
 
 **Usage pattern:**
+
 ```go
 // Validate and get page count with pdfcpu
 import "github.com/pdfcpu/pdfcpu/pkg/api"
@@ -76,11 +79,11 @@ text := buf.String()
 
 ### Alternatives Considered
 
-| Library | Why Not |
-|---------|---------|
-| `unidoc/unipdf` | Commercial license required for production use. Excellent quality but expensive for personal/small team use. |
-| `gen2brain/go-fitz` | Requires CGO and MuPDF C library. Adds deployment complexity. |
-| `signintech/gopdf` | Focused on PDF generation, not extraction. |
+| Library             | Why Not                                                                                                      |
+| ------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `unidoc/unipdf`     | Commercial license required for production use. Excellent quality but expensive for personal/small team use. |
+| `gen2brain/go-fitz` | Requires CGO and MuPDF C library. Adds deployment complexity.                                                |
+| `signintech/gopdf`  | Focused on PDF generation, not extraction.                                                                   |
 
 ---
 
@@ -93,6 +96,7 @@ text := buf.String()
 PostgreSQL's built-in full-text search is sufficient for tens of thousands of documents. No need for Elasticsearch.
 
 **Schema pattern:**
+
 ```sql
 -- In documents table
 CREATE TABLE documents (
@@ -113,6 +117,7 @@ CREATE INDEX idx_documents_filename_tsv ON documents
 ```
 
 **Search query pattern:**
+
 ```sql
 -- Basic search with ranking
 SELECT
@@ -135,6 +140,7 @@ LIMIT 50;
 5. **websearch_to_tsquery** if you want Google-like syntax (quotes, minus for exclusion)
 
 **sqlc query example:**
+
 ```sql
 -- name: SearchDocuments :many
 SELECT
@@ -150,6 +156,7 @@ LIMIT @limit_val;
 ```
 
 **Performance notes:**
+
 - GIN index handles 100K+ documents easily
 - For very large text, consider storing only first N pages for search
 - `ts_headline` is expensive; consider computing only for displayed results
@@ -162,12 +169,12 @@ LIMIT @limit_val;
 
 **Confidence:** MEDIUM-HIGH (River gained significant traction in 2024-2025)
 
-| Library | Backend | Why/Why Not |
-|---------|---------|-------------|
+| Library   | Backend    | Why/Why Not                                                                     |
+| --------- | ---------- | ------------------------------------------------------------------------------- |
 | **River** | PostgreSQL | **Recommended.** Native PostgreSQL, no Redis needed. Transactional job enqueue. |
-| Asynq | Redis | Mature, but requires Redis infrastructure. |
-| Machinery | Redis | Older, more complex setup. |
-| Go-Queue | Various | Less active maintenance. |
+| Asynq     | Redis      | Mature, but requires Redis infrastructure.                                      |
+| Machinery | Redis      | Older, more complex setup.                                                      |
+| Go-Queue  | Various    | Less active maintenance.                                                        |
 
 **Why River:**
 
@@ -178,12 +185,14 @@ LIMIT @limit_val;
 5. **Active development**: Gained significant adoption in 2024-2025 Go ecosystem.
 
 **Installation:**
+
 ```bash
 go get github.com/riverqueue/river
 go get github.com/riverqueue/river/riverdriver/riverpgxv5
 ```
 
 **Setup pattern:**
+
 ```go
 import (
     "github.com/riverqueue/river"
@@ -219,11 +228,13 @@ func (w *IngestWorker) Work(ctx context.Context, job *river.Job[IngestArgs]) err
 
 **Migration:**
 River provides migration files. Run them with your existing Goose setup:
+
 ```bash
 # River publishes migration SQL files - add to internal/database/migrations/
 ```
 
 **Queue per processing step** (as specified in PROJECT.md):
+
 - `ingest` - UUID assignment, copy to originals
 - `duplicate_check` - Hash comparison
 - `extract_text` - PDF text extraction
@@ -245,12 +256,14 @@ go get github.com/hirochachacha/go-smb2
 ```
 
 **Features:**
+
 - Pure Go implementation (no C dependencies)
 - SMB 2.x and 3.x support
 - File operations (read, write, stat, list)
 - Authentication (NTLM, guest)
 
 **Usage pattern:**
+
 ```go
 import "github.com/hirochachacha/go-smb2"
 
@@ -296,16 +309,19 @@ for _, f := range files {
 **Recommendation:** For NFS, use OS-level mounts rather than Go libraries.
 
 **Rationale:**
+
 - Go NFS client libraries are less mature than SMB options
 - NFS is typically mounted at OS level anyway
 - Linux NFS mounts are reliable and well-supported
 - You can treat mounted NFS as a local directory
 
 **Alternative if pure-Go required:** `github.com/vmware/go-nfs-client`
+
 - Less actively maintained
 - Use only if OS mounts are truly impossible
 
 **Configuration pattern:**
+
 ```go
 type DocumentSource struct {
     ID        uuid.UUID
@@ -331,6 +347,7 @@ type DocumentSource struct {
 Pure Go PDF rendering is limited. The ecosystem standard is to shell out to `pdftoppm` (from poppler-utils).
 
 **Installation (system dependency):**
+
 ```bash
 # Ubuntu/Debian
 apt install poppler-utils
@@ -343,6 +360,7 @@ apk add poppler-utils
 ```
 
 **Usage pattern:**
+
 ```go
 import (
     "os/exec"
@@ -373,15 +391,16 @@ func GenerateThumbnail(pdfPath, outputDir string, documentID uuid.UUID) (string,
 
 **Why not pure Go?**
 
-| Approach | Issue |
-|----------|-------|
-| `gen2brain/go-fitz` | Requires CGO + MuPDF. Deployment complexity. |
-| `pdfcpu` render | Limited rendering quality, not designed for thumbnails. |
-| ImageMagick | Heavier dependency, slower than pdftoppm. |
+| Approach            | Issue                                                   |
+| ------------------- | ------------------------------------------------------- |
+| `gen2brain/go-fitz` | Requires CGO + MuPDF. Deployment complexity.            |
+| `pdfcpu` render     | Limited rendering quality, not designed for thumbnails. |
+| ImageMagick         | Heavier dependency, slower than pdftoppm.               |
 
 **Dockerfile consideration:**
+
 ```dockerfile
-FROM golang:1.23-alpine AS builder
+FROM golang:1.25-alpine AS builder
 # ... build steps
 
 FROM alpine:3.19
@@ -401,11 +420,11 @@ For a Go application, consider whether you need full SDKs or just HTTP clients.
 
 **Option A: Official SDKs (if available and stable)**
 
-| Provider | Go SDK | Notes |
-|----------|--------|-------|
-| OpenAI | `github.com/sashabaranov/go-openai` | Community SDK, widely used |
-| Anthropic | `github.com/anthropics/anthropic-sdk-go` | Official SDK released 2024 |
-| Google (Gemini) | `cloud.google.com/go/vertexai` | Official, part of Google Cloud SDK |
+| Provider        | Go SDK                                   | Notes                              |
+| --------------- | ---------------------------------------- | ---------------------------------- |
+| OpenAI          | `github.com/sashabaranov/go-openai`      | Community SDK, widely used         |
+| Anthropic       | `github.com/anthropics/anthropic-sdk-go` | Official SDK released 2024         |
+| Google (Gemini) | `cloud.google.com/go/vertexai`           | Official, part of Google Cloud SDK |
 
 **Option B: Direct HTTP (recommended for flexibility)**
 
@@ -431,12 +450,14 @@ type AnthropicProvider struct {
 ```
 
 **Benefits of direct HTTP:**
+
 - No SDK version mismatches
 - Easy to add new providers
 - Control over retry logic
 - Smaller binary size
 
 **Provider configuration:**
+
 ```go
 type AIConfig struct {
     Provider    string  // "openai", "anthropic", "ollama"
@@ -448,6 +469,7 @@ type AIConfig struct {
 ```
 
 **Prompt design for tagging:**
+
 ```go
 const tagPrompt = `Analyze this document text and suggest 3-5 descriptive tags.
 Return only the tags as a JSON array of strings.
@@ -476,6 +498,7 @@ func (o *OllamaProvider) TagDocument(ctx context.Context, text string, pageCount
 ```
 
 **Ollama benefits:**
+
 - No API costs
 - Data stays local
 - Good for experimentation
@@ -487,15 +510,15 @@ func (o *OllamaProvider) TagDocument(ctx context.Context, text string, pageCount
 
 ### Do NOT Use
 
-| Library/Approach | Why Not |
-|-----------------|---------|
-| **unidoc/unipdf** | Commercial license. Expensive for personal projects. Use pdfcpu + ledongthuc/pdf instead. |
-| **Elasticsearch** | Overkill for tens of thousands of docs. PostgreSQL FTS is sufficient and avoids operational complexity. |
-| **Redis for queues** | Unnecessary infrastructure. River with PostgreSQL is simpler and transactional. |
-| **CGO-based PDF libraries** | Deployment complexity. Pure Go options are sufficient for this use case. |
-| **Heavy ORM (GORM)** | Project already uses sqlc successfully. Don't add ORM complexity. |
-| **go-nfs-client for all NFS** | Less mature than SMB options. Prefer OS mounts when possible. |
-| **Full LLM SDKs for simple tasks** | SDK baggage. Direct HTTP is cleaner for tag/correspondent extraction. |
+| Library/Approach                   | Why Not                                                                                                 |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **unidoc/unipdf**                  | Commercial license. Expensive for personal projects. Use pdfcpu + ledongthuc/pdf instead.               |
+| **Elasticsearch**                  | Overkill for tens of thousands of docs. PostgreSQL FTS is sufficient and avoids operational complexity. |
+| **Redis for queues**               | Unnecessary infrastructure. River with PostgreSQL is simpler and transactional.                         |
+| **CGO-based PDF libraries**        | Deployment complexity. Pure Go options are sufficient for this use case.                                |
+| **Heavy ORM (GORM)**               | Project already uses sqlc successfully. Don't add ORM complexity.                                       |
+| **go-nfs-client for all NFS**      | Less mature than SMB options. Prefer OS mounts when possible.                                           |
+| **Full LLM SDKs for simple tasks** | SDK baggage. Direct HTTP is cleaner for tag/correspondent extraction.                                   |
 
 ---
 
@@ -519,6 +542,7 @@ go get github.com/anthropics/anthropic-sdk-go  # Anthropic
 ```
 
 **System dependencies:**
+
 ```bash
 # Thumbnail generation
 apt install poppler-utils  # or brew install poppler
@@ -543,17 +567,17 @@ go list -m -versions github.com/sashabaranov/go-openai
 
 ## Confidence Assessment
 
-| Area | Confidence | Reason |
-|------|------------|--------|
-| PostgreSQL FTS | HIGH | Stable PostgreSQL feature, well-documented |
-| pdfcpu | MEDIUM | Training data, verify version |
-| ledongthuc/pdf | MEDIUM | Training data, verify version |
-| River | MEDIUM-HIGH | Strong 2024 adoption, verify version |
-| go-smb2 | MEDIUM | Most common choice, verify version |
-| Thumbnail (pdftoppm) | HIGH | Industry standard approach |
-| AI SDKs | LOW-MEDIUM | SDK landscape changes rapidly |
+| Area                 | Confidence  | Reason                                     |
+| -------------------- | ----------- | ------------------------------------------ |
+| PostgreSQL FTS       | HIGH        | Stable PostgreSQL feature, well-documented |
+| pdfcpu               | MEDIUM      | Training data, verify version              |
+| ledongthuc/pdf       | MEDIUM      | Training data, verify version              |
+| River                | MEDIUM-HIGH | Strong 2024 adoption, verify version       |
+| go-smb2              | MEDIUM      | Most common choice, verify version         |
+| Thumbnail (pdftoppm) | HIGH        | Industry standard approach                 |
+| AI SDKs              | LOW-MEDIUM  | SDK landscape changes rapidly              |
 
 ---
 
-*Research date: 2026-02-02*
-*Note: Web verification unavailable. Verify all versions before implementation.*
+_Research date: 2026-02-02_
+_Note: Web verification unavailable. Verify all versions before implementation._
