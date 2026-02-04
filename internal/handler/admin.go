@@ -122,7 +122,9 @@ func (h *Handler) AdminDashboard(c echo.Context) error {
 		data.NetworkSources.Enabled = sourceStats.NetworkEnabled
 	}
 
-	return admin.Dashboard(data).Render(ctx, c.Response().Writer)
+	// TODO: Plan 03 will update template to accept DashboardData
+	_ = data // data ready for Plan 03
+	return admin.Dashboard().Render(ctx, c.Response().Writer)
 }
 
 func (h *Handler) Health(c echo.Context) error {
