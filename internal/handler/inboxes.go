@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"docko/internal/database/sqlc"
 	"docko/templates/pages/admin"
@@ -12,6 +14,29 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
+
+// countPDFsInDir counts .pdf files in a directory
+func countPDFsInDir(dir string) int {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return 0 // Directory doesn't exist or can't be read
+	}
+	count := 0
+	for _, e := range entries {
+		if !e.IsDir() && strings.HasSuffix(strings.ToLower(e.Name()), ".pdf") {
+			count++
+		}
+	}
+	return count
+}
+
+// resolveErrorPath returns the error directory path for an inbox
+func resolveErrorPath(inbox sqlc.Inbox) string {
+	if inbox.ErrorPath != nil && *inbox.ErrorPath != "" {
+		return *inbox.ErrorPath
+	}
+	return filepath.Join(inbox.Path, "errors")
+}
 
 // InboxesPage renders the inbox management page
 func (h *Handler) InboxesPage(c echo.Context) error {
@@ -23,7 +48,17 @@ func (h *Handler) InboxesPage(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Failed to load inboxes")
 	}
 
-	return admin.Inboxes(inboxes).Render(ctx, c.Response().Writer)
+	// Add error counts for each inbox
+	inboxesWithCounts := make([]admin.InboxWithErrorCount, len(inboxes))
+	for i, inbox := range inboxes {
+		errorPath := resolveErrorPath(inbox)
+		inboxesWithCounts[i] = admin.InboxWithErrorCount{
+			Inbox:      inbox,
+			ErrorCount: countPDFsInDir(errorPath),
+		}
+	}
+
+	return admin.InboxesWithCounts(inboxesWithCounts).Render(ctx, c.Response().Writer)
 }
 
 // CreateInbox creates a new inbox directory
