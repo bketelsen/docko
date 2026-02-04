@@ -1,5 +1,5 @@
 # Build stage
-FROM golang:1.24-alpine AS builder
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
@@ -12,6 +12,14 @@ RUN go mod download
 
 # Copy source code
 COPY . .
+
+# Install necessary Go tools
+RUN go install github.com/a-h/templ/cmd/templ@latest
+RUN	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+RUN	go install github.com/pressly/goose/v3/cmd/goose@latest
+RUN	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+RUN go generate ./...
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -o /docko ./cmd/server

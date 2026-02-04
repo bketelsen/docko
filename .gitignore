@@ -12,7 +12,7 @@ tmp/
 
 # Generated files (can be regenerated)
 *_templ.go
-internal/database/sqlc/
+#internal/database/sqlc/
 
 # Dependencies
 node_modules/
