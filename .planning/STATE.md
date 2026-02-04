@@ -192,18 +192,22 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-1. **Fix AI queue workers not starting** (queue) - Shared `running` flag prevents multiple queues from starting
-2. **Replace magic strings with Go constants** (refactoring) - SSE events, job statuses, queue names
-3. **Add filebrowser links for inbox error directories** (ui) - Show error count and link to errors subdirectory
+1. **Add filebrowser links for inbox error directories** (ui) - Show error count and link to errors subdirectory
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 001 | Fix AI queue workers + magic strings | 2026-02-04 | b222f88 | [001-fix-pending-bugs](./quick/001-fix-pending-bugs/) |
 
 ### Blockers/Concerns
 
-None yet.
+None.
 
 ## Session Continuity
 
-Last session: 2026-02-03T21:27:00Z
-Stopped at: Completed 12-05-PLAN.md (SSE Queue Activity) - PROJECT COMPLETE
+Last session: 2026-02-04T21:45:00Z
+Stopped at: Completed quick task 001 - Fix AI queue workers + magic strings
 Resume file: None
 
 ### Roadmap Evolution
