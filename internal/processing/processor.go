@@ -74,15 +74,14 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 		return fmt.Errorf("set processing status: %w", err)
 	}
 
-	// Broadcast processing status
-	p.broadcast(StatusUpdate{
-		DocumentID: docID,
-		Status:     StatusProcessing,
-		QueueName:  document.QueueDefault,
-	})
+	// Update step: starting
+	p.updateStep(ctx, job.ID, docID, StepStarting)
 
 	// Get PDF path
 	pdfPath := p.docSvc.OriginalPath(doc)
+
+	// Update step: extracting text
+	p.updateStep(ctx, job.ID, docID, StepExtractingText)
 
 	// Extract text
 	textStart := time.Now()
@@ -116,6 +115,9 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 		}
 	}
 
+	// Update step: generating thumbnail
+	p.updateStep(ctx, job.ID, docID, StepGeneratingThumbnail)
+
 	// Generate thumbnail
 	thumbStart := time.Now()
 	thumbPath, err := p.thumbGen.Generate(ctx, pdfPath, docID)
@@ -132,6 +134,9 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 		"doc_id", docID,
 		"path", thumbPath,
 		"duration_ms", thumbDuration.Milliseconds())
+
+	// Update step: finalizing
+	p.updateStep(ctx, job.ID, docID, StepFinalizing)
 
 	// All-or-nothing transaction: update document with results
 	tx, err := p.db.Pool.Begin(ctx)
@@ -190,9 +195,10 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 
 	// Broadcast completed status
 	p.broadcast(StatusUpdate{
-		DocumentID: docID,
-		Status:     StatusCompleted,
-		QueueName:  document.QueueDefault,
+		DocumentID:  docID,
+		Status:      StatusCompleted,
+		CurrentStep: "", // Cleared on completion
+		QueueName:   document.QueueDefault,
 	})
 
 	// Check if AI auto-processing is enabled
@@ -257,10 +263,11 @@ func (p *Processor) quarantine(ctx context.Context, docID uuid.UUID, reason stri
 
 	// Broadcast failed status
 	p.broadcast(StatusUpdate{
-		DocumentID: docID,
-		Status:     StatusFailed,
-		Error:      reason,
-		QueueName:  document.QueueDefault,
+		DocumentID:  docID,
+		Status:      StatusFailed,
+		CurrentStep: "", // Cleared on failure
+		Error:       reason,
+		QueueName:   document.QueueDefault,
 	})
 
 	// Return nil so the job is marked as completed (we've handled the failure)
@@ -276,4 +283,23 @@ func (p *Processor) broadcast(update StatusUpdate) {
 	if p.broadcaster != nil {
 		p.broadcaster.Broadcast(update)
 	}
+}
+
+// updateStep updates the job's current step in database and broadcasts to SSE
+func (p *Processor) updateStep(ctx context.Context, jobID, docID uuid.UUID, step string) {
+	// Update database
+	if err := p.db.Queries.UpdateJobStep(ctx, sqlc.UpdateJobStepParams{
+		ID:          jobID,
+		CurrentStep: &step,
+	}); err != nil {
+		slog.Warn("failed to update job step", "job_id", jobID, "step", step, "error", err)
+	}
+
+	// Broadcast to SSE subscribers
+	p.broadcast(StatusUpdate{
+		DocumentID:  docID,
+		Status:      StatusProcessing,
+		CurrentStep: step,
+		QueueName:   document.QueueDefault,
+	})
 }
