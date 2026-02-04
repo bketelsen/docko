@@ -9,7 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 
-	"docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/database/sqlc"
 )
 
 //go:embed migrations/*.sql

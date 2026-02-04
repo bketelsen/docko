@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strings"
 
-	"docko/internal/database/sqlc"
-	"docko/templates/pages/admin"
-	"docko/templates/partials"
+	"github.com/bketelsen/docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/templates/pages/admin"
+	"github.com/bketelsen/docko/templates/partials"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"

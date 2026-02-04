@@ -11,10 +11,10 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"docko/internal/database"
-	"docko/internal/database/sqlc"
-	"docko/internal/document"
-	"docko/internal/storage"
+	"github.com/bketelsen/docko/internal/database"
+	"github.com/bketelsen/docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/document"
+	"github.com/bketelsen/docko/internal/storage"
 )
 
 // Processor orchestrates document processing (text extraction + thumbnail generation)

@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"docko/templates/pages/admin"
+	"github.com/bketelsen/docko/templates/pages/admin"
 
 	"github.com/labstack/echo/v4"
 )

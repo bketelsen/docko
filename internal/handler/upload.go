@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"docko/internal/database/sqlc"
-	"docko/templates/pages/admin"
+	"github.com/bketelsen/docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/templates/pages/admin"
 
 	"github.com/google/uuid"
 	"github.com/h2non/filetype"

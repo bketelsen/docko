@@ -8,11 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"docko/internal/database/sqlc"
-	"docko/internal/document"
-	"docko/internal/processing"
-	"docko/templates/pages/admin"
-	"docko/templates/partials"
+	"github.com/bketelsen/docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/document"
+	"github.com/bketelsen/docko/internal/processing"
+	"github.com/bketelsen/docko/templates/pages/admin"
+	"github.com/bketelsen/docko/templates/partials"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"

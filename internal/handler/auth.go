@@ -4,8 +4,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"docko/internal/middleware"
-	"docko/templates/pages/admin"
+	"github.com/bketelsen/docko/internal/middleware"
+	"github.com/bketelsen/docko/templates/pages/admin"
 
 	"github.com/labstack/echo/v4"
 )

@@ -4,7 +4,7 @@
 
 services:
   app:
-    image: ghcr.io/bketelsen/docko:latest
+    image: docko:latest
     build:
       context: .
       dockerfile: Dockerfile

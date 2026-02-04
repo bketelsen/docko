@@ -8,8 +8,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"docko/internal/ai"
-	"docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/ai"
+	"github.com/bketelsen/docko/internal/database/sqlc"
 )
 
 // AIProcessor handles AI analysis jobs from the queue

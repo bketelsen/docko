@@ -1,4 +1,4 @@
-module docko
+module github.com/bketelsen/docko
 
 go 1.25.0
 

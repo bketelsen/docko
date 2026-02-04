@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"docko/internal/config"
-	"docko/internal/database"
+	"github.com/bketelsen/docko/internal/config"
+	"github.com/bketelsen/docko/internal/database"
 )
 
 // NewTestDB creates a test database connection.

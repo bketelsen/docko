@@ -6,13 +6,13 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"docko/components/badge"
-	"docko/components/button"
-	"docko/components/card"
-	"docko/components/table"
-	"docko/internal/database/sqlc"
-	"docko/internal/meta"
-	"docko/templates/layouts"
+	"github.com/bketelsen/docko/components/badge"
+	"github.com/bketelsen/docko/components/button"
+	"github.com/bketelsen/docko/components/card"
+	"github.com/bketelsen/docko/components/table"
+	"github.com/bketelsen/docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/meta"
+	"github.com/bketelsen/docko/templates/layouts"
 )
 
 templ ReviewQueue(suggestions []sqlc.ListPendingSuggestionsRow, page, totalCount, limit int) {

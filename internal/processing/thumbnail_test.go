@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"docko/internal/storage"
+	"github.com/bketelsen/docko/internal/storage"
 )
 
 func TestCheckDependencies(t *testing.T) {

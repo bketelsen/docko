@@ -1,16 +1,16 @@
 package handler
 
 import (
-	"docko/internal/ai"
-	"docko/internal/auth"
-	"docko/internal/config"
-	"docko/internal/database"
-	"docko/internal/document"
-	"docko/internal/inbox"
-	"docko/internal/middleware"
-	"docko/internal/network"
-	"docko/internal/processing"
-	"docko/internal/queue"
+	"github.com/bketelsen/docko/internal/ai"
+	"github.com/bketelsen/docko/internal/auth"
+	"github.com/bketelsen/docko/internal/config"
+	"github.com/bketelsen/docko/internal/database"
+	"github.com/bketelsen/docko/internal/document"
+	"github.com/bketelsen/docko/internal/inbox"
+	"github.com/bketelsen/docko/internal/middleware"
+	"github.com/bketelsen/docko/internal/network"
+	"github.com/bketelsen/docko/internal/processing"
+	"github.com/bketelsen/docko/internal/queue"
 
 	"github.com/labstack/echo/v4"
 )

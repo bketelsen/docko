@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"time"
 
-	"docko/internal/config"
-	"docko/internal/ctxkeys"
+	"github.com/bketelsen/docko/internal/config"
+	"github.com/bketelsen/docko/internal/ctxkeys"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"

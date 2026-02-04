@@ -3,8 +3,8 @@ package meta
 import (
 	"context"
 
-	"docko/internal/config"
-	"docko/internal/ctxkeys"
+	"github.com/bketelsen/docko/internal/config"
+	"github.com/bketelsen/docko/internal/ctxkeys"
 )
 
 func SiteFromCtx(ctx context.Context) config.SiteConfig {

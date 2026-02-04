@@ -12,7 +12,7 @@ import (
 
 	"github.com/google/uuid"
 
-	"docko/internal/storage"
+	"github.com/bketelsen/docko/internal/storage"
 )
 
 // ThumbnailGenerator creates thumbnails from PDF files

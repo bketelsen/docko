@@ -11,9 +11,9 @@ import (
 	"log/slog"
 	"time"
 
-	"docko/internal/config"
-	"docko/internal/database"
-	"docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/config"
+	"github.com/bketelsen/docko/internal/database"
+	"github.com/bketelsen/docko/internal/database/sqlc"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"

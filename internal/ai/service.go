@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"docko/internal/database"
-	"docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/database"
+	"github.com/bketelsen/docko/internal/database/sqlc"
 )
 
 // Service orchestrates AI providers and manages suggestions

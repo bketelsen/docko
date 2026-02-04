@@ -6,13 +6,13 @@ import (
 
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"docko/components/button"
-	"docko/components/input"
-	"docko/components/label"
-	"docko/internal/ai"
-	"docko/internal/database/sqlc"
-	"docko/internal/meta"
-	"docko/templates/layouts"
+	"github.com/bketelsen/docko/components/button"
+	"github.com/bketelsen/docko/components/input"
+	"github.com/bketelsen/docko/components/label"
+	"github.com/bketelsen/docko/internal/ai"
+	"github.com/bketelsen/docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/meta"
+	"github.com/bketelsen/docko/templates/layouts"
 )
 
 templ AISettings(settings sqlc.AiSetting, providers []string, stats *ai.UsageStats, pendingCount int64) {

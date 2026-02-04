@@ -10,11 +10,11 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 
-	"docko/internal/ai"
-	"docko/internal/database/sqlc"
-	"docko/internal/processing"
-	"docko/templates/pages/admin"
-	"docko/templates/partials"
+	"github.com/bketelsen/docko/internal/ai"
+	"github.com/bketelsen/docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/processing"
+	"github.com/bketelsen/docko/templates/pages/admin"
+	"github.com/bketelsen/docko/templates/partials"
 )
 
 // AISettingsPage renders the AI configuration page

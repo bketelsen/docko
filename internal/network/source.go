@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/database/sqlc"
 )
 
 // RemoteFile represents a file found on a network source.

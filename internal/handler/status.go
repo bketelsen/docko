@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"docko/templates/partials"
+	"github.com/bketelsen/docko/templates/partials"
 
 	"github.com/labstack/echo/v4"
 )

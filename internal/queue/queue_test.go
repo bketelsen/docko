@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"docko/internal/database/sqlc"
+	"github.com/bketelsen/docko/internal/database/sqlc"
 )
 
 func TestNextRetryDelay(t *testing.T) {

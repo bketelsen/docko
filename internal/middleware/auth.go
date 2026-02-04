@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"docko/internal/auth"
-	"docko/internal/ctxkeys"
+	"github.com/bketelsen/docko/internal/auth"
+	"github.com/bketelsen/docko/internal/ctxkeys"
 
 	"github.com/labstack/echo/v4"
 )
