@@ -10,16 +10,16 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 12 of 12 (Queues Detail)
-Plan: 2 of 5 in current phase
+Plan: 3 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-04 - Completed 12-01-PLAN.md (Job Dismissed Status)
+Last activity: 2026-02-04 - Completed 12-03-PLAN.md (Queue Detail Handlers)
 
-Progress: [#############################################---] 51/54 plans complete
+Progress: [##############################################--] 52/54 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 51
+- Total plans completed: 52
 - Average duration: 3.9 min
 - Total execution time: 3.6 hours
 
@@ -38,12 +38,12 @@ Progress: [#############################################---] 51/54 plans complet
 | 09-minimum-words | 2 | 7 min | 3.5 min |
 | 10-templui-refactor | 7 | 39 min | 5.6 min |
 | 11-dashboard | 3 | 7 min | 2.3 min |
-| 12-queues-detail | 2 | 4 min | 2.0 min |
+| 12-queues-detail | 3 | 6 min | 2.0 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 11-02 (1 min), 11-03 (4 min), 12-02 (1 min), 12-01 (3 min)
-- Trend: Phase 12 in progress - dismissed status and queue queries added
+- Last 5 plans: 11-03 (4 min), 12-02 (1 min), 12-01 (3 min), 12-03 (2 min)
+- Trend: Phase 12 Wave 2 in progress - handlers added
 
 *Updated after each plan completion*
 
@@ -183,6 +183,8 @@ Recent decisions affecting current work:
 - Collapsible over accordion for multi-section open capability (Phase 12)
 - LEFT JOIN LATERAL for safe JSONB payload extraction in job queries (Phase 12)
 - dismissed status preserves audit trail while hiding from active lists (Phase 12)
+- Queue-specific bulk operations use POST with :name parameter (Phase 12)
+- Dismiss handler returns empty string for outerHTML swap removal (Phase 12)
 
 ### Pending Todos
 
@@ -194,8 +196,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04T02:12:00Z
-Stopped at: Completed 12-01-PLAN.md (Job Dismissed Status)
+Last session: 2026-02-04T02:16:45Z
+Stopped at: Completed 12-03-PLAN.md (Queue Detail Handlers)
 Resume file: None
 
 ### Roadmap Evolution
@@ -206,4 +208,4 @@ Resume file: None
 - Phase 12 added: Queues route with expanders for failed jobs and recent activity
 
 ---
-*51 plans executed across 12 phases, Phase 12 in progress (2/5)*
+*52 plans executed across 12 phases, Phase 12 in progress (3/5)*
