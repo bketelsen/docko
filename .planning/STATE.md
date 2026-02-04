@@ -194,6 +194,7 @@ Recent decisions affecting current work:
 
 1. **Fix AI queue workers not starting** (queue) - Shared `running` flag prevents multiple queues from starting
 2. **Replace magic strings with Go constants** (refactoring) - SSE events, job statuses, queue names
+3. **Add filebrowser links for inbox error directories** (ui) - Show error count and link to errors subdirectory
 
 ### Blockers/Concerns
 
