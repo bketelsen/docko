@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Find any document instantly AND automate the tagging/filing that's currently manual
-**Current focus:** Phase 15 - Pending Fixes (COMPLETE)
+**Current focus:** Phase 15 - Pending Fixes (Gap Closure)
 
 ## Current Position
 
 Phase: 15 of 15 (Pending Fixes)
-Plan: 3 of 3 in current phase
-Status: Phase complete
-Last activity: 2026-02-04 - Completed 15-03-PLAN.md (Processing Progress Visibility)
+Plan: 4-5 of 5 in current phase (gap closure plans)
+Status: Gap closure in progress
+Last activity: 2026-02-04 - Created gap closure plans 15-04 and 15-05 from UAT
 
-Progress: [####################################################] 61/61 plans complete
+Progress: [####################################################] 61/63 plans complete
 
 ## Performance Metrics
 
@@ -46,7 +46,7 @@ Progress: [####################################################] 61/61 plans com
 **Recent Trend:**
 
 - Last 5 plans: 14-02 (2 min), 14-03 (5 min), 15-01 (2 min), 15-02 (3 min), 15-03 (4 min)
-- Trend: Phase 15 complete - all fixes implemented
+- Trend: Gap closure plans 15-04 and 15-05 created from UAT failures
 
 *Updated after each plan completion*
 
@@ -198,6 +198,7 @@ Recent decisions affecting current work:
 - countPDFsInDir returns 0 if directory doesn't exist (graceful handling) (Phase 15)
 - VARCHAR(50) for current_step instead of ENUM for flexibility (Phase 15)
 - updateStep helper combines DB update and SSE broadcast for atomic progress updates (Phase 15)
+- templ.JSFuncCall().Call required to get string value for onclick (not ComponentScript struct) (Gap 15-04)
 
 ### Pending Todos
 
@@ -215,8 +216,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-04T15:15:30Z
-Stopped at: Completed 15-03-PLAN.md (Processing Progress Visibility)
+Last session: 2026-02-04T16:00:00Z
+Stopped at: Created gap closure plans 15-04 and 15-05 from UAT failures
 Resume file: None
 
 ### Roadmap Evolution
@@ -228,6 +229,7 @@ Resume file: None
 - Phase 13 added: Verify all settings are reflected in .envrc and .envrc.example
 - Phase 14 added: Production Readiness (README, Docker Compose, secrets audit, gitignore audit)
 - Phase 15 added: Pending Fixes (edit buttons, inbox error links, processing progress)
+- Phase 15 gap closure: Plans 15-04 and 15-05 added from UAT failures
 
 ---
-*61 plans executed across 15 phases - PROJECT COMPLETE*
+*63 total plans across 15 phases - Gap closure in progress*
