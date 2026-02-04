@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Position
 
 Phase: 12 of 12 (Queues Detail)
-Plan: 3 of 5 in current phase
+Plan: 4 of 5 in current phase
 Status: In progress
-Last activity: 2026-02-04 - Completed 12-03-PLAN.md (Queue Detail Handlers)
+Last activity: 2026-02-04 - Completed 12-04-PLAN.md (Queue Dashboard UI Refactor)
 
-Progress: [##############################################--] 52/54 plans complete
+Progress: [###############################################-] 53/54 plans complete
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 52
+- Total plans completed: 53
 - Average duration: 3.9 min
-- Total execution time: 3.6 hours
+- Total execution time: 3.7 hours
 
 **By Phase:**
 
@@ -38,12 +38,12 @@ Progress: [##############################################--] 52/54 plans complet
 | 09-minimum-words | 2 | 7 min | 3.5 min |
 | 10-templui-refactor | 7 | 39 min | 5.6 min |
 | 11-dashboard | 3 | 7 min | 2.3 min |
-| 12-queues-detail | 3 | 6 min | 2.0 min |
+| 12-queues-detail | 4 | 9 min | 2.3 min |
 
 **Recent Trend:**
 
-- Last 5 plans: 11-03 (4 min), 12-02 (1 min), 12-01 (3 min), 12-03 (2 min)
-- Trend: Phase 12 Wave 2 in progress - handlers added
+- Last 5 plans: 12-01 (3 min), 12-02 (1 min), 12-03 (2 min), 12-04 (3 min)
+- Trend: Phase 12 Wave 2 complete - collapsible UI with lazy loading
 
 *Updated after each plan completion*
 
@@ -185,10 +185,13 @@ Recent decisions affecting current work:
 - dismissed status preserves audit trail while hiding from active lists (Phase 12)
 - Queue-specific bulk operations use POST with :name parameter (Phase 12)
 - Dismiss handler returns empty string for outerHTML swap removal (Phase 12)
+- Lazy loading via hx-trigger='intersect once' for single fetch on expand (Phase 12)
+- Chevron rotation via data-tui-collapsible-state attribute (Phase 12)
 
 ### Pending Todos
 
 1. **Fix AI queue workers not starting** (queue) - Shared `running` flag prevents multiple queues from starting
+2. **Replace magic strings with Go constants** (refactoring) - SSE events, job statuses, queue names
 
 ### Blockers/Concerns
 
@@ -196,8 +199,8 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-04T02:16:45Z
-Stopped at: Completed 12-03-PLAN.md (Queue Detail Handlers)
+Last session: 2026-02-04T02:18:32Z
+Stopped at: Completed 12-04-PLAN.md (Queue Dashboard UI Refactor)
 Resume file: None
 
 ### Roadmap Evolution
