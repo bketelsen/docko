@@ -22,12 +22,22 @@ const (
 	StatusAIFailed     = "ai_failed"
 )
 
+// Processing step constants for progress tracking
+const (
+	StepStarting            = "starting"
+	StepExtractingText      = "extracting_text"
+	StepRunningOCR          = "running_ocr"
+	StepGeneratingThumbnail = "generating_thumbnail"
+	StepFinalizing          = "finalizing"
+)
+
 // StatusUpdate represents a processing status change
 type StatusUpdate struct {
-	DocumentID uuid.UUID
-	Status     string // pending, processing, completed, failed
-	Error      string // error message if failed
-	QueueName  string // queue name for queue-level SSE events
+	DocumentID  uuid.UUID
+	Status      string // pending, processing, completed, failed
+	CurrentStep string // starting, extracting_text, running_ocr, generating_thumbnail, finalizing
+	Error       string // error message if failed
+	QueueName   string // queue name for queue-level SSE events
 }
 
 // BulkProgressUpdate represents aggregate progress for bulk uploads
