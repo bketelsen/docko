@@ -22,7 +22,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 8: AI Integration** - Auto-tagging and correspondent detection
 - [x] **Phase 9: Minimum Number of Words Import Block** - Block document import if text content below threshold
 - [x] **Phase 10: Refactor to Use More templUI Components** - Replace custom UI with templUI components
-- [ ] **Phase 11: Dashboard** - Real dashboard at root with stats, counts, and navigation links
+- [x] **Phase 11: Dashboard** - Real dashboard at root with stats, counts, and navigation links
 - [ ] **Phase 12: Queues Detail** - Queues route with expanders for failed jobs and recent activity
 
 ## Phase Details
@@ -230,9 +230,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 11-01-PLAN.md — Dashboard aggregation queries
-- [ ] 11-02-PLAN.md — Handler data aggregation and types
-- [ ] 11-03-PLAN.md — Three-section dashboard template with verification
+- [x] 11-01-PLAN.md — Dashboard aggregation queries
+- [x] 11-02-PLAN.md — Handler data aggregation and types
+- [x] 11-03-PLAN.md — Three-section dashboard template with verification
 
 ### Phase 12: Queues Detail
 
@@ -270,7 +270,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 7 -> 8 -> 9 -> 10
 | 8. AI Integration | 6/6 | Complete | 2026-02-03 |
 | 9. Minimum Word Block | 2/2 | Complete | 2026-02-03 |
 | 10. templUI Refactor | 7/7 | Complete | 2026-02-03 |
-| 11. Dashboard | 0/3 | Not Started | - |
+| 11. Dashboard | 3/3 | Complete | 2026-02-04 |
 | 12. Queues Detail | 0/? | Not Started | - |
 
 ---
