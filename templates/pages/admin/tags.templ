@@ -240,7 +240,7 @@ templ TagCard(tag sqlc.ListTagsWithCountsRow) {
 				Variant: button.VariantGhost,
 				Size:    button.SizeIcon,
 				Attributes: templ.Attributes{
-					"onclick": editTagOnClick(tag),
+					"onclick": templ.JSFuncCall("openEditMode", tag.ID.String(), tag.Name, safeColor(tag.Color)),
 					"title":   "Edit tag",
 				},
 			}) {
@@ -325,6 +325,3 @@ func escapeJS(s string) string {
 	return result
 }
 
-script editTagOnClick(tag sqlc.ListTagsWithCountsRow) {
-	openEditMode(tag.ID, tag.Name, tag.Color || 'blue');
-}
