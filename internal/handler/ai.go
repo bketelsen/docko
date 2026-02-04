@@ -205,22 +205,7 @@ func (h *Handler) QueueDashboardPage(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to get queue stats")
 	}
 
-	// Get failed jobs
-	failedJobs, err := h.db.Queries.ListFailedJobs(ctx, sqlc.ListFailedJobsParams{
-		Limit:  int64(20),
-		Offset: int64(0),
-	})
-	if err != nil {
-		failedJobs = []sqlc.Job{}
-	}
-
-	// Get recent jobs
-	recentJobs, err := h.db.Queries.GetRecentJobs(ctx, 10)
-	if err != nil {
-		recentJobs = []sqlc.Job{}
-	}
-
-	return admin.QueueDashboard(stats, failedJobs, recentJobs).Render(ctx, c.Response().Writer)
+	return admin.QueueDashboard(stats).Render(ctx, c.Response().Writer)
 }
 
 // RetryJob handles retrying a failed job

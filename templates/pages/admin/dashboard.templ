@@ -308,6 +308,27 @@ templ statusDot(enabled bool) {
 	}
 }
 
+templ jobStatusBadge(status sqlc.JobStatus) {
+	switch status {
+		case sqlc.JobStatusPending:
+			@badge.Badge(badge.Props{Variant: badge.VariantSecondary}) {
+				Pending
+			}
+		case sqlc.JobStatusProcessing:
+			@badge.Badge(badge.Props{Class: "animate-pulse"}) {
+				Processing
+			}
+		case sqlc.JobStatusCompleted:
+			@badge.Badge(badge.Props{Class: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-transparent"}) {
+				Completed
+			}
+		case sqlc.JobStatusFailed:
+			@badge.Badge(badge.Props{Variant: badge.VariantDestructive}) {
+				Failed
+			}
+	}
+}
+
 func getValueClass(classes []string) string {
 	if len(classes) > 0 {
 		return classes[0]
