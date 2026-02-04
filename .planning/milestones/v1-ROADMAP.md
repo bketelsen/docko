@@ -1,3 +1,15 @@
+# Milestone v1.0: Initial Release — ROADMAP ARCHIVE
+
+**Status:** SHIPPED 2026-02-04
+**Phases:** 1-15
+**Total Plans:** 63
+
+---
+
+*This is the archived roadmap for v1.0. For current project status, see `.planning/ROADMAP.md` (created for next milestone).*
+
+---
+
 # Roadmap: Docko
 
 ## Overview
