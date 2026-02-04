@@ -188,7 +188,7 @@ Recent decisions affecting current work:
 
 ### Pending Todos
 
-None yet.
+1. **Fix AI queue workers not starting** (queue) - Shared `running` flag prevents multiple queues from starting
 
 ### Blockers/Concerns
 
