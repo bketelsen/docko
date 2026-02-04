@@ -191,6 +191,7 @@ Recent decisions affecting current work:
 - Chevron rotation via data-tui-collapsible-state attribute (Phase 12)
 - SSE queue events use afterbegin swap to prepend new activity rows (Phase 12)
 - Collapsible Script() required for templUI collapsible click handling (Phase 12)
+- BusyBox wget sufficient for health checks - Alpine 3.21 includes wget with --spider (Phase 14)
 
 ### Pending Todos
 
@@ -211,8 +212,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-04T03:36:31Z
-Stopped at: Completed 13-01-PLAN.md (environment configuration documentation)
+Last session: 2026-02-04T14:31:23Z
+Stopped at: Completed 14-02-PLAN.md (gitignore & production compose)
 Resume file: None
 
 ### Roadmap Evolution
@@ -225,4 +226,4 @@ Resume file: None
 - Phase 14 added: Production Readiness (README, Docker Compose, secrets audit, gitignore audit)
 
 ---
-*55 plans executed across 14 phases*
+*57 plans executed across 14 phases*
