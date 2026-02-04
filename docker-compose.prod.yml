@@ -1,0 +1,123 @@
+# docker-compose.prod.yml
+# Production deployment configuration
+# Set environment variables before use (see .envrc.example for reference)
+
+services:
+  app:
+    image: docko:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: docko-app
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - PORT=${PORT:-3000}
+      - ENV=production
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - SITE_NAME=${SITE_NAME:-Docko}
+      - SITE_URL=${SITE_URL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - CREDENTIAL_ENCRYPTION_KEY=${CREDENTIAL_ENCRYPTION_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OLLAMA_URL=${OLLAMA_URL:-}
+    ports:
+      - "${PORT:-3000}:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - docko-network
+    volumes:
+      - docko-storage:/app/storage
+      - ./storage/ocr-input:/app/storage/ocr-input
+      - ./storage/ocr-output:/app/storage/ocr-output
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: docko-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-docko}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-docko}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-docko} -d ${POSTGRES_DB:-docko}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+    networks:
+      - docko-network
+    volumes:
+      - docko-postgres-data:/var/lib/postgresql/data
+
+  ocrmypdf:
+    image: jbarlow83/ocrmypdf:latest
+    container_name: docko-ocrmypdf
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        apt-get update && apt-get install -y inotify-tools &&
+        mkdir -p /input /output &&
+        echo 'OCRmyPDF service ready, watching /input...' &&
+        while true; do
+          inotifywait -q -e close_write /input/ 2>/dev/null
+          for f in /input/*.pdf; do
+            [ -f "$$f" ] || continue
+            base=$$(basename "$$f" .pdf)
+            /app/.venv/bin/ocrmypdf --skip-text --sidecar "/output/$$base.txt" -l eng "$$f" "/output/$$base.pdf" 2>&1 || true
+            rm "$$f"
+          done
+        done
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    restart: unless-stopped
+    networks:
+      - docko-network
+    volumes:
+      - ./storage/ocr-input:/input
+      - ./storage/ocr-output:/output
+
+networks:
+  docko-network:
+    name: docko-network
+
+volumes:
+  docko-postgres-data:
+  docko-storage:
