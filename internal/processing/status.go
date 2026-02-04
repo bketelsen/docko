@@ -11,6 +11,17 @@ import (
 // MaxSubscribers limits the number of concurrent SSE connections
 const MaxSubscribers = 100
 
+// Processing status constants for SSE events
+const (
+	StatusPending      = "pending"
+	StatusProcessing   = "processing"
+	StatusCompleted    = "completed"
+	StatusFailed       = "failed"
+	StatusAIProcessing = "ai_processing"
+	StatusAIComplete   = "ai_complete"
+	StatusAIFailed     = "ai_failed"
+)
+
 // StatusUpdate represents a processing status change
 type StatusUpdate struct {
 	DocumentID uuid.UUID

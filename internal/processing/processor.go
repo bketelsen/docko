@@ -77,8 +77,8 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 	// Broadcast processing status
 	p.broadcast(StatusUpdate{
 		DocumentID: docID,
-		Status:     "processing",
-		QueueName:  "default",
+		Status:     StatusProcessing,
+		QueueName:  document.QueueDefault,
 	})
 
 	// Get PDF path
@@ -191,8 +191,8 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 	// Broadcast completed status
 	p.broadcast(StatusUpdate{
 		DocumentID: docID,
-		Status:     "completed",
-		QueueName:  "default",
+		Status:     StatusCompleted,
+		QueueName:  document.QueueDefault,
 	})
 
 	// Check if AI auto-processing is enabled
@@ -258,9 +258,9 @@ func (p *Processor) quarantine(ctx context.Context, docID uuid.UUID, reason stri
 	// Broadcast failed status
 	p.broadcast(StatusUpdate{
 		DocumentID: docID,
-		Status:     "failed",
+		Status:     StatusFailed,
 		Error:      reason,
-		QueueName:  "default",
+		QueueName:  document.QueueDefault,
 	})
 
 	// Return nil so the job is marked as completed (we've handled the failure)

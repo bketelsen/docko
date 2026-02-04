@@ -55,7 +55,7 @@ func (p *AIProcessor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 	// Broadcast AI processing status
 	p.broadcast(StatusUpdate{
 		DocumentID: docID,
-		Status:     "ai_processing",
+		Status:     StatusAIProcessing,
 		QueueName:  QueueAI,
 	})
 
@@ -71,7 +71,7 @@ func (p *AIProcessor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 		// Broadcast failure status
 		p.broadcast(StatusUpdate{
 			DocumentID: docID,
-			Status:     "ai_failed",
+			Status:     StatusAIFailed,
 			Error:      err.Error(),
 			QueueName:  QueueAI,
 		})
@@ -91,7 +91,7 @@ func (p *AIProcessor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 	// Broadcast completion status
 	p.broadcast(StatusUpdate{
 		DocumentID: docID,
-		Status:     "ai_complete",
+		Status:     StatusAIComplete,
 		QueueName:  QueueAI,
 	})
 
