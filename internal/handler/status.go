@@ -75,6 +75,7 @@ func (h *Handler) ProcessingStatus(c echo.Context) error {
 				update.DocumentID.String(),
 				update.Status,
 				update.Error,
+				update.CurrentStep,
 			).Render(ctx, &buf); err != nil {
 				slog.Error("failed to render status partial",
 					"doc_id", update.DocumentID,
