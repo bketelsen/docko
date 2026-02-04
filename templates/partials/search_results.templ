@@ -149,7 +149,7 @@ templ SearchResults(results []SearchResult, docTags DocumentTagsMap, docCorrespo
 								{ formatDocDate(result.DocumentDate) }
 							}
 							@table.Cell() {
-								@DocumentStatus(result.ID.String(), string(result.ProcessingStatus), derefStrPtr(result.ProcessingError))
+								@DocumentStatus(result.ID.String(), string(result.ProcessingStatus), derefStrPtr(result.ProcessingError), "")
 							}
 						}
 					}
