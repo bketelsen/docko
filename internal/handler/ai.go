@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -309,4 +310,85 @@ func (h *Handler) returnSuggestionsPartial(c echo.Context, docID uuid.UUID) erro
 	}
 
 	return partials.AISuggestions(docID, suggestions, aiEnabled).Render(ctx, c.Response().Writer)
+}
+
+// QueueDetails returns the expanded content for a queue section
+// Called via HTMX lazy loading when user expands a queue
+func (h *Handler) QueueDetails(c echo.Context) error {
+	ctx := c.Request().Context()
+	queueName := c.Param("name")
+
+	// Get failed jobs with document info (limit 20)
+	failedJobs, err := h.db.Queries.GetFailedJobsForQueue(ctx, sqlc.GetFailedJobsForQueueParams{
+		QueueName: queueName,
+		Limit:     20,
+		Offset:    0,
+	})
+	if err != nil {
+		failedJobs = []sqlc.GetFailedJobsForQueueRow{}
+	}
+
+	// Get recent completed jobs (last 24h, limit 20)
+	recentJobs, err := h.db.Queries.GetRecentCompletedJobsForQueue(ctx, sqlc.GetRecentCompletedJobsForQueueParams{
+		QueueName: queueName,
+		Limit:     20,
+		Offset:    0,
+	})
+	if err != nil {
+		recentJobs = []sqlc.GetRecentCompletedJobsForQueueRow{}
+	}
+
+	return admin.QueueDetailContent(queueName, failedJobs, recentJobs).Render(ctx, c.Response().Writer)
+}
+
+// DismissJob marks a single failed job as dismissed
+func (h *Handler) DismissJob(c echo.Context) error {
+	ctx := c.Request().Context()
+
+	jobID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid job id")
+	}
+
+	_, err = h.db.Queries.DismissJob(ctx, jobID)
+	if err != nil {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to dismiss job", "type": "error"}}`)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Job dismissed", "type": "success"}}`)
+	// Return empty string to remove the row via outerHTML swap
+	return c.String(http.StatusOK, "")
+}
+
+// RetryQueueJobs retries all failed jobs in a specific queue
+func (h *Handler) RetryQueueJobs(c echo.Context) error {
+	ctx := c.Request().Context()
+	queueName := c.Param("name")
+
+	count, err := h.db.Queries.ResetFailedJobsForQueue(ctx, queueName)
+	if err != nil {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to retry jobs", "type": "error"}}`)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	msg := fmt.Sprintf("%d job(s) queued for retry", count)
+	c.Response().Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast": {"message": "%s", "type": "success"}}`, msg))
+	return c.Redirect(http.StatusSeeOther, "/queues")
+}
+
+// ClearQueueJobs dismisses all failed jobs in a specific queue
+func (h *Handler) ClearQueueJobs(c echo.Context) error {
+	ctx := c.Request().Context()
+	queueName := c.Param("name")
+
+	count, err := h.db.Queries.DismissFailedJobsForQueue(ctx, queueName)
+	if err != nil {
+		c.Response().Header().Set("HX-Trigger", `{"showToast": {"message": "Failed to clear jobs", "type": "error"}}`)
+		return c.NoContent(http.StatusInternalServerError)
+	}
+
+	msg := fmt.Sprintf("%d job(s) dismissed", count)
+	c.Response().Header().Set("HX-Trigger", fmt.Sprintf(`{"showToast": {"message": "%s", "type": "success"}}`, msg))
+	return c.Redirect(http.StatusSeeOther, "/queues")
 }
