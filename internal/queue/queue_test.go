@@ -77,8 +77,11 @@ func TestNewWithDefaults(t *testing.T) {
 	if q.handlers == nil {
 		t.Error("expected handlers map to be initialized")
 	}
-	if q.stop == nil {
-		t.Error("expected stop channel to be initialized")
+	if q.stopChs == nil {
+		t.Error("expected stopChs map to be initialized")
+	}
+	if q.running == nil {
+		t.Error("expected running map to be initialized")
 	}
 }
 

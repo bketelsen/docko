@@ -47,8 +47,8 @@ type Queue struct {
 	handlers map[string]JobHandler
 	mu       sync.RWMutex
 	wg       sync.WaitGroup
-	stop     chan struct{}
-	running  bool
+	running  map[string]bool           // per-queue running state
+	stopChs  map[string]chan struct{} // per-queue stop channels
 }
 
 // New creates a new Queue instance
@@ -70,7 +70,8 @@ func New(db *database.DB, config Config) *Queue {
 		db:       db,
 		config:   config,
 		handlers: make(map[string]JobHandler),
-		stop:     make(chan struct{}),
+		running:  make(map[string]bool),
+		stopChs:  make(map[string]chan struct{}),
 	}
 }
 
@@ -124,40 +125,46 @@ func (q *Queue) EnqueueTx(ctx context.Context, qtx *sqlc.Queries, queueName, job
 	return &job, nil
 }
 
-// Start begins processing jobs
+// Start begins processing jobs for a specific queue
 func (q *Queue) Start(ctx context.Context, queueName string) {
 	q.mu.Lock()
-	if q.running {
+	if q.running[queueName] {
 		q.mu.Unlock()
 		return
 	}
-	q.running = true
+	q.running[queueName] = true
+	stopCh := make(chan struct{})
+	q.stopChs[queueName] = stopCh
 	q.mu.Unlock()
 
 	slog.Info("queue starting", "queue", queueName, "workers", q.config.WorkerCount)
 
 	for i := 0; i < q.config.WorkerCount; i++ {
 		q.wg.Add(1)
-		go q.worker(ctx, queueName, i)
+		go q.worker(ctx, queueName, i, stopCh)
 	}
 }
 
-// Stop gracefully stops all workers
+// Stop gracefully stops all workers for all queues
 func (q *Queue) Stop() {
 	q.mu.Lock()
-	if !q.running {
+	if len(q.running) == 0 {
 		q.mu.Unlock()
 		return
 	}
-	q.running = false
+	// Close all stop channels and clear running state
+	for queueName, stopCh := range q.stopChs {
+		close(stopCh)
+		delete(q.running, queueName)
+	}
+	q.stopChs = make(map[string]chan struct{})
 	q.mu.Unlock()
 
-	close(q.stop)
 	q.wg.Wait()
-	slog.Info("queue stopped")
+	slog.Info("all queues stopped")
 }
 
-func (q *Queue) worker(ctx context.Context, queueName string, workerID int) {
+func (q *Queue) worker(ctx context.Context, queueName string, workerID int, stopCh <-chan struct{}) {
 	defer q.wg.Done()
 
 	slog.Debug("worker started", "worker_id", workerID, "queue", queueName)
@@ -167,11 +174,11 @@ func (q *Queue) worker(ctx context.Context, queueName string, workerID int) {
 
 	for {
 		select {
-		case <-q.stop:
-			slog.Debug("worker stopping", "worker_id", workerID)
+		case <-stopCh:
+			slog.Debug("worker stopping", "worker_id", workerID, "queue", queueName)
 			return
 		case <-ctx.Done():
-			slog.Debug("worker context cancelled", "worker_id", workerID)
+			slog.Debug("worker context cancelled", "worker_id", workerID, "queue", queueName)
 			return
 		case <-ticker.C:
 			q.processJobs(ctx, queueName, workerID)
