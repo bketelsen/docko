@@ -63,36 +63,51 @@ templ QueueDetailContent(queueName string, failedJobs []sqlc.GetFailedJobsForQue
 				No failed jobs in this queue
 			</div>
 		}
-		// Recent Activity Section
-		@card.Card() {
-			@card.Header(card.HeaderProps{Class: "py-3"}) {
-				@card.Title(card.TitleProps{Class: "text-base"}) {
-					Recent Activity (Last 24h)
+		// Recent Activity Section with SSE listener for live updates
+		<div
+			hx-ext="sse"
+			sse-connect="/api/processing/status"
+		>
+			@card.Card() {
+				@card.Header(card.HeaderProps{Class: "py-3"}) {
+					@card.Title(card.TitleProps{Class: "text-base"}) {
+						Recent Activity (Last 24h)
+						<span class="ml-2 text-xs text-muted-foreground">(live)</span>
+					}
 				}
-			}
-			@card.Content(card.ContentProps{Class: "p-0"}) {
-				if len(recentJobs) == 0 {
-					<div class="text-center py-4 text-muted-foreground">
-						No recent completed jobs
-					</div>
-				} else {
-					@table.Table() {
-						@table.Header() {
-							@table.Row() {
-								@table.Head() { Document }
-								@table.Head() { Type }
-								@table.Head() { Completed }
+				@card.Content(card.ContentProps{Class: "p-0"}) {
+					if len(recentJobs) == 0 {
+						<div
+							id={ fmt.Sprintf("queue-%s-empty", queueName) }
+							class="text-center py-4 text-muted-foreground"
+							sse-swap={ fmt.Sprintf("queue-%s", queueName) }
+							hx-swap="outerHTML"
+						>
+							No recent completed jobs
+						</div>
+					} else {
+						@table.Table() {
+							@table.Header() {
+								@table.Row() {
+									@table.Head() { Document }
+									@table.Head() { Type }
+									@table.Head() { Completed }
+								}
 							}
-						}
-						@table.Body() {
-							for _, job := range recentJobs {
-								@recentJobRow(job)
-							}
+							<tbody
+								id={ fmt.Sprintf("queue-%s-activity", queueName) }
+								sse-swap={ fmt.Sprintf("queue-%s", queueName) }
+								hx-swap="afterbegin"
+							>
+								for _, job := range recentJobs {
+									@recentJobRow(job)
+								}
+							</tbody>
 						}
 					}
 				}
 			}
-		}
+		</div>
 	</div>
 }
 
