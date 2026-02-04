@@ -21,10 +21,19 @@ node_modules/
 .idea/
 .vscode/
 *.swp
+*.swo
+*~
+*.sublime-*
+.project
+.classpath
 
 # OS
 .DS_Store
 Thumbs.db
+Desktop.ini
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 
 # Tailwind output (generated)
 static/css/output.css
@@ -35,3 +44,55 @@ static/css/output.css
 
 # the binary
 /server
+
+# === Secrets and credentials ===
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+credentials.json
+secrets.json
+.secrets
+*_rsa
+*_dsa
+*_ecdsa
+*_ed25519
+
+# === Backup files ===
+*.bak
+*.backup
+*.sql
+*.dump
+backup/
+backups/
+*.tar.gz
+*.tgz
+
+# === Test artifacts ===
+coverage/
+*.coverprofile
+profile.cov
+coverage.*
+*.test
+
+# === Log files ===
+logs/
+
+# === Go specific ===
+*.out
+go.work
+go.work.sum
+vendor/
+
+# === Docker ===
+.docker/
+
+# === Local development overrides ===
+docker-compose.override.yml
+*.local.yml
+*.local.yaml
+
+# === Security scan outputs ===
+gitleaks-report.json
+*.sarif
