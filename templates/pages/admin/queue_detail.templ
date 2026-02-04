@@ -1,0 +1,242 @@
+package admin
+
+import (
+	"fmt"
+	"strconv"
+	"time"
+
+	"docko/components/button"
+	"docko/components/card"
+	"docko/components/dialog"
+	"docko/components/table"
+	"docko/internal/database/sqlc"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+// QueueDetailContent renders the expanded content for a queue section
+templ QueueDetailContent(queueName string, failedJobs []sqlc.GetFailedJobsForQueueRow, recentJobs []sqlc.GetRecentCompletedJobsForQueueRow) {
+	<div class="space-y-4 p-4">
+		// Failed Jobs Section
+		if len(failedJobs) > 0 {
+			@card.Card() {
+				@card.Header(card.HeaderProps{Class: "flex flex-row items-center justify-between py-3"}) {
+					@card.Title(card.TitleProps{Class: "text-base"}) {
+						Failed Jobs
+					}
+					<div class="flex gap-2">
+						@button.Button(button.Props{
+							Size: button.SizeSm,
+							Attributes: templ.Attributes{
+								"hx-post": fmt.Sprintf("/queues/%s/retry-all", queueName),
+								"hx-swap": "none",
+							},
+						}) {
+							Retry All
+						}
+						@clearAllDialog(queueName, len(failedJobs))
+					</div>
+				}
+				@card.Content(card.ContentProps{Class: "p-0"}) {
+					@table.Table() {
+						@table.Header() {
+							@table.Row() {
+								@table.Head() { Document }
+								@table.Head() { Type }
+								@table.Head() { Attempts }
+								@table.Head() { Error }
+								@table.Head() { Failed }
+								@table.Head() { Actions }
+							}
+						}
+						@table.Body() {
+							for _, job := range failedJobs {
+								@failedJobRow(job)
+							}
+						}
+					}
+				}
+			}
+		} else {
+			<div class="text-center py-4 text-muted-foreground">
+				No failed jobs in this queue
+			</div>
+		}
+		// Recent Activity Section
+		@card.Card() {
+			@card.Header(card.HeaderProps{Class: "py-3"}) {
+				@card.Title(card.TitleProps{Class: "text-base"}) {
+					Recent Activity (Last 24h)
+				}
+			}
+			@card.Content(card.ContentProps{Class: "p-0"}) {
+				if len(recentJobs) == 0 {
+					<div class="text-center py-4 text-muted-foreground">
+						No recent completed jobs
+					</div>
+				} else {
+					@table.Table() {
+						@table.Header() {
+							@table.Row() {
+								@table.Head() { Document }
+								@table.Head() { Type }
+								@table.Head() { Completed }
+							}
+						}
+						@table.Body() {
+							for _, job := range recentJobs {
+								@recentJobRow(job)
+							}
+						}
+					}
+				}
+			}
+		}
+	</div>
+}
+
+templ failedJobRow(job sqlc.GetFailedJobsForQueueRow) {
+	<tr id={ fmt.Sprintf("job-%s", job.ID.String()) } class="hover:bg-muted/50">
+		@table.Cell() {
+			if !isZeroUUID(job.DocumentID) {
+				<a href={ templ.SafeURL(fmt.Sprintf("/documents/%s", job.DocumentID.String())) }
+				   class="text-primary hover:underline">
+					{ safeDocName(job.DocumentName) }
+				</a>
+			} else {
+				<span class="text-muted-foreground">N/A</span>
+			}
+		}
+		@table.Cell() {
+			{ job.JobType }
+		}
+		@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
+			{ strconv.Itoa(int(job.Attempt)) }/{ strconv.Itoa(int(job.MaxAttempts)) }
+		}
+		@table.Cell(table.CellProps{Class: "max-w-xs"}) {
+			<div class="truncate text-destructive" title={ safeString(job.LastError) }>
+				{ safeString(job.LastError) }
+			</div>
+		}
+		@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
+			{ formatTimeAgo(job.UpdatedAt) }
+		}
+		@table.Cell() {
+			<div class="flex gap-2">
+				@button.Button(button.Props{
+					Size: button.SizeSm,
+					Attributes: templ.Attributes{
+						"hx-post": fmt.Sprintf("/queues/jobs/%s/retry", job.ID.String()),
+						"hx-swap": "none",
+					},
+				}) {
+					Retry
+				}
+				@button.Button(button.Props{
+					Size: button.SizeSm,
+					Variant: button.VariantOutline,
+					Attributes: templ.Attributes{
+						"hx-post": fmt.Sprintf("/queues/jobs/%s/dismiss", job.ID.String()),
+						"hx-target": fmt.Sprintf("#job-%s", job.ID.String()),
+						"hx-swap": "outerHTML",
+					},
+				}) {
+					Dismiss
+				}
+			</div>
+		}
+	</tr>
+}
+
+templ recentJobRow(job sqlc.GetRecentCompletedJobsForQueueRow) {
+	@table.Row() {
+		@table.Cell() {
+			if !isZeroUUID(job.DocumentID) {
+				<a href={ templ.SafeURL(fmt.Sprintf("/documents/%s", job.DocumentID.String())) }
+				   class="text-primary hover:underline">
+					{ safeDocName(job.DocumentName) }
+				</a>
+			} else {
+				<span class="text-muted-foreground">N/A</span>
+			}
+		}
+		@table.Cell() {
+			{ job.JobType }
+		}
+		@table.Cell(table.CellProps{Class: "text-muted-foreground"}) {
+			{ formatCompletedAt(job.CompletedAt) }
+		}
+	}
+}
+
+templ clearAllDialog(queueName string, count int) {
+	@dialog.Dialog() {
+		@dialog.Trigger() {
+			@button.Button(button.Props{
+				Size: button.SizeSm,
+				Variant: button.VariantDestructive,
+			}) {
+				Clear All
+			}
+		}
+		@dialog.Content(dialog.ContentProps{HideCloseButton: true}) {
+			@dialog.Header() {
+				@dialog.Title() {
+					Clear Failed Jobs
+				}
+				@dialog.Description() {
+					This will dismiss { strconv.Itoa(count) } failed job(s). They will remain in the database for audit purposes but will no longer appear in the failed jobs list.
+				}
+			}
+			@dialog.Footer() {
+				@dialog.Close() {
+					@button.Button(button.Props{Variant: button.VariantOutline}) {
+						Cancel
+					}
+				}
+				@button.Button(button.Props{
+					Variant: button.VariantDestructive,
+					Attributes: templ.Attributes{
+						"hx-post": fmt.Sprintf("/queues/%s/clear-all", queueName),
+						"hx-swap": "none",
+					},
+				}) {
+					Clear Jobs
+				}
+			}
+		}
+	}
+}
+
+func isZeroUUID(id uuid.UUID) bool {
+	return id == uuid.Nil
+}
+
+func safeDocName(s string) string {
+	if s == "" {
+		return "Unknown"
+	}
+	return s
+}
+
+func formatTimeAgo(t time.Time) string {
+	dur := time.Since(t)
+	if dur < time.Minute {
+		return "just now"
+	}
+	if dur < time.Hour {
+		return fmt.Sprintf("%dm ago", int(dur.Minutes()))
+	}
+	if dur < 24*time.Hour {
+		return fmt.Sprintf("%dh ago", int(dur.Hours()))
+	}
+	return t.Format("Jan 2 15:04")
+}
+
+func formatCompletedAt(t pgtype.Timestamptz) string {
+	if !t.Valid {
+		return "N/A"
+	}
+	return formatTimeAgo(t.Time)
+}
