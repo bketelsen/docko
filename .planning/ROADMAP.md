@@ -247,11 +247,15 @@ Plans:
   4. User can retry failed jobs from the detail view
   5. User can clear failed jobs from queue
 
-**Plans**: 0 plans
+**Plans**: 5 plans
 
 Plans:
 
-- [ ] TBD (run /gsd:plan-phase 12 to break down)
+- [ ] 12-01-PLAN.md — Database migration for dismissed status and queue-specific queries
+- [ ] 12-02-PLAN.md — Install templUI collapsible component
+- [ ] 12-03-PLAN.md — Handler endpoints for queue details and job actions
+- [ ] 12-04-PLAN.md — Queue dashboard template with collapsible sections
+- [ ] 12-05-PLAN.md — SSE integration for live activity updates and verification
 
 ## Progress
 
