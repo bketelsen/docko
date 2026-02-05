@@ -7,14 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/vmware/go-nfs-client/nfs"
 	"github.com/vmware/go-nfs-client/nfs/rpc"
-)
-
-const (
-	nfsConnectTimeout = 30 * time.Second
 )
 
 // NFSSource implements NetworkSource for NFSv3 shares.
@@ -50,7 +45,7 @@ func (s *NFSSource) connect(ctx context.Context) error {
 
 	target, err := mount.Mount(s.exportPath, auth.Auth())
 	if err != nil {
-		mount.Close()
+		_ = mount.Close()
 		return fmt.Errorf("mount %s: %w", s.exportPath, err)
 	}
 
@@ -62,8 +57,8 @@ func (s *NFSSource) connect(ctx context.Context) error {
 // disconnect closes the NFS connection.
 func (s *NFSSource) disconnect() {
 	if s.mount != nil {
-		s.mount.Unmount()
-		s.mount.Close()
+		_ = s.mount.Unmount()
+		_ = s.mount.Close()
 		s.mount = nil
 	}
 	s.target = nil
@@ -158,7 +153,7 @@ func (s *NFSSource) ReadFile(ctx context.Context, remotePath string, w io.Writer
 	if err != nil {
 		return fmt.Errorf("open %s: %w", remotePath, err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	_, err = io.Copy(w, f)
 	if err != nil {
@@ -202,14 +197,14 @@ func (s *NFSSource) MoveFile(ctx context.Context, remotePath, destPath string) e
 	if err != nil {
 		return fmt.Errorf("open source %s: %w", remotePath, err)
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 
 	// Create destination file
 	dst, err := s.target.OpenFile(destPath, 0644)
 	if err != nil {
 		return fmt.Errorf("create destination %s: %w", destPath, err)
 	}
-	defer dst.Close()
+	defer func() { _ = dst.Close() }()
 
 	// Copy content
 	if _, err := io.Copy(dst, src); err != nil {

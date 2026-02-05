@@ -143,7 +143,7 @@ func (p *Processor) HandleJob(ctx context.Context, job *sqlc.Job) error {
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	qtx := p.db.Queries.WithTx(tx)
 

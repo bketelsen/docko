@@ -10,7 +10,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/bketelsen/docko/internal/database/sqlc"
 	"github.com/bketelsen/docko/templates/pages/admin"
 
 	"github.com/google/uuid"
@@ -118,7 +117,7 @@ func (h *Handler) processUpload(c echo.Context, file *multipart.FileHeader) Uplo
 			Error:    "Failed to read uploaded file",
 		}
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 
 	// Create temp file
 	tmpFile, err := os.CreateTemp("", "upload-*.pdf")
@@ -131,11 +130,11 @@ func (h *Handler) processUpload(c echo.Context, file *multipart.FileHeader) Uplo
 		}
 	}
 	tmpPath := tmpFile.Name()
-	defer os.Remove(tmpPath)
+	defer func() { _ = os.Remove(tmpPath) }()
 
 	// Copy to temp file
 	if _, err := io.Copy(tmpFile, src); err != nil {
-		tmpFile.Close()
+		_ = tmpFile.Close()
 		slog.Error("failed to write temp file", "error", err)
 		return UploadResult{
 			Success:  false,
@@ -143,7 +142,7 @@ func (h *Handler) processUpload(c echo.Context, file *multipart.FileHeader) Uplo
 			Error:    "Failed to process upload",
 		}
 	}
-	tmpFile.Close()
+	_ = tmpFile.Close()
 
 	// Validate PDF using magic bytes
 	if !isPDF(tmpPath) {
@@ -179,7 +178,7 @@ func isPDF(path string) bool {
 	if err != nil {
 		return false
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Read first 262 bytes for magic number detection
 	head := make([]byte, 262)
@@ -282,14 +281,4 @@ func escapeHTML(s string) string {
 	escaped = strings.ReplaceAll(escaped, "<", "&lt;")
 	escaped = strings.ReplaceAll(escaped, ">", "&gt;")
 	return escaped
-}
-
-// documentToResult converts a sqlc.Document to UploadResult
-func documentToResult(doc *sqlc.Document, isDuplicate bool) UploadResult {
-	return UploadResult{
-		Success:     true,
-		DocumentID:  doc.ID,
-		Filename:    doc.OriginalFilename,
-		IsDuplicate: isDuplicate,
-	}
 }

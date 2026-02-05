@@ -75,13 +75,13 @@ func (s *Service) Start(ctx context.Context) error {
 
 	// Create default inbox from config if needed
 	if err := s.ensureDefaultInbox(ctx); err != nil {
-		s.watcher.Close()
+		_ = s.watcher.Close()
 		return fmt.Errorf("ensure default inbox: %w", err)
 	}
 
 	// Load and watch all enabled inboxes
 	if err := s.RefreshInboxes(ctx); err != nil {
-		s.watcher.Close()
+		_ = s.watcher.Close()
 		return fmt.Errorf("refresh inboxes: %w", err)
 	}
 
@@ -109,7 +109,7 @@ func (s *Service) Stop() error {
 		s.cancel()
 	}
 	if s.watcher != nil {
-		s.watcher.Close()
+		_ = s.watcher.Close()
 	}
 	s.wg.Wait()
 	slog.Info("inbox service stopped")
@@ -342,7 +342,7 @@ func (s *Service) validatePDF(path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	// Read first 262 bytes for magic byte detection
 	buf := make([]byte, 262)

@@ -48,7 +48,7 @@ func (g *ThumbnailGenerator) Generate(ctx context.Context, pdfPath string, docID
 	if err != nil {
 		return "", fmt.Errorf("create temp dir: %w", err)
 	}
-	defer os.RemoveAll(tmpDir)
+	defer func() { _ = os.RemoveAll(tmpDir) }()
 
 	// Output prefix for pdftoppm (will create thumb.png)
 	pngPrefix := filepath.Join(tmpDir, "thumb")
@@ -131,16 +131,16 @@ func (g *ThumbnailGenerator) usePlaceholder(thumbPath string) error {
 	if err != nil {
 		return fmt.Errorf("open placeholder: %w", err)
 	}
-	defer src.Close()
+	defer func() { _ = src.Close() }()
 
 	dst, err := os.Create(thumbPath)
 	if err != nil {
 		return fmt.Errorf("create thumbnail: %w", err)
 	}
-	defer dst.Close()
+	defer func() { _ = dst.Close() }()
 
 	if _, err := io.Copy(dst, src); err != nil {
-		os.Remove(thumbPath)
+		_ = os.Remove(thumbPath)
 		return fmt.Errorf("copy placeholder: %w", err)
 	}
 

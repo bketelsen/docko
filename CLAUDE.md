@@ -121,6 +121,8 @@ Wrap with context:
 return fmt.Errorf("failed to create user: %w", err)
 ```
 
+Always check or ignore the error for function calls, even in defer statements.
+
 ### Database
 
 Use sqlc-generated queries in `internal/database/sqlc/`:

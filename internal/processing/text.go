@@ -81,7 +81,7 @@ func (e *TextExtractor) extractEmbedded(pdfPath string) (string, bool, error) {
 	if err != nil {
 		return "", false, fmt.Errorf("open pdf: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	reader, err := r.GetPlainText()
 	if err != nil {
@@ -113,7 +113,7 @@ func (e *TextExtractor) ocrViaService(ctx context.Context, pdfPath string) (stri
 	}
 
 	// Clean up input file on return (output files are cleaned after reading)
-	defer os.Remove(inputPath)
+	defer func() { _ = os.Remove(inputPath) }()
 
 	// Wait for output in ocr-output volume
 	// The OCRmyPDF service watches /input and writes to /output
@@ -142,8 +142,8 @@ func (e *TextExtractor) ocrViaService(ctx context.Context, pdfPath string) (stri
 				}
 
 				// Clean up output files
-				os.Remove(outputTextPath)
-				os.Remove(outputPDFPath)
+				_ = os.Remove(outputTextPath)
+				_ = os.Remove(outputPDFPath)
 
 				return string(text), nil
 			}
@@ -162,13 +162,13 @@ func copyFile(src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("open source: %w", err)
 	}
-	defer srcFile.Close()
+	defer func() { _ = srcFile.Close() }()
 
 	dstFile, err := os.Create(dst)
 	if err != nil {
 		return fmt.Errorf("create destination: %w", err)
 	}
-	defer dstFile.Close()
+	defer func() { _ = dstFile.Close() }()
 
 	if _, err := io.Copy(dstFile, srcFile); err != nil {
 		return fmt.Errorf("copy: %w", err)

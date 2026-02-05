@@ -43,7 +43,7 @@ func (h *Handler) ProcessingStatus(c echo.Context) error {
 	}
 
 	// Send initial connection established event
-	fmt.Fprintf(w, "event: connected\ndata: ok\n\n")
+	_, _ = fmt.Fprintf(w, "event: connected\ndata: ok\n\n")
 	flusher.Flush()
 
 	heartbeat := time.NewTicker(30 * time.Second)
@@ -59,7 +59,7 @@ func (h *Handler) ProcessingStatus(c echo.Context) error {
 
 		case <-heartbeat.C:
 			// Send heartbeat to keep connection alive
-			fmt.Fprintf(w, "event: heartbeat\ndata: ping\n\n")
+			_, _ = fmt.Fprintf(w, "event: heartbeat\ndata: ping\n\n")
 			flusher.Flush()
 
 		case update, ok := <-updates:
@@ -86,7 +86,7 @@ func (h *Handler) ProcessingStatus(c echo.Context) error {
 			// Event name matches sse-swap target: doc-{id}
 			// The HTML content goes on multiple data: lines if needed
 			htmlContent := buf.String()
-			fmt.Fprintf(w, "event: doc-%s\ndata: %s\n\n",
+			_, _ = fmt.Fprintf(w, "event: doc-%s\ndata: %s\n\n",
 				update.DocumentID.String(),
 				htmlContent,
 			)
@@ -112,7 +112,7 @@ func (h *Handler) ProcessingStatus(c echo.Context) error {
 					jobType,
 					update.Status,
 				).Render(ctx, &queueBuf); err == nil {
-					fmt.Fprintf(w, "event: queue-%s\ndata: %s\n\n",
+					_, _ = fmt.Fprintf(w, "event: queue-%s\ndata: %s\n\n",
 						update.QueueName,
 						queueBuf.String(),
 					)

@@ -227,7 +227,6 @@ templ sourcesSection(data DashboardData) {
 }
 
 // Helper Components
-
 templ sectionHeader(title, href, viewAllHref string) {
 	<div class="flex items-center justify-between">
 		<a href={ templ.SafeURL(href) } class="text-xl font-semibold hover:text-primary transition-colors">{ title }</a>
@@ -344,7 +343,6 @@ func highlightCardClass(isHighlighted bool) string {
 }
 
 // Icons
-
 templ StatIcon(iconType string) {
 	switch iconType {
 		case "documents":

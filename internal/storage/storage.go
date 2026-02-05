@@ -70,7 +70,7 @@ func (s *Storage) CopyAndHash(dst, src string) (string, int64, error) {
 	if err != nil {
 		return "", 0, fmt.Errorf("open source: %w", err)
 	}
-	defer in.Close()
+	defer func() { _ = in.Close() }()
 
 	// Ensure destination directory exists
 	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
@@ -81,7 +81,7 @@ func (s *Storage) CopyAndHash(dst, src string) (string, int64, error) {
 	if err != nil {
 		return "", 0, fmt.Errorf("create destination: %w", err)
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
 	hash := sha256.New()
 	tee := io.TeeReader(in, hash)
@@ -89,7 +89,7 @@ func (s *Storage) CopyAndHash(dst, src string) (string, int64, error) {
 	size, err := io.Copy(out, tee)
 	if err != nil {
 		// Clean up partial file
-		os.Remove(dst)
+		_ = os.Remove(dst)
 		return "", 0, fmt.Errorf("copy file: %w", err)
 	}
 
@@ -106,7 +106,7 @@ func (s *Storage) HashFile(path string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("open file: %w", err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	h := sha256.New()
 	if _, err := io.Copy(h, f); err != nil {

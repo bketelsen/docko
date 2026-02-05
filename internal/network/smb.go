@@ -61,15 +61,15 @@ func (s *SMBSource) connect(ctx context.Context) error {
 
 	session, err := d.DialContext(ctx, conn)
 	if err != nil {
-		conn.Close()
+		_ = conn.Close()
 		return fmt.Errorf("smb dial: %w", err)
 	}
 
 	// Mount the share
 	share, err := session.Mount(s.share)
 	if err != nil {
-		session.Logoff()
-		conn.Close()
+		_ = session.Logoff()
+		_ = conn.Close()
 		return fmt.Errorf("mount %s: %w", s.share, err)
 	}
 
@@ -82,15 +82,15 @@ func (s *SMBSource) connect(ctx context.Context) error {
 // disconnect closes the SMB connection.
 func (s *SMBSource) disconnect() {
 	if s.fs != nil {
-		s.fs.Umount()
+		_ = s.fs.Umount()
 		s.fs = nil
 	}
 	if s.session != nil {
-		s.session.Logoff()
+		_ = s.session.Logoff()
 		s.session = nil
 	}
 	if s.conn != nil {
-		s.conn.Close()
+		_ = s.conn.Close()
 		s.conn = nil
 	}
 }
@@ -173,7 +173,7 @@ func (s *SMBSource) ReadFile(ctx context.Context, remotePath string, w io.Writer
 	if err != nil {
 		return fmt.Errorf("open %s: %w", remotePath, err)
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	_, err = io.Copy(w, f)
 	if err != nil {

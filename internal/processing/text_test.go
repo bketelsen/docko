@@ -161,11 +161,11 @@ func TestOcrViaService_Success(t *testing.T) {
 
 		// Write output text file
 		outputTextPath := filepath.Join(outputDir, jobID+".txt")
-		os.WriteFile(outputTextPath, []byte("OCR extracted text content"), 0644)
+		_ = os.WriteFile(outputTextPath, []byte("OCR extracted text content"), 0644)
 
 		// Write output PDF file (simulating OCRmyPDF output)
 		outputPDFPath := filepath.Join(outputDir, jobID+".pdf")
-		os.WriteFile(outputPDFPath, minimalPDF, 0644)
+		_ = os.WriteFile(outputPDFPath, minimalPDF, 0644)
 	}()
 
 	text, err := e.ocrViaService(ctx, pdfPath)
@@ -246,10 +246,10 @@ func TestExtract_FallsBackToOCR(t *testing.T) {
 		jobID := filename[:len(filename)-4]
 
 		outputTextPath := filepath.Join(outputDir, jobID+".txt")
-		os.WriteFile(outputTextPath, []byte("OCR result from scanned document"), 0644)
+		_ = os.WriteFile(outputTextPath, []byte("OCR result from scanned document"), 0644)
 
 		outputPDFPath := filepath.Join(outputDir, jobID+".pdf")
-		os.WriteFile(outputPDFPath, minimalPDF, 0644)
+		_ = os.WriteFile(outputPDFPath, minimalPDF, 0644)
 	}()
 
 	text, method, err := e.Extract(ctx, pdfPath)

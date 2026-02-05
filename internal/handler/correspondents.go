@@ -204,7 +204,7 @@ func (h *Handler) executeMerge(ctx context.Context, targetID uuid.UUID, mergeIDs
 	if err != nil {
 		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	qtx := h.db.Queries.WithTx(tx)
 

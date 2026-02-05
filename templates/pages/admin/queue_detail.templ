@@ -42,12 +42,24 @@ templ QueueDetailContent(queueName string, failedJobs []sqlc.GetFailedJobsForQue
 					@table.Table() {
 						@table.Header() {
 							@table.Row() {
-								@table.Head() { Document }
-								@table.Head() { Type }
-								@table.Head() { Attempts }
-								@table.Head() { Error }
-								@table.Head() { Failed }
-								@table.Head() { Actions }
+								@table.Head() {
+									Document 
+								}
+								@table.Head() {
+									Type 
+								}
+								@table.Head() {
+									Attempts 
+								}
+								@table.Head() {
+									Error 
+								}
+								@table.Head() {
+									Failed 
+								}
+								@table.Head() {
+									Actions 
+								}
 							}
 						}
 						@table.Body() {
@@ -89,9 +101,15 @@ templ QueueDetailContent(queueName string, failedJobs []sqlc.GetFailedJobsForQue
 						@table.Table() {
 							@table.Header() {
 								@table.Row() {
-									@table.Head() { Document }
-									@table.Head() { Type }
-									@table.Head() { Completed }
+									@table.Head() {
+										Document 
+									}
+									@table.Head() {
+										Type 
+									}
+									@table.Head() {
+										Completed 
+									}
 								}
 							}
 							<tbody
@@ -115,8 +133,10 @@ templ failedJobRow(job sqlc.GetFailedJobsForQueueRow) {
 	<tr id={ fmt.Sprintf("job-%s", job.ID.String()) } class="hover:bg-muted/50">
 		@table.Cell() {
 			if !isZeroUUID(job.DocumentID) {
-				<a href={ templ.SafeURL(fmt.Sprintf("/documents/%s", job.DocumentID.String())) }
-				   class="text-primary hover:underline">
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/documents/%s", job.DocumentID.String())) }
+					class="text-primary hover:underline"
+				>
 					{ safeDocName(job.DocumentName) }
 				</a>
 			} else {
@@ -149,12 +169,12 @@ templ failedJobRow(job sqlc.GetFailedJobsForQueueRow) {
 					Retry
 				}
 				@button.Button(button.Props{
-					Size: button.SizeSm,
+					Size:    button.SizeSm,
 					Variant: button.VariantOutline,
 					Attributes: templ.Attributes{
-						"hx-post": fmt.Sprintf("/queues/jobs/%s/dismiss", job.ID.String()),
+						"hx-post":   fmt.Sprintf("/queues/jobs/%s/dismiss", job.ID.String()),
 						"hx-target": fmt.Sprintf("#job-%s", job.ID.String()),
-						"hx-swap": "outerHTML",
+						"hx-swap":   "outerHTML",
 					},
 				}) {
 					Dismiss
@@ -168,8 +188,10 @@ templ recentJobRow(job sqlc.GetRecentCompletedJobsForQueueRow) {
 	@table.Row() {
 		@table.Cell() {
 			if !isZeroUUID(job.DocumentID) {
-				<a href={ templ.SafeURL(fmt.Sprintf("/documents/%s", job.DocumentID.String())) }
-				   class="text-primary hover:underline">
+				<a
+					href={ templ.SafeURL(fmt.Sprintf("/documents/%s", job.DocumentID.String())) }
+					class="text-primary hover:underline"
+				>
 					{ safeDocName(job.DocumentName) }
 				</a>
 			} else {
@@ -189,7 +211,7 @@ templ clearAllDialog(queueName string, count int) {
 	@dialog.Dialog() {
 		@dialog.Trigger() {
 			@button.Button(button.Props{
-				Size: button.SizeSm,
+				Size:    button.SizeSm,
 				Variant: button.VariantDestructive,
 			}) {
 				Clear All

@@ -77,11 +77,11 @@ func (s *Service) Ingest(ctx context.Context, sourcePath, originalFilename strin
 	existing, err := s.db.Queries.GetDocumentByHash(ctx, contentHash)
 	if err == nil {
 		// Duplicate found - clean up copied file and return existing
-		s.storage.Delete(destPath)
+		_ = s.storage.Delete(destPath)
 		slog.Info("duplicate document detected", "existing_id", existing.ID, "hash", contentHash[:16]+"...")
 
 		// Log duplicate event on existing document
-		s.LogEvent(ctx, existing.ID, EventDuplicateFound, map[string]any{
+		_ = s.LogEvent(ctx, existing.ID, EventDuplicateFound, map[string]any{
 			"attempted_filename": originalFilename,
 			"source_path":        sourcePath,
 		}, nil, time.Since(start))
@@ -90,17 +90,17 @@ func (s *Service) Ingest(ctx context.Context, sourcePath, originalFilename strin
 	}
 	if err != pgx.ErrNoRows {
 		// Unexpected error
-		s.storage.Delete(destPath)
+		_ = s.storage.Delete(destPath)
 		return nil, false, fmt.Errorf("check duplicate: %w", err)
 	}
 
 	// Start transaction for document + job creation
 	tx, err := s.db.Pool.Begin(ctx)
 	if err != nil {
-		s.storage.Delete(destPath)
+		_ = s.storage.Delete(destPath)
 		return nil, false, fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	qtx := s.db.Queries.WithTx(tx)
 
@@ -113,7 +113,7 @@ func (s *Service) Ingest(ctx context.Context, sourcePath, originalFilename strin
 		// page_count, pdf_title, pdf_author, pdf_created_at filled by processing job
 	})
 	if err != nil {
-		s.storage.Delete(destPath)
+		_ = s.storage.Delete(destPath)
 		return nil, false, fmt.Errorf("create document: %w", err)
 	}
 
@@ -131,7 +131,7 @@ func (s *Service) Ingest(ctx context.Context, sourcePath, originalFilename strin
 		DurationMs:   intPtr(int32(time.Since(start).Milliseconds())),
 	})
 	if err != nil {
-		s.storage.Delete(destPath)
+		_ = s.storage.Delete(destPath)
 		return nil, false, fmt.Errorf("create event: %w", err)
 	}
 
@@ -140,12 +140,12 @@ func (s *Service) Ingest(ctx context.Context, sourcePath, originalFilename strin
 		DocumentID: doc.ID,
 	})
 	if err != nil {
-		s.storage.Delete(destPath)
+		_ = s.storage.Delete(destPath)
 		return nil, false, fmt.Errorf("enqueue job: %w", err)
 	}
 
 	if err := tx.Commit(ctx); err != nil {
-		s.storage.Delete(destPath)
+		_ = s.storage.Delete(destPath)
 		return nil, false, fmt.Errorf("commit transaction: %w", err)
 	}
 

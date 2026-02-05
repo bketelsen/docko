@@ -50,9 +50,6 @@ func TestNewThumbnailGenerator(t *testing.T) {
 
 	gen := NewThumbnailGenerator(store, placeholderPath)
 
-	if gen == nil {
-		t.Fatal("NewThumbnailGenerator returned nil")
-	}
 	if gen.storage != store {
 		t.Error("storage not set correctly")
 	}

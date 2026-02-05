@@ -8,9 +8,7 @@ package partials
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import (
-	"github.com/bketelsen/docko/components/table"
-)
+import "github.com/bketelsen/docko/components/table"
 
 // QueueActivityRow renders a new activity row for SSE updates
 // Used when a job completes and we want to update the recent activity section
@@ -67,7 +65,7 @@ func QueueActivityRow(docID string, docName string, jobType string, status strin
 					var templ_7745c5c3_Var4 templ.SafeURL
 					templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("/documents/" + docID))
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/queue_activity.templ`, Line: 13, Col: 50}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/queue_activity.templ`, Line: 11, Col: 50}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 					if templ_7745c5c3_Err != nil {
@@ -80,7 +78,7 @@ func QueueActivityRow(docID string, docName string, jobType string, status strin
 					var templ_7745c5c3_Var5 string
 					templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(docName)
 					if templ_7745c5c3_Err != nil {
-						return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/queue_activity.templ`, Line: 14, Col: 14}
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/queue_activity.templ`, Line: 12, Col: 14}
 					}
 					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 					if templ_7745c5c3_Err != nil {
@@ -121,7 +119,7 @@ func QueueActivityRow(docID string, docName string, jobType string, status strin
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(jobType)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/queue_activity.templ`, Line: 21, Col: 12}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `partials/queue_activity.templ`, Line: 19, Col: 12}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {

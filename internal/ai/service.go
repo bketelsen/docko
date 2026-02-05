@@ -253,7 +253,7 @@ func (s *Service) autoApplySuggestion(ctx context.Context, docID uuid.UUID, jobI
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	qtx := s.db.Queries.WithTx(tx)
 
@@ -280,9 +280,10 @@ func (s *Service) autoApplySuggestion(ctx context.Context, docID uuid.UUID, jobI
 	}
 
 	// Apply the suggestion based on type
-	if suggestion.Type == "tag" {
+	switch suggestion.Type {
+	case "tag":
 		err = s.applyTagSuggestion(ctx, qtx, docID, suggestion)
-	} else if suggestion.Type == "correspondent" {
+	case "correspondent":
 		err = s.applyCorrespondentSuggestion(ctx, qtx, docID, suggestion)
 	}
 
@@ -498,14 +499,15 @@ func (s *Service) ApplySuggestionManual(ctx context.Context, docID uuid.UUID, su
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	qtx := s.db.Queries.WithTx(tx)
 
 	// Apply the suggestion based on type
-	if suggestion.Type == "tag" {
+	switch suggestion.Type {
+	case "tag":
 		err = s.applyTagSuggestion(ctx, qtx, docID, suggestion)
-	} else if suggestion.Type == "correspondent" {
+	case "correspondent":
 		err = s.applyCorrespondentSuggestion(ctx, qtx, docID, suggestion)
 	}
 
@@ -534,7 +536,7 @@ func numericToFloat64(n pgtype.Numeric) float64 {
 
 func float64ToNumeric(f float64) pgtype.Numeric {
 	var n pgtype.Numeric
-	n.Scan(fmt.Sprintf("%.2f", f))
+	_ = n.Scan(fmt.Sprintf("%.2f", f))
 	return n
 }
 

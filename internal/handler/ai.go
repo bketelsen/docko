@@ -107,7 +107,7 @@ func (h *Handler) UpdateAISettings(c echo.Context) error {
 func numericFromFloat(f float64) pgtype.Numeric {
 	str := strconv.FormatFloat(f, 'f', 2, 64)
 	var n pgtype.Numeric
-	n.Scan(str)
+	_ = n.Scan(str)
 	return n
 }
 

@@ -42,7 +42,6 @@ type Service struct {
 	cfg    *config.Config
 	crypto *CredentialCrypto
 	poller *Poller
-	mu     sync.RWMutex
 	ctx    context.Context
 	cancel context.CancelFunc
 	wg     sync.WaitGroup
@@ -99,7 +98,7 @@ func (s *Service) TestConnection(ctx context.Context, cfg *sqlc.NetworkSource) e
 	if err != nil {
 		return fmt.Errorf("create source: %w", err)
 	}
-	defer source.Close()
+	defer func() { _ = source.Close() }()
 
 	return source.Test(ctx)
 }
@@ -123,7 +122,7 @@ func (s *Service) SyncSource(ctx context.Context, sourceID uuid.UUID) (int, erro
 		s.recordSyncFailure(ctx, &cfg, err)
 		return 0, fmt.Errorf("create source: %w", err)
 	}
-	defer source.Close()
+	defer func() { _ = source.Close() }()
 
 	slog.Info("starting sync", "source", cfg.Name, "host", cfg.Host)
 
@@ -201,14 +200,14 @@ func (s *Service) importFile(ctx context.Context, source NetworkSource, cfg *sql
 		return fmt.Errorf("create temp file: %w", err)
 	}
 	tmpPath := tmpFile.Name()
-	defer os.Remove(tmpPath)
+	defer func() { _ = os.Remove(tmpPath) }()
 
 	// Download file
 	if err := source.ReadFile(ctx, file.Path, tmpFile); err != nil {
-		tmpFile.Close()
+		_ = tmpFile.Close()
 		return fmt.Errorf("download: %w", err)
 	}
-	tmpFile.Close()
+	_ = tmpFile.Close()
 
 	// Ingest through document service
 	doc, isDupe, err := s.docSvc.Ingest(ctx, tmpPath, file.Name)

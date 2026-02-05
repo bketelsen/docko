@@ -54,7 +54,7 @@ func (db *DB) migrate() error {
 	}
 
 	conn := stdlib.OpenDBFromPool(db.Pool)
-	defer conn.Close()
+	defer func() { _ = conn.Close() }()
 
 	if err := goose.Up(conn, "migrations"); err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)
