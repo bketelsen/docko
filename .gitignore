@@ -36,7 +36,8 @@ Desktop.ini
 ehthumbs.db
 
 # Tailwind output (generated)
-static/css/output.css
+# todo: fix the build process to not require this file to be checked in
+# static/css/output.css
 
 # pdf documents
 *.pdf
