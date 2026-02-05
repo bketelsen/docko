@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: dev build test lint generate sqlc-vet css css-watch migrate migrate-down migrate-status migrate-create setup clean run help
+.PHONY: dev build test lint generate sqlc-vet css css-watch migrate migrate-down migrate-status migrate-create setup setup-hooks clean run help
 
 BINARY_NAME=docko
 MIGRATIONS_DIR=internal/database/migrations
@@ -63,6 +63,10 @@ setup:
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
+setup-hooks:
+	ln -sf ../../scripts/pre-commit .git/hooks/pre-commit
+	@echo "Git hooks installed"
+
 clean:
 	rm -f $(BINARY_NAME)
 	rm -rf tmp/
@@ -86,5 +90,6 @@ help:
 	@echo "  migrate-status - Show migration status"
 	@echo "  migrate-create - Create new migration (NAME=xxx)"
 	@echo "  setup          - Install development tools"
+	@echo "  setup-hooks    - Install git hooks"
 	@echo "  clean          - Remove build artifacts"
 	@echo "  run            - Build and run the server"

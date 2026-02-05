@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Run go generate to regenerate templ and sqlc code
+echo "Running go generate..."
+go generate ./...
+
+# Stage any generated files that were modified
+git add -u
+
+# Check if there are unstaged changes to generated files
+if ! git diff --quiet -- '**/*_templ.go' 'internal/database/sqlc/*.go'; then
+    echo "Error: go generate produced changes that weren't staged."
+    echo "Please review and stage the changes."
+    exit 1
+fi
