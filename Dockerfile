@@ -19,7 +19,7 @@ RUN	go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 RUN	go install github.com/pressly/goose/v3/cmd/goose@latest
 RUN	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
-RUN go generate ./...
+
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -o /docko ./cmd/server
