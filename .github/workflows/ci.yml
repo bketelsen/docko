@@ -31,6 +31,7 @@ jobs:
         run: |
           go install github.com/a-h/templ/cmd/templ@latest
           go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+          apt-get update && apt-get install -y poppler-tools
       - name: Install npm dependencies
         run: npm ci
       # - name: Generate code
@@ -55,8 +56,8 @@ jobs:
           go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
       - name: Install npm dependencies
         run: npm ci
-      - name: Generate code
-        run: go generate ./...
+      # - name: Generate code
+      #   run: go generate ./...
       - name: Build
         run: go build -o bin/docko ./cmd/server
 
