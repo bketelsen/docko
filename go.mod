@@ -14,7 +14,7 @@ require (
 	github.com/labstack/echo/v4 v4.15.0
 	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
 	github.com/lmittmann/tint v1.1.3
-	github.com/ollama/ollama v0.15.4
+	github.com/ollama/ollama v0.15.6
 	github.com/openai/openai-go v1.12.0
 	github.com/pressly/goose/v3 v3.26.0
 	github.com/vmware/go-nfs-client v0.0.0-20190605212624-d43b92724c1b
