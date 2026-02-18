@@ -2,8 +2,8 @@ github.com/Oudwins/tailwind-merge-go v0.2.1 h1:jxRaEqGtwwwF48UuFIQ8g8XT7YSualNuG
 github.com/Oudwins/tailwind-merge-go v0.2.1/go.mod h1:kkZodgOPvZQ8f7SIrlWkG/w1g9JTbtnptnePIh3V72U=
 github.com/a-h/templ v0.3.977 h1:kiKAPXTZE2Iaf8JbtM21r54A8bCNsncrfnokZZSrSDg=
 github.com/a-h/templ v0.3.977/go.mod h1:oCZcnKRf5jjsGpf2yELzQfodLphd2mwecwG4Crk5HBo=
-github.com/anthropics/anthropic-sdk-go v1.20.0 h1:KE6gQiAT1aBHMh3Dmp1WgqnyZZLJNo2oX3ka004oDLE=
-github.com/anthropics/anthropic-sdk-go v1.20.0/go.mod h1:WTz31rIUHUHqai2UslPpw5CwXrQP3geYBioRV4WOLvE=
+github.com/anthropics/anthropic-sdk-go v1.24.0 h1:SZQ2U4sknjy0t8g275zOhe/113RIo+Uynguf9YNTfGs=
+github.com/anthropics/anthropic-sdk-go v1.24.0/go.mod h1:WTz31rIUHUHqai2UslPpw5CwXrQP3geYBioRV4WOLvE=
 github.com/bahlo/generic-list-go v0.2.0 h1:5sz/EEAK+ls5wF+NeqDpk5+iNdMDXrh3z3nPnH1Wvgk=
 github.com/bahlo/generic-list-go v0.2.0/go.mod h1:2KvAjgMlE5NNynlg/5iLrrCCZ2+5xWbdbCW3pNTGyYg=
 github.com/buger/jsonparser v1.1.1 h1:2PnMjfWD7wBILjqQbt530v576A/cAbQvEW9gGIpYMUs=
